@@ -34,6 +34,7 @@ export async function* streamOllamaChat(
         top_p: 0.8,
         top_k: 20,
         repeat_penalty: 1.05,
+        num_ctx: 8192,
       },
     }),
   });
