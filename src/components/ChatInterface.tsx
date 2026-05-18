@@ -28,7 +28,13 @@ export default function ChatInterface({ userTier, userName }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
+// Mobil/desktop alapállapot
+useEffect(() => {
+  const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+  setSidebarOpen(isDesktop);
+}, []);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -215,11 +221,19 @@ export default function ChatInterface({ userTier, userName }: Props) {
   return (
     <div className="flex-1 flex min-h-0">
       {/* Sidebar */}
-      <aside
-        className={`${
-          sidebarOpen ? "w-64" : "w-0"
-        } transition-all duration-200 border-r border-zinc-800 flex-shrink-0 overflow-hidden`}
-      >
+        <aside
+  className={`${
+    sidebarOpen ? "w-64" : "w-0"
+  } transition-all duration-200 border-r border-zinc-800 flex-shrink-0 overflow-hidden
+  fixed md:relative inset-y-0 left-0 z-30 bg-zinc-950 md:bg-transparent`}
+>
+        {/* Mobil backdrop - csak mobilon és nyitott sidebarnál */}
+{sidebarOpen && (
+  <div
+    onClick={() => setSidebarOpen(false)}
+    className="fixed inset-0 bg-black/50 z-20 md:hidden"
+  />
+)}
         <div className="w-64 h-full flex flex-col">
           <div className="p-3 border-b border-zinc-800">
             <button
@@ -351,19 +365,15 @@ export default function ChatInterface({ userTier, userName }: Props) {
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
             <div className="flex gap-3 items-end">
               <textarea
-                ref={textareaRef}
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyDown={handleKeyDown}
-                disabled={loading}
-                rows={1}
-                className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
-                placeholder={
-                  loading
-                    ? "Válasz folyamatban..."
-                    : "Írj egy üzenetet... (Enter küld, Shift+Enter új sor)"
-                }
-              />
+  ref={textareaRef}
+  value={input}
+  onChange={(e) => setInput(e.target.value)}
+  onKeyDown={handleKeyDown}
+  disabled={loading}
+  rows={1}
+  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 md:px-4 md:py-3 text-sm md:text-base text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
+  placeholder={loading ? "Válasz folyamatban..." : "Írj egy üzenetet..."}
+/>
               <button
                 type="submit"
                 disabled={loading || !input.trim()}
