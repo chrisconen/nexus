@@ -3,11 +3,18 @@ import { auth } from "@/lib/auth";
 import { db, message, conversation, usageDaily } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { streamOllamaChat, type OllamaMessage } from "@/lib/llm/ollama";
+import { streamGroqChat, type GroqMessage } from "@/lib/llm/groq";
 
 export const prerender = false;
 
+type LLMMessage = OllamaMessage | GroqMessage;
+
+interface StreamOptions {
+  modelLabel: string;
+  generator: AsyncGenerator<{ token?: string; done?: boolean; tokensIn?: number; tokensOut?: number }>;
+}
+
 export const POST: APIRoute = async ({ request }) => {
-  // 1. Auth check
   const session = await auth.api.getSession({ headers: request.headers });
 
   if (!session) {
@@ -19,18 +26,15 @@ export const POST: APIRoute = async ({ request }) => {
 
   const { user } = session;
 
-  // 2. Tier-routing
   if (user.tier !== "free") {
-    // Pro és Premium tier még nincs implementálva
     return new Response(
       JSON.stringify({
-        error: `${user.tier} tier még nem elérhető. Most csak a Free tier (Qwen) működik.`,
+        error: `${user.tier} tier még nem elérhető. Most csak a Free tier működik.`,
       }),
       { status: 501, headers: { "Content-Type": "application/json" } }
     );
   }
 
-  // 3. Body parse
   let body;
   try {
     body = await request.json();
@@ -41,7 +45,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const messages: OllamaMessage[] = body.messages;
+  const messages: LLMMessage[] = body.messages;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Üzenetek listája hiányzik vagy üres" }), {
@@ -50,8 +54,7 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  // 4. System prompt
-  const systemPrompt: OllamaMessage = {
+  const systemPrompt: LLMMessage = {
     role: "system",
     content: `Te a NEXUS AI vagy, a Conen Digital saját fejlesztésű AI asszisztense.
 Magyar nyelven válaszolj, egyszerűen és tömören.
@@ -61,7 +64,44 @@ Ne használj emojikat.`,
 
   const fullMessages = [systemPrompt, ...messages];
 
-  // 5. Streaming response
+  let llmStream: StreamOptions | null = null;
+  let lastError: Error | null = null;
+
+  try {
+    if (import.meta.env.GROQ_API_KEY) {
+      llmStream = {
+        modelLabel: "groq-llama-3.3-70b",
+        generator: streamGroqChat(fullMessages),
+      };
+    }
+  } catch (err) {
+    lastError = err instanceof Error ? err : new Error(String(err));
+    console.error("Groq initialization failed, falling back to Ollama:", err);
+  }
+
+  if (!llmStream) {
+    try {
+      llmStream = {
+        modelLabel: "qwen-local",
+        generator: streamOllamaChat(fullMessages),
+      };
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      console.error("Ollama initialization also failed:", err);
+    }
+  }
+
+  if (!llmStream) {
+    return new Response(
+      JSON.stringify({
+        error: lastError?.message || "Nincs elérhető LLM szolgáltatás",
+      }),
+      { status: 503, headers: { "Content-Type": "application/json" } }
+    );
+  }
+
+  const { modelLabel, generator } = llmStream;
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
@@ -70,63 +110,66 @@ Ne használj emojikat.`,
       let tokensOut = 0;
 
       try {
-        for await (const chunk of streamOllamaChat(fullMessages)) {
-  if (chunk.token) {
-    assistantResponse += chunk.token;
-    controller.enqueue(encoder.encode(JSON.stringify({ token: chunk.token }) + "\n"));
-  }
-  if (chunk.done) {
-    tokensIn = chunk.tokensIn || 0;
-    tokensOut = chunk.tokensOut || 0;
-  }
-}
+        for await (const chunk of generator) {
+          if (chunk.token) {
+            assistantResponse += chunk.token;
+            controller.enqueue(encoder.encode(JSON.stringify({ token: chunk.token }) + "\n"));
+          }
+          if (chunk.done) {
+            tokensIn = chunk.tokensIn || 0;
+            tokensOut = chunk.tokensOut || 0;
+          }
+        }
 
-// A streamelés végén küldjük el a conversationId-t (kliens megőrzi)
-controller.enqueue(encoder.encode(JSON.stringify({ conversationId, done: true }) + "\n"));
+        let conversationId = body.conversationId;
+        const now = new Date();
 
-controller.close();
+        if (!conversationId) {
+          conversationId = crypto.randomUUID();
+          await db.insert(conversation).values({
+            id: conversationId,
+            userId: user.id,
+            title: (messages[messages.length - 1] as any).content.slice(0, 80),
+            createdAt: now,
+            updatedAt: now,
+          });
+        } else {
+          const existing = await db
+            .select()
+            .from(conversation)
+            .where(eq(conversation.id, conversationId))
+            .limit(1);
+          if (existing.length === 0 || existing[0].userId !== user.id) {
+            conversationId = crypto.randomUUID();
+            await db.insert(conversation).values({
+              id: conversationId,
+              userId: user.id,
+              title: (messages[messages.length - 1] as any).content.slice(0, 80),
+              createdAt: now,
+              updatedAt: now,
+            });
+          } else {
+            await db
+              .update(conversation)
+              .set({ updatedAt: now })
+              .where(eq(conversation.id, conversationId));
+          }
+        }
 
-        // 6. Mentés a DB-be (a stream lezárása után)
+        controller.enqueue(
+          encoder.encode(
+            JSON.stringify({
+              conversationId,
+              modelUsed: modelLabel,
+              done: true,
+            }) + "\n"
+          )
+        );
+
+        controller.close();
+
         try {
-          // Konverzáció létrehozása vagy folytatása
-let conversationId = body.conversationId;
-const now = new Date();
-if (!conversationId) {
-  conversationId = crypto.randomUUID();
-  await db.insert(conversation).values({
-    id: conversationId,
-    userId: user.id,
-    title: messages[messages.length - 1].content.slice(0, 80),
-    createdAt: now,
-    updatedAt: now,
-  });
-} else {
-  // Létező beszélgetés: ellenőrzés és updatedAt frissítés
-  const existing = await db
-    .select()
-    .from(conversation)
-    .where(eq(conversation.id, conversationId))
-    .limit(1);
-  if (existing.length === 0 || existing[0].userId !== user.id) {
-    // Biztonsági fallback: ha más user-é vagy nem létezik, csinálunk újat
-    conversationId = crypto.randomUUID();
-    await db.insert(conversation).values({
-      id: conversationId,
-      userId: user.id,
-      title: messages[messages.length - 1].content.slice(0, 80),
-      createdAt: now,
-      updatedAt: now,
-    });
-  } else {
-    await db
-      .update(conversation)
-      .set({ updatedAt: now })
-      .where(eq(conversation.id, conversationId));
-  }
-}
-
-          // User üzenet mentése
-          const lastUserMessage = messages[messages.length - 1];
+          const lastUserMessage = messages[messages.length - 1] as any;
           await db.insert(message).values({
             id: crypto.randomUUID(),
             conversationId,
@@ -135,28 +178,26 @@ if (!conversationId) {
             createdAt: new Date(),
           });
 
-          // Assistant válasz mentése
           await db.insert(message).values({
             id: crypto.randomUUID(),
             conversationId,
             role: "assistant",
             content: assistantResponse,
-            modelUsed: "qwen-local",
+            modelUsed: modelLabel,
             tokensIn,
             tokensOut,
-            costHuf: 0, // lokális modell, nincs API költség
+            costHuf: 0,
             createdAt: new Date(),
           });
 
-          // Napi usage növelés
           const today = new Date().toISOString().slice(0, 10);
-          const existing = await db
+          const existingUsage = await db
             .select()
             .from(usageDaily)
             .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)))
             .limit(1);
 
-          if (existing.length === 0) {
+          if (existingUsage.length === 0) {
             await db.insert(usageDaily).values({
               userId: user.id,
               date: today,
@@ -165,23 +206,57 @@ if (!conversationId) {
           } else {
             await db
               .update(usageDaily)
-              .set({ messageCount: existing[0].messageCount + 1 })
+              .set({ messageCount: existingUsage[0].messageCount + 1 })
               .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)));
           }
         } catch (dbError) {
           console.error("DB write error:", dbError);
-          // Nem küldjük tovább a kliensnek, már lezártuk a stream-et
         }
-      } catch (err) {
-        console.error("Ollama stream error:", err);
-        controller.enqueue(
-          encoder.encode(
-            JSON.stringify({
-              error: err instanceof Error ? err.message : "Ismeretlen hiba az LLM-mel",
-            }) + "\n"
-          )
-        );
-        controller.close();
+      } catch (streamErr) {
+        console.error("Stream error from", modelLabel, ":", streamErr);
+
+        if (modelLabel === "groq-llama-3.3-70b") {
+          try {
+            console.log("Falling back to Ollama mid-stream...");
+            const fallbackGenerator = streamOllamaChat(fullMessages);
+            let fallbackResponse = "";
+
+            for await (const chunk of fallbackGenerator) {
+              if (chunk.token) {
+                fallbackResponse += chunk.token;
+                controller.enqueue(encoder.encode(JSON.stringify({ token: chunk.token }) + "\n"));
+              }
+            }
+
+            controller.enqueue(
+              encoder.encode(
+                JSON.stringify({
+                  modelUsed: "qwen-local-fallback",
+                  done: true,
+                }) + "\n"
+              )
+            );
+            controller.close();
+          } catch (fallbackErr) {
+            controller.enqueue(
+              encoder.encode(
+                JSON.stringify({
+                  error: "Mindkét LLM elérhetetlen, próbáld újra később",
+                }) + "\n"
+              )
+            );
+            controller.close();
+          }
+        } else {
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                error: streamErr instanceof Error ? streamErr.message : "Ismeretlen hiba",
+              }) + "\n"
+            )
+          );
+          controller.close();
+        }
       }
     },
   });
