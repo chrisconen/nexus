@@ -9,7 +9,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "db:generate": "drizzle-kit generate",
+    "db:push": "drizzle-kit push",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
     "@astrojs/react": "^5.0.5",
@@ -29,6 +32,7 @@
   },
   "devDependencies": {
     "@types/node": "^25.8.0",
+    "dotenv": "^17.4.2",
     "drizzle-kit": "^0.31.10"
   }
 }

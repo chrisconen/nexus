@@ -1,0 +1,81 @@
+---
+import "../styles/global.css";
+import { auth } from "@/lib/auth";
+
+// Server-side session check
+const session = await auth.api.getSession({
+  headers: Astro.request.headers,
+});
+
+if (!session) {
+  return Astro.redirect("/belepes");
+}
+
+const { user } = session;
+const tierLabel = {
+  free: "Free tier · Qwen 3 30B (lokális)",
+  pro: "Pro tier · DeepSeek V3 (cloud)",
+  premium: "Premium tier · Claude Sonnet (cloud)",
+}[user.tier as "free" | "pro" | "premium"] || "Ismeretlen tier";
+---
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fiók — NEXUS AI</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex flex-col px-6 py-12">
+      <div class="max-w-3xl w-full mx-auto">
+
+        <div class="mb-12 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">System // Authenticated</span>
+          </div>
+          <a href="/" class="text-xs text-zinc-500 hover:text-emerald-400 transition-colors">
+            ← Főoldal
+          </a>
+        </div>
+
+        <h1 class="text-4xl font-light mb-2">
+          <span class="text-zinc-400">Üdv,</span>
+          <span class="text-emerald-400">{user.name}</span>
+        </h1>
+        <p class="text-sm text-zinc-500 mb-12">
+          {user.email}
+        </p>
+
+        <div class="border border-zinc-800 rounded-lg p-6 mb-6">
+          <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Aktív előfizetés</div>
+          <div class="text-lg text-zinc-200">{tierLabel}</div>
+          {user.tier === "free" && (
+            <a href="/arazas" class="inline-block mt-4 text-sm text-emerald-400 hover:text-emerald-300">
+              Fejlessz Pro vagy Premium-ra →
+            </a>
+          )}
+        </div>
+
+        <div class="border border-zinc-800 rounded-lg p-6 mb-6">
+          <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Hozzáférés</div>
+          <a href="/chat" class="inline-block bg-emerald-600 hover:bg-emerald-500 text-zinc-100 font-medium px-5 py-2.5 rounded transition-colors text-sm">
+            Chat megnyitása →
+          </a>
+          <p class="text-xs text-zinc-600 mt-3">
+            (A chat felület a következő napokban érhető el)
+          </p>
+        </div>
+
+        <div class="mt-12 pt-8 border-t border-zinc-800">
+          <form action="/api/auth/sign-out" method="POST">
+            <button type="submit" class="text-xs text-zinc-500 hover:text-red-400 transition-colors uppercase tracking-wider">
+              Kijelentkezés
+            </button>
+          </form>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
