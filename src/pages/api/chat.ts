@@ -71,33 +71,59 @@ Ne használj emojikat.`,
 
       try {
         for await (const chunk of streamOllamaChat(fullMessages)) {
-          if (chunk.token) {
-            assistantResponse += chunk.token;
-            controller.enqueue(encoder.encode(JSON.stringify({ token: chunk.token }) + "\n"));
-          }
-          if (chunk.done) {
-            tokensIn = chunk.tokensIn || 0;
-            tokensOut = chunk.tokensOut || 0;
-          }
-        }
+  if (chunk.token) {
+    assistantResponse += chunk.token;
+    controller.enqueue(encoder.encode(JSON.stringify({ token: chunk.token }) + "\n"));
+  }
+  if (chunk.done) {
+    tokensIn = chunk.tokensIn || 0;
+    tokensOut = chunk.tokensOut || 0;
+  }
+}
 
-        controller.close();
+// A streamelés végén küldjük el a conversationId-t (kliens megőrzi)
+controller.enqueue(encoder.encode(JSON.stringify({ conversationId, done: true }) + "\n"));
+
+controller.close();
 
         // 6. Mentés a DB-be (a stream lezárása után)
         try {
           // Konverzáció létrehozása vagy folytatása
-          let conversationId = body.conversationId;
-          if (!conversationId) {
-            conversationId = crypto.randomUUID();
-            const now = new Date();
-            await db.insert(conversation).values({
-              id: conversationId,
-              userId: user.id,
-              title: messages[messages.length - 1].content.slice(0, 80),
-              createdAt: now,
-              updatedAt: now,
-            });
-          }
+let conversationId = body.conversationId;
+const now = new Date();
+if (!conversationId) {
+  conversationId = crypto.randomUUID();
+  await db.insert(conversation).values({
+    id: conversationId,
+    userId: user.id,
+    title: messages[messages.length - 1].content.slice(0, 80),
+    createdAt: now,
+    updatedAt: now,
+  });
+} else {
+  // Létező beszélgetés: ellenőrzés és updatedAt frissítés
+  const existing = await db
+    .select()
+    .from(conversation)
+    .where(eq(conversation.id, conversationId))
+    .limit(1);
+  if (existing.length === 0 || existing[0].userId !== user.id) {
+    // Biztonsági fallback: ha más user-é vagy nem létezik, csinálunk újat
+    conversationId = crypto.randomUUID();
+    await db.insert(conversation).values({
+      id: conversationId,
+      userId: user.id,
+      title: messages[messages.length - 1].content.slice(0, 80),
+      createdAt: now,
+      updatedAt: now,
+    });
+  } else {
+    await db
+      .update(conversation)
+      .set({ updatedAt: now })
+      .where(eq(conversation.id, conversationId));
+  }
+}
 
           // User üzenet mentése
           const lastUserMessage = messages[messages.length - 1];
