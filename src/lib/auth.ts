@@ -8,19 +8,25 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false, // MVP-hez egyszerűbb, később bevezetjük
+    requireEmailVerification: false,
   },
   user: {
     additionalFields: {
       tier: {
         type: "string",
         defaultValue: "free",
-        input: false, // user nem állíthatja regisztrációkor
+        input: false,
       },
     },
   },
   secret: import.meta.env.BETTER_AUTH_SECRET,
   baseURL: import.meta.env.BETTER_AUTH_URL || "http://localhost:4321",
+  trustedOrigins: [
+    "http://localhost:4321",
+    "http://127.0.0.1:4321",
+    "https://nexus-self-eight.vercel.app",
+    "https://app.conendigital.hu",
+  ],
 });
 
 export type Session = typeof auth.$Infer.Session;
