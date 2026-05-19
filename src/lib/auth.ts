@@ -1,17 +1,31 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { db } from "./db";
+import { sendVerificationEmail } from "./email";
 
 export const auth = betterAuth({
   database: drizzleAdapter(db, {
     provider: "sqlite",
   }),
   emailAndPassword: {
-  enabled: true,
-  requireEmailVerification: false,
-  minPasswordLength: 8,
-  maxPasswordLength: 128,
+    enabled: true,
+    requireEmailVerification: true,
+    minPasswordLength: 8,
+    maxPasswordLength: 128,
   },
+  emailVerification: {
+  sendOnSignUp: true,
+  sendOnSignIn: true,
+  autoSignInAfterVerification: true,
+  callbackURL: "/chat",
+  sendVerificationEmail: async ({ user, url, token }) => {
+    await sendVerificationEmail({
+      to: user.email,
+      userName: user.name,
+      verificationUrl: url,
+    });
+  },
+},
   user: {
     additionalFields: {
       tier: {

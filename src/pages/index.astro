@@ -8,6 +8,11 @@ const session = await auth.api.getSession({
 
 const isLoggedIn = !!session;
 const userName = session?.user?.name;
+
+if (isLoggedIn) {
+  return Astro.redirect("/chat");
+}
+
 ---
 <!DOCTYPE html>
 <html lang="hu" class="h-full">

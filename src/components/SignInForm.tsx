@@ -43,7 +43,7 @@ export default function SignInForm() {
         setError(translateError(result.error.message || ""));
         setLoading(false);
       } else {
-        window.location.href = "/fiok";
+        window.location.href = "/chat";
       }
     } catch (err) {
       setError(translateError(err instanceof Error ? err.message : ""));

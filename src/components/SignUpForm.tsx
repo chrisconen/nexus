@@ -77,11 +77,12 @@ export default function SignUpForm() {
       });
 
       if (result.error) {
-        setError(translateError(result.error.message || "Ismeretlen hiba történt"));
-        setLoading(false);
-      } else {
-        window.location.href = "/fiok";
-      }
+  setError(translateError(result.error.message || "Ismeretlen hiba történt"));
+  setLoading(false);
+} else {
+  // Sikeres regisztráció — email küldve, irány a megerősítő-szükséges oldal
+  window.location.href = "/megerosites-szukseges";
+}	
     } catch (err) {
       setError(translateError(err instanceof Error ? err.message : "Hálózati hiba"));
       setLoading(false);
