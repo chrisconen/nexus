@@ -4,10 +4,12 @@ import { db, message, conversation, usageDaily } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { streamOllamaChat, type OllamaMessage } from "@/lib/llm/ollama";
 import { streamGroqChat, type GroqMessage } from "@/lib/llm/groq";
+import { streamDeepSeekChat, type DeepSeekMessage } from "@/lib/llm/deepseek";
+import { streamClaudeChat } from "@/lib/llm/claude";
 
 export const prerender = false;
 
-type LLMMessage = OllamaMessage | GroqMessage;
+type LLMMessage = OllamaMessage | GroqMessage | DeepSeekMessage;
 
 interface StreamOptions {
   modelLabel: string;
@@ -25,15 +27,6 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const { user } = session;
-
-  if (user.tier !== "free") {
-    return new Response(
-      JSON.stringify({
-        error: `${user.tier} tier még nem elérhető. Most csak a Free tier működik.`,
-      }),
-      { status: 501, headers: { "Content-Type": "application/json" } }
-    );
-  }
 
   let body;
   try {
@@ -64,30 +57,61 @@ Ne használj emojikat.`,
 
   const fullMessages = [systemPrompt, ...messages];
 
+  // Tier-routing
   let llmStream: StreamOptions | null = null;
   let lastError: Error | null = null;
 
-  try {
-    if (import.meta.env.GROQ_API_KEY) {
-      llmStream = {
-        modelLabel: "groq-llama-3.3-70b",
-        generator: streamGroqChat(fullMessages),
-      };
-    }
-  } catch (err) {
-    lastError = err instanceof Error ? err : new Error(String(err));
-    console.error("Groq initialization failed, falling back to Ollama:", err);
-  }
-
-  if (!llmStream) {
+  if (user.tier === "premium") {
+    // PREMIUM tier: Claude Sonnet 4.6
     try {
-      llmStream = {
-        modelLabel: "qwen-local",
-        generator: streamOllamaChat(fullMessages),
-      };
+      if (import.meta.env.ANTHROPIC_API_KEY) {
+        llmStream = {
+          modelLabel: "claude-sonnet-4-6",
+          generator: streamClaudeChat(fullMessages),
+        };
+      }
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
-      console.error("Ollama initialization also failed:", err);
+      console.error("Claude initialization failed:", err);
+    }
+  } else if (user.tier === "pro") {
+    // PRO tier: DeepSeek V4 Flash
+    try {
+      if (import.meta.env.DEEPSEEK_API_KEY) {
+        llmStream = {
+          modelLabel: "deepseek-v4-flash",
+          generator: streamDeepSeekChat(fullMessages),
+        };
+      }
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      console.error("DeepSeek initialization failed:", err);
+    }
+  } else {
+    // FREE tier: Groq elsődleges, Ollama fallback
+    try {
+      if (import.meta.env.GROQ_API_KEY) {
+        llmStream = {
+          modelLabel: "groq-llama-3.3-70b",
+          generator: streamGroqChat(fullMessages),
+        };
+      }
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      console.error("Groq initialization failed:", err);
+    }
+
+    // Ollama fallback Free tier-en
+    if (!llmStream) {
+      try {
+        llmStream = {
+          modelLabel: "qwen-local",
+          generator: streamOllamaChat(fullMessages),
+        };
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        console.error("Ollama initialization also failed:", err);
+      }
     }
   }
 
@@ -215,7 +239,8 @@ Ne használj emojikat.`,
       } catch (streamErr) {
         console.error("Stream error from", modelLabel, ":", streamErr);
 
-        if (modelLabel === "groq-llama-3.3-70b") {
+        // Groq error → Ollama fallback Free tier-en
+        if (modelLabel === "groq-llama-3.3-70b" && user.tier === "free") {
           try {
             console.log("Falling back to Ollama mid-stream...");
             const fallbackGenerator = streamOllamaChat(fullMessages);
