@@ -1,9 +1,30 @@
 import { useState } from "react";
 import { signIn } from "@/lib/auth-client";
 
+function translateError(message: string): string {
+  const m = message.toLowerCase();
+  if (m.includes("invalid") && (m.includes("credential") || m.includes("password"))) {
+    return "Hibás email vagy jelszó.";
+  }
+  if (m.includes("user") && m.includes("not found")) {
+    return "Nincs ilyen email című felhasználó.";
+  }
+  if (m.includes("not verified") || m.includes("verify")) {
+    return "Az email címed még nincs megerősítve. Ellenőrizd a postafiókodat.";
+  }
+  if (m.includes("network") || m.includes("fetch")) {
+    return "Hálózati hiba. Próbáld újra.";
+  }
+  if (m.includes("too many")) {
+    return "Túl sok próbálkozás. Várj pár percet, és próbáld újra.";
+  }
+  return "Hibás email vagy jelszó.";
+}
+
 export default function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -12,16 +33,21 @@ export default function SignInForm() {
     setError(null);
     setLoading(true);
 
-    const result = await signIn.email({
-      email,
-      password,
-    });
+    try {
+      const result = await signIn.email({
+        email,
+        password,
+      });
 
-    if (result.error) {
-      setError(result.error.message || "Hibás email vagy jelszó");
+      if (result.error) {
+        setError(translateError(result.error.message || ""));
+        setLoading(false);
+      } else {
+        window.location.href = "/fiok";
+      }
+    } catch (err) {
+      setError(translateError(err instanceof Error ? err.message : ""));
       setLoading(false);
-    } else {
-      window.location.href = "/fiok";
     }
   }
 
@@ -46,15 +72,25 @@ export default function SignInForm() {
         <label htmlFor="password" className="block text-xs uppercase tracking-wider text-zinc-500 mb-2">
           Jelszó
         </label>
-        <input
-          id="password"
-          type="password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full bg-zinc-900 border border-zinc-800 rounded px-4 py-3 text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
-          placeholder="••••••••"
-        />
+        <div className="relative">
+          <input
+            id="password"
+            type={showPassword ? "text" : "password"}
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full bg-zinc-900 border border-zinc-800 rounded px-4 py-3 pr-20 text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors"
+            placeholder="••••••••"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((s) => !s)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-xs uppercase tracking-wider text-zinc-500 hover:text-emerald-400 transition-colors"
+            tabIndex={-1}
+          >
+            {showPassword ? "Rejtés" : "Mutat"}
+          </button>
+        </div>
       </div>
 
       {error && (
