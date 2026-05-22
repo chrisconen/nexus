@@ -16,26 +16,20 @@
 ### Course 1: Foundations of Cybersecurity (10 óra)
 
 - [x] Modul 1: Welcome to the exciting world of cybersecurity
-- [ ] Modul 2: The evolution of cybersecurity
-- [ ] Modul 3: Protect against threats, risks, and vulnerabilities
-- [ ] Modul 4: Cybersecurity tools and programming languages
-- [ ] Modul 5: Course wrap-up
+- [x] Modul 2: The evolution of cybersecurity
+- [x] Modul 3: Protect against threats, risks, and vulnerabilities
+- [x] Modul 4: Cybersecurity tools and programming languages
+- [x] Modul 5: Course wrap-up
 
-**Befejezés:** —
-**Quiz pontszámok:** Module 1: 100%  
-**Kulcsfogalmak:**
+
+### Course 1: Foundations of Cybersecurity (10 óra)
+**Done:** 2026-05-21 ✓
 
 ### Course 2: Play It Safe: Manage Security Risks (9 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
+**DOone:** 2026-05-21 ✓
 
 ### Course 3: Connect and Protect: Networks and Network Security (12 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
+**Done:** 2026-05-22 ✓
 
 ### Course 4: Tools of the Trade: Linux and SQL (23 óra)
 
@@ -79,7 +73,11 @@
 
 ### Hét 1: 2026-05-20 — 2026-05-26
 **Tényleges:**
-- 2026-05-20: Course 1 Module 1 kész, 100%-os quiz
+**Tényleges:**
+- 2026-05-20: Course 1 Module 1, 100%
+- 2026-05-21: Course 1 és Course 2 teljes befejezés
+- 2026-05-22: Course 3 befejezés
+- Haladás: 3/9 kurzus kész az első héten
 
 **Tervezett:**
 - Course 1 teljes (10 óra)
