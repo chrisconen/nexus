@@ -1,190 +1,128 @@
 # Chris Conen — Cybersecurity Learning Log
-
-**Cél:** TAFE SA Adelaide — Diploma of Cyber Security  
-**Kezdés:** 2026 május  
-**Tervezett TAFE start:** 2027 február
-
+**Goal:** TAFE SA Adelaide — Diploma of Cyber Security  
+**Start:** 2026 May  
+**Planned TAFE start:** 2027 February
 ---
-
 ## Coursera — Google Cybersecurity Professional Certificate
-
 **Link:** https://www.coursera.org/professional-certificates/google-cybersecurity  
-**Enroll dátum:** 2026-05-20  
-**Tervezett befejezés:** 2026 augusztus  
-**Heti tempó:** 10-14 óra
-
-### Course 1: Foundations of Cybersecurity (10 óra)
-
-- [x] Modul 1: Welcome to the exciting world of cybersecurity
-- [x] Modul 2: The evolution of cybersecurity
-- [x] Modul 3: Protect against threats, risks, and vulnerabilities
-- [x] Modul 4: Cybersecurity tools and programming languages
-- [x] Modul 5: Course wrap-up
-
-
-### Course 1: Foundations of Cybersecurity (10 óra)
+**Enrollment date:** 2026-05-20  
+**Planned completion:** 2026 August  
+**Weekly pace:** 10-14 hours
+### Course 1: Foundations of Cybersecurity (10 hours)
+- [x] Module 1: Welcome to the exciting world of cybersecurity
+- [x] Module 2: The evolution of cybersecurity
+- [x] Module 3: Protect against threats, risks, and vulnerabilities
+- [x] Module 4: Cybersecurity tools and programming languages
+- [x] Module 5: Course wrap-up
+### Course 1: Foundations of Cybersecurity (10 hours)
 **Done:** 2026-05-21 ✓
-
-### Course 2: Play It Safe: Manage Security Risks (9 óra)
-**DOone:** 2026-05-21 ✓
-
-### Course 3: Connect and Protect: Networks and Network Security (12 óra)
+### Course 2: Play It Safe: Manage Security Risks (9 hours)
+**Done:** 2026-05-21 ✓
+### Course 3: Connect and Protect: Networks and Network Security (12 hours)
 **Done:** 2026-05-22 ✓
-
-### Course 4: Tools of the Trade: Linux and SQL (23 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
-### Course 5: Assets, Threats, and Vulnerabilities (19 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
-### Course 6: Sound the Alarm: Detection and Response (18 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
-### Course 7: Automate Cybersecurity Tasks with Python (25 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
-### Course 8: Put It to Work: Prepare for Cybersecurity Jobs (11 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
-### Course 9: Accelerate Your Job Search with AI (6 óra)
-
-- [ ] Modulok
-
-**Befejezés:** —
-
+### Course 4: Tools of the Trade: Linux and SQL (23 hours)
+**Completed:** 2026-05-23 ✓
+**Completed:** —
+### Course 5: Assets, Threats, and Vulnerabilities (19 hours)
+- [ ] Modules
+**Completed:** —
+### Course 6: Sound the Alarm: Detection and Response (18 hours)
+- [ ] Modules
+**Completed:** —
+### Course 7: Automate Cybersecurity Tasks with Python (25 hours)
+- [ ] Modules
+**Completed:** —
+### Course 8: Put It to Work: Prepare for Cybersecurity Jobs (11 hours)
+- [ ] Modules
+**Completed:** —
+### Course 9: Accelerate Your Job Search with AI (6 hours)
+- [ ] Modules
+**Completed:** —
 ---
-
-## Heti napló
-
-### Hét 1: 2026-05-20 — 2026-05-26
-**Tényleges:**
-**Tényleges:**
+## Weekly Log
+### Week 1: 2026-05-20 — 2026-05-26
+**Actual:**
 - 2026-05-20: Course 1 Module 1, 100%
-- 2026-05-21: Course 1 és Course 2 teljes befejezés
-- 2026-05-22: Course 3 befejezés
-- Haladás: 3/9 kurzus kész az első héten
-
-**Tervezett:**
-- Course 1 teljes (10 óra)
-
-**Tényleges:**
+- 2026-05-21: Course 1 and Course 2 fully completed
+- 2026-05-22: Course 3 completed
+- 2026-05-23: Course 4 (Linux and SQL) completed
+- Progress: 4/9 courses done in the first week
+**Planned:**
+- Course 1 complete (10 hours)
+**Actual:**
 - 
-
-**Tanult kulcsfogalmak:**
+**Key Concepts Learned:**
 - 
-
-**Megjegyzés:**
+**Note:**
 - 
-
 ---
-
-## CompTIA Security+ (Course 1-8 után)
-
-**Vizsga link:** https://www.comptia.org/certifications/security  
-**Tervezett dátum:** 2026 szeptember  
-**Költség:** ~$370 (kedvezményes ár Google Cert-tel)  
-**Felkészülés:** Coursera "CompTIA Security+ Certification Preparation" specialization
-
-- [ ] Vizsgára jelentkezés
-- [ ] Vizsga letétele
-- [ ] Certificate megszerzése
-
+## CompTIA Security+ (After Courses 1-8)
+**Exam link:** https://www.comptia.org/certifications/security  
+**Planned date:** 2026 September  
+**Cost:** ~$370 (discounted price with Google Cert)  
+**Preparation:** Coursera "CompTIA Security+ Certification Preparation" specialization
+- [ ] Register for exam
+- [ ] Take exam
+- [ ] Obtain certificate
 ---
-
 ## IELTS
-
-**Cél:** 6.0 (TAFE SA követelmény)  
-**Tervezett dátum:** 2026 július-augusztus  
-**Felkészülés:** British Council IELTS Online Prep (~$30) + practice tests
-
-- [ ] Felkészülési anyag beszerzése
-- [ ] Practice test 1 — diagnosztika
+**Target:** 6.0 (TAFE SA requirement)  
+**Planned date:** 2026 July-August  
+**Preparation:** British Council IELTS Online Prep (~$30) + practice tests
+- [ ] Obtain preparation materials
+- [ ] Practice test 1 — diagnostic
 - [ ] Practice test 2
 - [ ] Practice test 3
-- [ ] Vizsga regisztráció
-- [ ] Vizsga letétele
-- [ ] Eredmény: —
-
+- [ ] Exam registration
+- [ ] Take exam
+- [ ] Result: —
 ---
-
-## TAFE SA Jelentkezés
-
+## TAFE SA Application
 **Program:** Advanced Diploma of Cyber Security  
-**Tervezett kezdés:** 2027 február  
-**Jelentkezési határidő:** 2026 október/november (kb.)  
+**Planned start:** 2027 February  
+**Application deadline:** 2026 October/November (approx.)  
 **Link:** https://www.tafesa.edu.au
-
-- [ ] Program-részletek beszerzése
-- [ ] Bejutási követelmények listázása
+- [ ] Get program details
+- [ ] List entry requirements
 - [ ] Costing (international vs domestic)
-- [ ] Dokumentumok összeállítása:
-  - [ ] Coursera certifikátok
-  - [ ] CompTIA Security+ certifikát
-  - [ ] IELTS eredmény
-  - [ ] Magyar bizonyítványok (felszolgáló, targonca)
-  - [ ] Portfólió (NEXUS, Centaur, agency website-ok)
-  - [ ] Motivációs levél
-- [ ] Jelentkezés benyújtása
-
+- [ ] Compile documents:
+  - [ ] Coursera certificates
+  - [ ] CompTIA Security+ certificate
+  - [ ] IELTS result
+  - [ ] Hungarian certificates (waiter, forklift)
+  - [ ] Portfolio (NEXUS, Centaur, agency websites)
+  - [ ] Motivation letter
+- [ ] Submit application
 ---
-
 ## Migration Agent
-
-**Cél:** Vízum-stratégia konzultáció  
-**Tervezett dátum:** 2026 június (minél hamarabb)
-
-- [ ] Migration agent megkeresése (registered MARA agent)
-- [ ] Konzultáció időpont
-- [ ] Vízum-lehetőségek tisztázása (Subclass 500 → 485, vagy Family-related opciók)
-- [ ] Költségbecslés
-- [ ] Időbecslés
-
+**Goal:** Visa strategy consultation  
+**Planned date:** 2026 June (as soon as possible)
+- [ ] Contact migration agent (registered MARA agent)
+- [ ] Consultation appointment
+- [ ] Clarify visa options (Subclass 500 → 485, or Family-related options)
+- [ ] Cost estimate
+- [ ] Time estimate
 ---
-
-## Portfólió-fejlesztés
-
-**Tervezett deliverable-k a jelentkezéshez:**
-
+## Portfolio Development
+**Planned deliverables for the application:**
 - [x] NEXUS AI (app.conendigital.hu) — production live
-- [ ] Cybersec-projekt #1: Saját Z440-hez behatolás-detektálás
-- [ ] Cybersec-projekt #2: SOC-szintű log-analízis Splunk-kal
-- [ ] Cybersec-projekt #3: Penetration test egy gyakorló rendszerre
-- [ ] GitHub portfolio rendbe szedés
-- [ ] LinkedIn profile frissítés
-
+- [ ] Cybersec project #1: Intrusion detection for my Z440
+- [ ] Cybersec project #2: SOC-level log analysis with Splunk
+- [ ] Cybersec project #3: Penetration test on a practice system
+- [ ] GitHub portfolio cleanup
+- [ ] LinkedIn profile update
 ---
-
-## Költségvetés
-
-| Tétel | Költség |
+## Budget
+| Item | Cost |
 |---|---|
-| Google Cybersec Cert (3-4 hó) | ~55 000 Ft |
-| CompTIA Security+ vizsga | ~140 000 Ft |
-| IELTS vizsga | ~85 000 Ft |
-| IELTS felkészülés | ~12 000 Ft |
-| Migration agent konzultáció | ~120 000 Ft |
-| TAFE jelentkezési díj | ~30 000 Ft |
-| **Összesen jelentkezésig** | **~442 000 Ft** |
-
-TAFE tandíj (2 év, international): kb. AUD 36 000 / év = HUF 8 600 000 / év (érdemes nézni domestic student opciókat ha PR megvan)
-
+| Google Cybersec Cert (3-4 months) | ~55 000 Ft |
+| CompTIA Security+ exam | ~140 000 Ft |
+| IELTS exam | ~85 000 Ft |
+| IELTS preparation | ~12 000 Ft |
+| Migration agent consultation | ~120 000 Ft |
+| TAFE application fee | ~30 000 Ft |
+| **Total until application** | **~442 000 Ft** |
+TAFE tuition (2 years, international): approx. AUD 36 000 / year = HUF 8 600 000 / year (worth checking domestic student options if PR is secured)
 ---
-
-## Megjegyzések
-
+## Notes
 -
