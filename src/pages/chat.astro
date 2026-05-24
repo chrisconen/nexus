@@ -13,9 +13,9 @@ if (!session) {
 
 const { user } = session;
 const tierLabel = {
-  free: "Free · Qwen 3 30B",
-  pro: "Pro · DeepSeek V3",
-  premium: "Premium · Claude Sonnet",
+  free: "Free · NEXUS Basic",
+  pro: "Pro · NEXUS Pro",
+  premium: "Premium · NEXUS Premium",
 }[user.tier as "free" | "pro" | "premium"] || "Free";
 ---
 <!DOCTYPE html>
