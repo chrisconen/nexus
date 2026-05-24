@@ -33,9 +33,9 @@ const [dbUser] = await db
 const tier = dbUser?.tier ?? user.tier ?? "free";
 
 const tierLabel = {
-  free: "Free tier · Qwen 3 30B (lokális)",
-  pro: "Pro tier · DeepSeek V3 (cloud)",
-  premium: "Premium tier · Claude Sonnet (cloud)",
+  free: "Free · NEXUS Basic",
+  pro: "Pro · NEXUS Pro",
+  premium: "Premium · NEXUS Premium",
 }[tier as "free" | "pro" | "premium"] || "Ismeretlen tier";
 
 const isPaid = tier === "pro" || tier === "premium";
