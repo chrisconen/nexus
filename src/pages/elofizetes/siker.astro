@@ -1,0 +1,56 @@
+---
+import "../../styles/global.css";
+import { auth } from "@/lib/auth";
+
+const session = await auth.api.getSession({
+  headers: Astro.request.headers,
+});
+
+if (!session) {
+  return Astro.redirect("/belepes");
+}
+---
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sikeres előfizetés — NEXUS AI</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+      <div class="max-w-md w-full text-center">
+
+        <div class="flex items-center justify-center gap-3 mb-8">
+          <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+          <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">System // Payment</span>
+        </div>
+
+        <div class="text-5xl text-emerald-400 mb-6">✓</div>
+
+        <h1 class="text-3xl font-light mb-4">
+          <span class="text-emerald-400">Köszönjük</span>
+          <span class="text-zinc-400">az előfizetést!</span>
+        </h1>
+
+        <p class="text-sm text-zinc-400 leading-relaxed mb-2">
+          A fizetésed sikeresen feldolgozásra került.
+        </p>
+        <p class="text-xs text-zinc-600 leading-relaxed mb-8">
+          A csomagod aktiválása néhány másodpercet vehet igénybe. Ha a fiókodban
+          még a régi csomag látszik, frissítsd az oldalt egy pillanat múlva.
+        </p>
+
+        <div class="flex flex-col gap-3">
+          <a href="/chat" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
+            Irány a chat →
+          </a>
+          <a href="/fiok" class="block text-center text-zinc-500 hover:text-emerald-400 text-sm transition-colors">
+            Fiók megtekintése
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>

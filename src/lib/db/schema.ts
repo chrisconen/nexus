@@ -17,6 +17,10 @@ export const user = sqliteTable("user", {
   stripeSubscriptionId: text("stripeSubscriptionId"),
   subscriptionStatus: text("subscriptionStatus"), // active, past_due, canceled, null
   subscriptionPeriodEnd: integer("subscriptionPeriodEnd", { mode: "timestamp" }),
+  // Period-végi lemondás jelzése. A Stripe Customer Portal lemondási flow-ja
+  // ezt állítja true-ra, miközben a subscriptionStatus MARAD "active" a
+  // periódus végéig. A /fiok ebből tudja jelezni, hogy "eddig érvényes".
+  cancelAtPeriodEnd: integer("cancelAtPeriodEnd", { mode: "boolean" }).notNull().default(false),
 });
 
 export const session = sqliteTable("session", {

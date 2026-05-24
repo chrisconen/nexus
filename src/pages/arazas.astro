@@ -1,0 +1,297 @@
+---
+import "../styles/global.css";
+import { auth } from "@/lib/auth";
+
+// Server-side session check — itt NEM kötelező a bejelentkezés.
+// Kijelentkezett user is megnézheti az árakat, neki regisztrációt ajánlunk.
+const session = await auth.api.getSession({
+  headers: Astro.request.headers,
+});
+
+const isLoggedIn = !!session;
+const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" | null;
+---
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Árazás — NEXUS AI</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex flex-col px-6 py-12">
+      <div class="max-w-6xl w-full mx-auto flex-1 flex flex-col">
+
+        <!-- Fejléc -->
+        <div class="mb-12 flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">System // Pricing</span>
+          </div>
+          <a href={isLoggedIn ? "/fiok" : "/"} class="text-xs text-zinc-500 hover:text-emerald-400 transition-colors">
+            ← {isLoggedIn ? "Fiók" : "Főoldal"}
+          </a>
+        </div>
+
+        <h1 class="text-4xl font-light mb-2">
+          <span class="text-zinc-400">Válaszd ki a</span>
+          <span class="text-emerald-400">csomagodat</span>
+        </h1>
+        <p class="text-sm text-zinc-500 mb-12">
+          Bármikor válthatsz vagy lemondhatsz. Az árak forintban, havonta értendők.
+        </p>
+
+        <!-- Árazó kártyák -->
+        <div class="grid md:grid-cols-3 gap-6">
+
+          <!-- FREE -->
+          <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-950/60 backdrop-blur-sm flex flex-col relative">
+            {currentTier === "free" && (
+              <div class="absolute -top-3 left-6 bg-zinc-700 text-zinc-200 text-xs uppercase tracking-wider px-2 py-1 rounded">
+                Jelenlegi
+              </div>
+            )}
+            <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Free</div>
+            <div class="text-2xl font-light text-zinc-200 mb-1">Ingyenes</div>
+            <div class="text-xs text-zinc-500 mb-6">korlátlan</div>
+
+            <div class="text-sm text-zinc-300 mb-4">
+              <strong class="text-emerald-400">NEXUS AI</strong>
+              <span class="text-zinc-500"> · Basic</span>
+            </div>
+
+            <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
+              Villámgyors hozzáférés a NEXUS AI alap modellhez. Magyar szövegírás, kódolási segítség, weboldal-tervezés.
+            </p>
+
+            <ul class="text-xs text-zinc-400 space-y-2 mb-6">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Magyar nyelvű chat</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>HTML/CSS/JS kód generálás</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Villámgyors válaszidő</span>
+              </li>
+            </ul>
+
+            {!isLoggedIn && (
+              <a href="/regisztracio" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
+                Ingyenes regisztráció
+              </a>
+            )}
+            {isLoggedIn && currentTier === "free" && (
+              <div class="block text-center bg-zinc-800/50 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium">
+                Aktív csomag
+              </div>
+            )}
+            {isLoggedIn && currentTier !== "free" && (
+              <div class="block text-center text-zinc-600 px-4 py-2.5 text-xs">
+                Az alapcsomag mindig elérhető
+              </div>
+            )}
+          </div>
+
+          <!-- PRO -->
+          <div class="border border-emerald-700 rounded-lg p-6 bg-emerald-950/20 backdrop-blur-sm flex flex-col relative">
+            {currentTier === "pro" ? (
+              <div class="absolute -top-3 left-6 bg-emerald-600 text-zinc-100 text-xs uppercase tracking-wider px-2 py-1 rounded">
+                Jelenlegi
+              </div>
+            ) : (
+              <div class="absolute -top-3 left-6 bg-emerald-600 text-zinc-100 text-xs uppercase tracking-wider px-2 py-1 rounded">
+                Népszerű
+              </div>
+            )}
+            <div class="text-xs uppercase tracking-wider text-emerald-400 mb-3">Pro</div>
+            <div class="text-2xl font-light text-zinc-100 mb-1">3 990 Ft</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+
+            <div class="text-sm text-zinc-300 mb-4">
+              <strong class="text-emerald-400">NEXUS AI v4 Flash</strong>
+              <span class="text-zinc-500"> · felhő alapú</span>
+            </div>
+
+            <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
+              A NEXUS AI legfrissebb flash modellje. 1M token kontextus, gyors válaszidő, komplex feladatokhoz optimalizálva.
+            </p>
+
+            <ul class="text-xs text-zinc-400 space-y-2 mb-6">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Mindent, amit a Free tud</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Jobb minőség, gyorsabb válasz</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Hosszabb beszélgetések, nagyobb kontextus</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Üzleti dokumentumok, komplexebb kódolás</span>
+              </li>
+            </ul>
+
+            {!isLoggedIn && (
+              <a href="/regisztracio" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
+                Regisztrálj az előfizetéshez
+              </a>
+            )}
+            {isLoggedIn && currentTier === "pro" && (
+              <div class="block text-center bg-zinc-800/50 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium">
+                Aktív csomag
+              </div>
+            )}
+            {isLoggedIn && currentTier !== "pro" && (
+              <button
+                type="button"
+                data-checkout-tier="pro"
+                class="checkout-btn block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {currentTier === "premium" ? "Váltás Pro-ra" : "Előfizetek"}
+              </button>
+            )}
+          </div>
+
+          <!-- PREMIUM -->
+          <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-950/60 backdrop-blur-sm flex flex-col relative">
+            {currentTier === "premium" && (
+              <div class="absolute -top-3 left-6 bg-zinc-700 text-zinc-200 text-xs uppercase tracking-wider px-2 py-1 rounded">
+                Jelenlegi
+              </div>
+            )}
+            <div class="text-xs uppercase tracking-wider text-zinc-400 mb-3">Premium</div>
+            <div class="text-2xl font-light text-zinc-100 mb-1">5 990 Ft</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+
+            <div class="text-sm text-zinc-300 mb-4">
+              <strong class="text-emerald-400">NEXUS AI Premium</strong>
+              <span class="text-zinc-500"> · felhő alapú</span>
+            </div>
+
+            <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
+              A NEXUS AI fejlesztés legjobb modellje. Komplex elemzés, hosszú dokumentumok, kritikus üzleti feladatok.
+            </p>
+
+            <ul class="text-xs text-zinc-400 space-y-2 mb-6">
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Mindent, amit a Pro tud</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>A piacon elérhető legjobb minőség</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Kritikus döntésekhez, üzleti elemzésekhez</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Hosszú dokumentumok, 200k+ token kontextus</span>
+              </li>
+            </ul>
+
+            {!isLoggedIn && (
+              <a href="/regisztracio" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
+                Regisztrálj az előfizetéshez
+              </a>
+            )}
+            {isLoggedIn && currentTier === "premium" && (
+              <div class="block text-center bg-zinc-800/50 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium">
+                Aktív csomag
+              </div>
+            )}
+            {isLoggedIn && currentTier !== "premium" && (
+              <button
+                type="button"
+                data-checkout-tier="premium"
+                class="checkout-btn block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Előfizetek
+              </button>
+            )}
+          </div>
+
+        </div>
+
+        <!-- Hibaüzenet helye (a 3-as lépésben a JS ide ír) -->
+        <p id="checkout-error" class="hidden text-sm text-red-400 text-center mt-6"></p>
+
+        <p class="text-xs text-zinc-600 text-center mt-8">
+          A fizetést a Stripe biztonságos rendszere kezeli. Kártyaadataid sosem kerülnek a NEXUS szervereire.
+        </p>
+
+        <footer class="mt-auto pt-12">
+          <div class="border-t border-zinc-800 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-zinc-500">
+            <div>
+              © 2026 NEXUS AI by
+              <a href="https://conendigital.hu" class="text-emerald-400 hover:text-emerald-300 transition-colors ml-1">
+                Conen Digital
+              </a>
+            </div>
+          </div>
+        </footer>
+
+      </div>
+    </div>
+
+    <script>
+      // Checkout gombok bekötése: kattintáskor meghívjuk a /api/checkout
+      // endpointot, és átirányítunk a Stripe Checkout oldalára.
+      const errorEl = document.getElementById("checkout-error");
+
+      function showError(msg: string) {
+        if (!errorEl) return;
+        errorEl.textContent = msg;
+        errorEl.classList.remove("hidden");
+      }
+
+      document.querySelectorAll<HTMLButtonElement>(".checkout-btn").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const tier = btn.dataset.checkoutTier;
+          if (!tier) return;
+
+          // Loading állapot
+          const originalText = btn.textContent;
+          btn.disabled = true;
+          btn.textContent = "Átirányítás…";
+          errorEl?.classList.add("hidden");
+
+          try {
+            const res = await fetch("/api/checkout", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ tier }),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+              throw new Error(data.error || "Ismeretlen hiba");
+            }
+
+            if (data.url) {
+              // Átirányítás a Stripe Checkout oldalára
+              window.location.href = data.url;
+            } else {
+              throw new Error("Nem érkezett fizetési link");
+            }
+          } catch (err) {
+            const msg = err instanceof Error ? err.message : "Hiba történt";
+            showError(`Nem sikerült elindítani a fizetést: ${msg}`);
+            btn.disabled = false;
+            btn.textContent = originalText;
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -2,23 +2,55 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import SignOutButton from "@/components/SignOutButton";
+import { db, user as userTable } from "@/lib/db";
+import { eq } from "drizzle-orm";
 
 // Server-side session check
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
 });
-
 if (!session) {
   return Astro.redirect("/belepes");
 }
 
 const { user } = session;
+
+// A session user-én nincsenek rajta a billing-mezők — explicit lekérjük
+// a teljes rekordot a DB-ből az id alapján.
+const [dbUser] = await db
+  .select({
+    tier: userTable.tier,
+    subscriptionStatus: userTable.subscriptionStatus,
+    subscriptionPeriodEnd: userTable.subscriptionPeriodEnd,
+    cancelAtPeriodEnd: userTable.cancelAtPeriodEnd,
+    stripeCustomerId: userTable.stripeCustomerId,
+  })
+  .from(userTable)
+  .where(eq(userTable.id, user.id))
+  .limit(1);
+
+// A tier forrása mostantól a friss DB-rekord (a session cache-elt lehet).
+const tier = dbUser?.tier ?? user.tier ?? "free";
+
 const tierLabel = {
   free: "Free tier · Qwen 3 30B (lokális)",
   pro: "Pro tier · DeepSeek V3 (cloud)",
   premium: "Premium tier · Claude Sonnet (cloud)",
-}[user.tier as "free" | "pro" | "premium"] || "Ismeretlen tier";
+}[tier as "free" | "pro" | "premium"] || "Ismeretlen tier";
+
+const isPaid = tier === "pro" || tier === "premium";
+const isCanceling = dbUser?.cancelAtPeriodEnd === true;
+const isPastDue = dbUser?.subscriptionStatus === "past_due";
+
+const periodEndStr = dbUser?.subscriptionPeriodEnd
+  ? new Intl.DateTimeFormat("hu-HU", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    }).format(new Date(dbUser.subscriptionPeriodEnd))
+  : null;
 ---
+
 <html lang="hu">
   <head>
     <meta charset="utf-8" />
@@ -29,7 +61,6 @@ const tierLabel = {
   <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
     <div class="min-h-screen flex flex-col px-6 py-12">
       <div class="max-w-3xl w-full mx-auto">
-
         <div class="mb-12 flex items-center justify-between">
           <div class="flex items-center gap-3">
             <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
@@ -51,10 +82,56 @@ const tierLabel = {
         <div class="border border-zinc-800 rounded-lg p-6 mb-6">
           <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Aktív előfizetés</div>
           <div class="text-lg text-zinc-200">{tierLabel}</div>
-          {user.tier === "free" && (
+
+          {/* Státusz csak fizetős csomagnál */}
+          {isPaid && dbUser?.subscriptionStatus && (
+            <div class="text-xs text-zinc-500 mt-2">
+              Állapot:
+              <span class="text-zinc-400">
+                {dbUser.subscriptionStatus === "active" && "Aktív"}
+                {dbUser.subscriptionStatus === "past_due" && "Fizetés elmaradt"}
+                {dbUser.subscriptionStatus === "canceled" && "Lemondva"}
+              </span>
+            </div>
+          )}
+
+          {/* Period-végi lemondás — a portál lemondási flow-ja váltja ki */}
+          {isPaid && isCanceling && periodEndStr && (
+            <div class="mt-4 text-sm text-amber-400/90 border border-amber-500/20 bg-amber-500/5 rounded px-3 py-2">
+              Előfizetésed le lett mondva. A hozzáférésed eddig érvényes:
+              <strong class="font-medium">{periodEndStr}</strong>, utána Free tierre vált.
+            </div>
+          )}
+
+          {/* Aktív, megújuló előfizetés */}
+          {isPaid && !isCanceling && !isPastDue && periodEndStr && (
+            <div class="mt-3 text-xs text-zinc-600">
+              Következő számlázás: <span class="text-zinc-500">{periodEndStr}</span>
+            </div>
+          )}
+
+          {/* Fizetési probléma */}
+          {isPastDue && (
+            <div class="mt-4 text-sm text-red-400/90 border border-red-500/20 bg-red-500/5 rounded px-3 py-2">
+              A legutóbbi fizetés sikertelen volt. Frissítsd a fizetési módodat,
+              hogy ne veszítsd el a hozzáférést.
+            </div>
+          )}
+
+          {/* CTA: free → árazás, fizetős → portal */}
+          {tier === "free" ? (
             <a href="/arazas" class="inline-block mt-4 text-sm text-emerald-400 hover:text-emerald-300">
               Fejlessz Pro vagy Premium-ra →
             </a>
+          ) : (
+            <form method="POST" action="/api/portal" class="mt-5">
+              <button
+                type="submit"
+                class="inline-block border border-zinc-700 hover:border-emerald-500 hover:text-emerald-400 text-zinc-300 font-medium px-5 py-2.5 rounded transition-colors text-sm"
+              >
+                Előfizetés kezelése →
+              </button>
+            </form>
           )}
         </div>
 
@@ -69,10 +146,8 @@ const tierLabel = {
         </div>
 
         <div class="mt-12 pt-8 border-t border-zinc-800">
-            <SignOutButton client:load />
-          </form>
+          <SignOutButton client:load />
         </div>
-
       </div>
     </div>
   </body>

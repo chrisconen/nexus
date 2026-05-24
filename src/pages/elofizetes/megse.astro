@@ -1,0 +1,41 @@
+---
+import "../../styles/global.css";
+---
+<html lang="hu">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Megszakított fizetés — NEXUS AI</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
+      <div class="max-w-md w-full text-center">
+
+        <div class="flex items-center justify-center gap-3 mb-8">
+          <div class="w-2 h-2 bg-zinc-600 rounded-full"></div>
+          <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">System // Payment</span>
+        </div>
+
+        <h1 class="text-3xl font-light mb-4">
+          <span class="text-zinc-400">A fizetés</span>
+          <span class="text-zinc-200">megszakadt</span>
+        </h1>
+
+        <p class="text-sm text-zinc-400 leading-relaxed mb-8">
+          Nem történt levonás. Bármikor visszatérhetsz, ha készen állsz.
+        </p>
+
+        <div class="flex flex-col gap-3">
+          <a href="/arazas" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
+            Vissza az árazáshoz
+          </a>
+          <a href="/fiok" class="block text-center text-zinc-500 hover:text-emerald-400 text-sm transition-colors">
+            Fiók megtekintése
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </body>
+</html>
