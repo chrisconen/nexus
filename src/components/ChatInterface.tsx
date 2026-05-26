@@ -29,6 +29,7 @@ export default function ChatInterface({ userTier, userName }: Props) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [optOutTraining, setOptOutTraining] = useState(false);
 
 // Mobil/desktop alapállapot
 useEffect(() => {
@@ -144,6 +145,7 @@ useEffect(() => {
             role: m.role,
             content: m.content,
           })),
+          optOutTraining,
         }),
       });
 
@@ -382,7 +384,18 @@ useEffect(() => {
                 {loading ? "..." : "Küld"}
               </button>
             </div>
-            <div className="text-xs text-zinc-600 mt-2 text-center">{tierLabel}</div>
+            <div className="flex items-center justify-between mt-2 gap-4">
+              <label className="flex items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 cursor-pointer select-none">
+                <input
+                  type="checkbox"
+                  checked={optOutTraining}
+                  onChange={(e) => setOptOutTraining(e.target.checked)}
+                  className="accent-emerald-600 w-3.5 h-3.5"
+                />
+                <span>Adataim nem használhatók fel a modell fejlesztéséhez</span>
+              </label>
+              <span className="text-xs text-zinc-600 flex-shrink-0">{tierLabel}</span>
+            </div>
           </form>
         </div>
       </div>

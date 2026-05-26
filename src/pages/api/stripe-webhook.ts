@@ -5,6 +5,7 @@ import type { APIRoute } from "astro";
 import { db, user as userTable } from "@/lib/db";
 import { eq } from "drizzle-orm";
 import { stripe, tierForPriceId } from "@/lib/stripe";
+import { logData } from "@/lib/log";
 import type Stripe from "stripe";
 
 export const prerender = false;
@@ -130,7 +131,7 @@ export const POST: APIRoute = async ({ request }) => {
           })
           .where(eq(userTable.id, userId));
 
-        console.log(`[webhook] Tier aktiválva: user=${userId} → ${tier}`);
+        logData(`[webhook] Tier aktiválva: user=${userId} → ${tier}`);
         break;
       }
 
@@ -169,7 +170,7 @@ export const POST: APIRoute = async ({ request }) => {
           })
           .where(eq(userTable.id, user.id));
 
-        console.log(
+        logData(
           `[webhook] Subscription frissült: user=${user.id} ` +
             `státusz=${status} tier=${tier ?? "(nincs változás)"} ` +
             `cancelAtPeriodEnd=${cancelAtPeriodEnd}`
@@ -205,7 +206,7 @@ export const POST: APIRoute = async ({ request }) => {
           })
           .where(eq(userTable.id, user.id));
 
-        console.log(`[webhook] Előfizetés lemondva: user=${user.id} → free`);
+        logData(`[webhook] Előfizetés lemondva: user=${user.id} → free`);
         break;
       }
 
@@ -227,7 +228,7 @@ export const POST: APIRoute = async ({ request }) => {
           .set({ subscriptionStatus: "past_due" })
           .where(eq(userTable.id, user.id));
 
-        console.log(`[webhook] Sikertelen fizetés: user=${user.id} → past_due`);
+        logData(`[webhook] Sikertelen fizetés: user=${user.id} → past_due`);
         break;
       }
 

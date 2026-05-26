@@ -1,4 +1,5 @@
 import { Resend } from "resend";
+import { logData } from "@/lib/log";
 
 const RESEND_API_KEY = import.meta.env.RESEND_API_KEY;
 const FROM_EMAIL = import.meta.env.RESEND_FROM_EMAIL || "noreply@conendigital.hu";
@@ -88,7 +89,7 @@ https://conendigital.hu`;
       return { success: false, error: error.message };
     }
 
-    console.log("Verification email sent, id:", data?.id);
+    logData("Verification email sent, id:", data?.id);
     return { success: true };
   } catch (err) {
     console.error("Email send exception:", err);

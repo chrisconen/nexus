@@ -6,6 +6,7 @@ import { streamOllamaChat, type OllamaMessage } from "@/lib/llm/ollama";
 import { streamGroqChat, type GroqMessage } from "@/lib/llm/groq";
 import { streamDeepSeekChat, type DeepSeekMessage } from "@/lib/llm/deepseek";
 import { streamClaudeChat } from "@/lib/llm/claude";
+import { logData } from "@/lib/log";
 
 export const prerender = false;
 
@@ -39,6 +40,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const messages: LLMMessage[] = body.messages;
+  const optOutTraining = body.optOutTraining === true;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Üzenetek listája hiányzik vagy üres" }), {
@@ -148,22 +150,8 @@ Ne használj emojikat.`,
         let conversationId = body.conversationId;
         const now = new Date();
 
-        if (!conversationId) {
-          conversationId = crypto.randomUUID();
-          await db.insert(conversation).values({
-            id: conversationId,
-            userId: user.id,
-            title: (messages[messages.length - 1] as any).content.slice(0, 80),
-            createdAt: now,
-            updatedAt: now,
-          });
-        } else {
-          const existing = await db
-            .select()
-            .from(conversation)
-            .where(eq(conversation.id, conversationId))
-            .limit(1);
-          if (existing.length === 0 || existing[0].userId !== user.id) {
+        if (!optOutTraining) {
+          if (!conversationId) {
             conversationId = crypto.randomUUID();
             await db.insert(conversation).values({
               id: conversationId,
@@ -173,10 +161,26 @@ Ne használj emojikat.`,
               updatedAt: now,
             });
           } else {
-            await db
-              .update(conversation)
-              .set({ updatedAt: now })
-              .where(eq(conversation.id, conversationId));
+            const existing = await db
+              .select()
+              .from(conversation)
+              .where(eq(conversation.id, conversationId))
+              .limit(1);
+            if (existing.length === 0 || existing[0].userId !== user.id) {
+              conversationId = crypto.randomUUID();
+              await db.insert(conversation).values({
+                id: conversationId,
+                userId: user.id,
+                title: (messages[messages.length - 1] as any).content.slice(0, 80),
+                createdAt: now,
+                updatedAt: now,
+              });
+            } else {
+              await db
+                .update(conversation)
+                .set({ updatedAt: now })
+                .where(eq(conversation.id, conversationId));
+            }
           }
         }
 
@@ -192,49 +196,51 @@ Ne használj emojikat.`,
 
         controller.close();
 
-        try {
-          const lastUserMessage = messages[messages.length - 1] as any;
-          await db.insert(message).values({
-            id: crypto.randomUUID(),
-            conversationId,
-            role: "user",
-            content: lastUserMessage.content,
-            createdAt: new Date(),
-          });
-
-          await db.insert(message).values({
-            id: crypto.randomUUID(),
-            conversationId,
-            role: "assistant",
-            content: assistantResponse,
-            modelUsed: modelLabel,
-            tokensIn,
-            tokensOut,
-            costHuf: 0,
-            createdAt: new Date(),
-          });
-
-          const today = new Date().toISOString().slice(0, 10);
-          const existingUsage = await db
-            .select()
-            .from(usageDaily)
-            .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)))
-            .limit(1);
-
-          if (existingUsage.length === 0) {
-            await db.insert(usageDaily).values({
-              userId: user.id,
-              date: today,
-              messageCount: 1,
+        if (!optOutTraining) {
+          try {
+            const lastUserMessage = messages[messages.length - 1] as any;
+            await db.insert(message).values({
+              id: crypto.randomUUID(),
+              conversationId,
+              role: "user",
+              content: lastUserMessage.content,
+              createdAt: new Date(),
             });
-          } else {
-            await db
-              .update(usageDaily)
-              .set({ messageCount: existingUsage[0].messageCount + 1 })
-              .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)));
+
+            await db.insert(message).values({
+              id: crypto.randomUUID(),
+              conversationId,
+              role: "assistant",
+              content: assistantResponse,
+              modelUsed: modelLabel,
+              tokensIn,
+              tokensOut,
+              costHuf: 0,
+              createdAt: new Date(),
+            });
+
+            const today = new Date().toISOString().slice(0, 10);
+            const existingUsage = await db
+              .select()
+              .from(usageDaily)
+              .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)))
+              .limit(1);
+
+            if (existingUsage.length === 0) {
+              await db.insert(usageDaily).values({
+                userId: user.id,
+                date: today,
+                messageCount: 1,
+              });
+            } else {
+              await db
+                .update(usageDaily)
+                .set({ messageCount: existingUsage[0].messageCount + 1 })
+                .where(and(eq(usageDaily.userId, user.id), eq(usageDaily.date, today)));
+            }
+          } catch (dbError) {
+            console.error("DB write error:", dbError);
           }
-        } catch (dbError) {
-          console.error("DB write error:", dbError);
         }
       } catch (streamErr) {
         console.error("Stream error from", modelLabel, ":", streamErr);
@@ -242,7 +248,7 @@ Ne használj emojikat.`,
         // Groq error → Ollama fallback Free tier-en
         if (modelLabel === "groq-llama-3.3-70b" && user.tier === "free") {
           try {
-            console.log("Falling back to Ollama mid-stream...");
+            logData("Falling back to Ollama mid-stream...");
             const fallbackGenerator = streamOllamaChat(fullMessages);
             let fallbackResponse = "";
 
