@@ -14,7 +14,7 @@
 - **Közösségi (EU) adószám:** HU56302415
 - **Nyilvántartási szám:** 54933347
 - **Adózási státusz:** alanyi adómentes (AAM)
-- **E-mail:** [TÖLTSD KI – ügyfélszolgálati email]
+- **E-mail:** info@conendigital.hu
 - **Weboldal:** https://nexus.conendigital.hu
 - **Tárhelyszolgáltató:** Vercel Inc. (440 N Barranca Ave #4133, Covina, CA 91723, USA)
 
