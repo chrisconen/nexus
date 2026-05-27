@@ -11,7 +11,7 @@
 - **Székhely:** 9134 Bodonhely, Lepke utca 9.
 - **Adószám:** 56302415-1-28
 - **Nyilvántartási szám:** 54933347
-- **E-mail (adatvédelmi ügyek):** [TÖLTSD KI]
+- **E-mail (adatvédelmi ügyek): info@conendigital.hu
 - **Weboldal:** https://nexus.conendigital.hu
 
 Az adatkezelő (a továbbiakban: "**Szolgáltató**") tiszteletben tartja a Felhasználók személyes adatok védelméhez fűződő jogát, és a személyes adatokat az Európai Parlament és Tanács **(EU) 2016/679 rendelete (GDPR)**, valamint az információs önrendelkezési jogról és az információszabadságról szóló **2011. évi CXII. törvény (Infotv.)** rendelkezéseinek megfelelően kezeli.
