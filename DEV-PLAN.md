@@ -1,182 +1,195 @@
 # NEXUS — Fejlesztési terv és roadmap
 
-> **Státusz:** A NEXUS chat-termék élesítve, fizetést fogad (Stripe live).
-> **Fő irány:** Site builder magyar kisvállalkozóknak — a chat-termék a közös tier-gerincre épülő második képesség.
-> **Dokumentum típusa:** Végrehajtási terv (a "hogyan"). Az üzleti/architektúra "miért"-et a külön termékvázlat (docx) tartalmazza.
+> **Státusz:** NEXUS chat + site builder élesítve, fizetést fogad (Stripe live). Site builder Pro-only.
+> **Fő irány:** AI chat + weboldal készítő magyar kisvállalkozóknak — egyetlen platformon.
+> **Domain:** nexus.conendigital.hu
+> **Dokumentum típusa:** Végrehajtási terv. Utolsó frissítés: 2026-05-27.
 
 ---
 
 ## 0. Vezérelv — az őszinte értéklépcső
 
-A három tier közti különbség **a modellek valódi képességeiből** fakad, NEM mesterséges butításból. A Free nem azért gyengébb, mert korlátoztuk, hanem mert a mögötte lévő modell ténylegesen kevesebbet tud. Ez tartja a terméket őszintének és a felhasználót elégedettnek.
+A három tier közti különbség **a modellek valódi képességeiből** fakad, NEM mesterséges butításból.
 
 - Soha ne korlátozz egy funkciót csak azért, hogy a magasabb tier vonzóbb legyen, ha a funkció technikailag menne.
-- A differenciálás megengedett dimenziói: **valódi modellképesség** (pl. képértés), **mennyiség** (üzenet/nap, dokumentumhossz), **sablon/funkciókészlet** a builderben.
+- A differenciálás megengedett dimenziói: **valódi modellképesség** (pl. képértés), **funkcióhozzáférés** (builder Pro-only), **AI minőség**.
 
 ---
 
-## 1. A közös tier-mátrix (a termék gerince)
+## 1. A közös tier-mátrix (aktuális állapot)
 
-Egyetlen előfizetés (Free/Pro/Premium) szabja meg EGYSZERRE a chat- és a builder-képességeket. A meglévő Stripe tier-rendszer a közös alap mindkettő alatt.
-
-| Dimenzió | **Free** | **Pro** | **Premium** |
+| Dimenzió | **Free** | **Pro (3 990 Ft/hó)** | **Premium (5 990 Ft/hó)** |
 |---|---|---|---|
-| **Chat-modell** | Qwen3 30B (lokális, Ollama) — fallback: Llama 3.3 70B (Groq) | DeepSeek V4-Flash (cloud, 1M kontextus) | Claude Sonnet 4.6 (cloud) |
-| **Szöveges chat** | ✅ alap | ✅ gyors, nagy kontextus | ✅ legárnyaltabb |
-| **Dokumentum-feldolgozás** (PDF/docx → szöveg) | ❌ vagy erős limit | ✅ közepes hossz | ✅ hosszú dokumentumok |
-| **Képértés (vision)** | ❌ | ❌ (modell nem támogatja) | ✅ **Premium-exkluzív, valódi képesség** |
-| **Üzenet/nap limit** | szigorú (pl. 10–20) | bőséges (pl. 200) | gyakorlatilag korlátlan |
-| **Site builder — sablonok** | 1 alap sablon | több sablon | összes prémium sablon |
-| **Site builder — oldalszám** | 1 statikus oldal | több aldoldal | több oldal + prioritás |
-| **Saját domain** | ❌ (csak `*.nexus.hu` aldomain) | ✅ saját domain bekötés | ✅ saját domain + prioritás |
-| **Dinamikus elemek** (űrlap, foglalás, DB) | ❌ | ❌ vagy alap űrlap | ✅ teljes (Üzleti csomag) |
-| **AI-generálás minősége a builderben** | alap (Qwen) | jó (DeepSeek) | legjobb (Claude) |
-
-> **Megjegyzés:** a pontos limitszámok és a Pro/Premium dokumentum-hosszhatárok véglegesítendők a 7. szakasz költség/kapacitás-elemzése alapján.
+| **Chat-modell** | Llama 4 Scout (Groq, 512k kontextus) | DeepSeek V4-Flash (1M kontextus) | Claude Sonnet 4.6 |
+| **Szöveges chat** | ✅ korlátlan | ✅ korlátlan | ✅ korlátlan |
+| **Dokumentum-feldolgozás** (PDF/DOCX/TXT) | ❌ | ✅ max 50k karakter | ✅ max 200k karakter |
+| **Képértés (vision)** | ❌ | ❌ | ✅ Claude vision |
+| **Site builder** | ❌ | ✅ **teljes hozzáférés** | ✅ teljes + jobb AI minőség |
+| **Képfeltöltés (builder)** | ❌ | ✅ Vercel Blob | ✅ Vercel Blob |
+| **HTML letöltés** | ❌ | ✅ | ✅ |
+| **AI-generálás minősége** | — | jó (DeepSeek) | legjobb (Claude) |
 
 ---
 
-## 2. Azonnali higiénia (gyors, fél napon belül)
+## 2. Elkészült mérföldkövek ✅
 
-Apró, de fontos tételek, amik az élesítés után maradtak:
+### M0 — Higiénia ✅
+- [x] Modell-címke javítása (DeepSeek V4 Flash)
+- [x] Régi teszt-előfizetések lemondása (Stripe)
+- [x] Teszt-fizetések refundja
+- [x] Külön dev Turso DB (`dev-nexus`) — prod (`nexus`) érintetlen
+- [x] `feature/site-builder` branch → mergeltük main-be
 
-- [x] **Modell-címke javítása a UI-ban** — a chat fejléce „DEEPSEEK V3"-at ír, miközben a modell `deepseek-v4-flash`. Keresd a `modelLabel`/címke-konstanst (`ChatInterface.tsx` vagy közös konstans), javítsd „DeepSeek V4"-re.
-- [x] **Régi teszt-előfizetések lemondása** a Stripe live-ban (a február­i €0.10/€0.50-es Premium subok), ha még maradt.
-- [x] **Teszt-fizetés(ek) refundja** a saját élesítési próbából.
-- [x] **Külön dev Turso DB létrehozása** — a local (test Stripe) és a prod (live Stripe) jelenleg KÖZÖS DB-t használ. Ez test/live adatkeveredést okoz (ld. a `cus_` test customer hibát). Teendő: új Turso DB devhez, `.env.local` átállítása, `db:push` rá. Prod marad a jelenlegi DB-n.
-- [x] **`feature/site-builder` git branch** létrehozása — a `main` maradjon deploy-kész az élesített állapottal.
+### M1 — Chat dokumentum-feldolgozás ✅
+- [x] Fájlfeltöltés UI (📎 gomb, Pro/Premium only)
+- [x] PDF (pdf-parse), DOCX (mammoth), TXT szövegkinyerés
+- [x] Tier-kapu: Free ❌, Pro 50k, Premium 200k karakter
+- [x] Hibakezelés: túl nagy fájl, nem támogatott formátum
 
----
+### M2 — Chat képértés ✅
+- [x] Képfeltöltés UI (Premium-only, accept lista + backend kapu)
+- [x] Claude `ClaudeContentBlock` típus (text + image)
+- [x] Kép → base64 → Claude vision content block
+- [x] Kétszintű tier-kapu: frontend + backend 403
 
-## 3. Chat-oldali tier-funkciók (a mátrix kitöltése)
+### M3 — Site Builder Réteg 1 ✅
+- [x] **Adatmodell:** `site` tábla, strukturált JSON (SiteData), Vercel Blob képtárolás
+- [x] **13 szekciótípus:** hero, szolgáltatások, rólunk, galéria, kapcsolat, vélemények, csapat, kiemelt ajánlatok, GYIK, CTA, statisztikák, árazás, partner logók
+- [x] **AI-generálás:** onboarding kérdéssor → tier-alapú modell → SiteData
+- [x] **Split-view szerkesztő:** szekciólista + szekció editor + élő preview
+- [x] **UX:** auto-save (2s), undo/redo (Ctrl+Z/Y, 30 lépés), toast értesítések, szekció duplikálás, újragenerálás
+- [x] **Stílusok:** 8 színpaletta, 8 Google Font, per-szekció háttér/szövegszín/igazítás/padding/margin
+- [x] **25 SVG ikon** (Lucide-stílus) a szolgáltatás kártyákhoz
+- [x] **Képfeltöltés:** Vercel Blob, WebP/AVIF/PNG/JPEG, max 5MB, tényleges törlés
+- [x] **SEO:** meta title, description, OG tags szerkeszthető
+- [x] **Footer:** social media linkek SVG ikonokkal (FB, IG, TikTok, YT, LinkedIn, X, GitHub, Web)
+- [x] **Formspree:** kapcsolati űrlap integráció endpoint URL-lel
+- [x] **HTML letöltés:** önálló, reszponzív fájl, bárhol hostolható
+- [x] **Dokumentáció:** `/utmutato` oldal, sidebar navigáció, keresés, 26 szekció
+- [x] **Pro-only kapu:** Free user → árazás oldalra redirect
+- [x] **Bug report:** fix pozíciójú gomb minden oldalon → GitHub Issues
 
-A builder előtt érdemes a chat-tier funkciókat lezárni, mert ezek a meglévő, működő kódra épülnek és gyors győzelmek.
-
-### 3.1 Dokumentum-feldolgozás (Pro + Premium)
-- [x] Fájlfeltöltés UI a chatbe (PDF, docx, txt) — `ChatInterface.tsx`.
-- [x] Szerveroldali szövegkinyerés (PDF/docx → plain text) a `chat.ts`-ben, feltöltés-kezelés.
-- [x] A kinyert szöveg beillesztése a modell kontextusába (mindkét cloud-modell támogatja).
-- [x] Tier-kapu: Free nem, Pro közepes hossz, Premium hosszú. A limitet a tier dönti el.
-- [x] Hibakezelés: túl nagy fájl, nem támogatott formátum, üres kinyerés.
-
-### 3.2 Képértés (Premium-only)
-- [ ] Képfeltöltés UI (csak Premium usernek látható).
-- [ ] A `claude.ts` `content` típusának bővítése `string`-ről `string | ContentBlock[]`-re (image block támogatás).
-- [ ] Kép → base64 → Claude `image` content block.
-- [ ] Tier-kapu: Pro/Free user szép üzenetet kap („A képértés Premium funkció").
-
-### 3.3 Limitek és mérés
-- [ ] Üzenet/nap limit a `usageDaily` táblára építve (már létezik a sémában).
-- [ ] Limit-túllépés UI (Free user lássa, mennyi van hátra, és a fejlesztési ajánlatot).
-
----
-
-## 4. Site builder — RÉTEG 1: generálás + szerkesztés + előnézet
-
-> **Cél:** egy oldal, egy felhasználó, élő előnézet. Még NINCS multi-tenant, NINCS publikálás. Ez a megmutatható v1, amin validálható, hogy a célközönség használja-e.
-
-### 4.1 Adatmodell
-- [ ] `site` tábla: id, userId, sablonazonosító, létrehozva/módosítva, státusz (draft).
-- [ ] A site tartalma **strukturált adatként** tárolva (JSON): szekciók, szövegek, képhivatkozások, színpaletta. NEM nyers HTML.
-- [ ] Object storage a feltöltött képeknek (Cloudflare R2 / Vercel Blob) — a DB csak hivatkozást tárol.
-
-### 4.2 Sablonrendszer
-- [ ] 1–2 jól megtervezett, reszponzív „névjegy-weboldal" sablon (hero, szolgáltatások, galéria, kapcsolat, nyitvatartás).
-- [ ] A sablon = strukturált séma + renderelő. Egy sablon több színpalettával.
-- [ ] Tier szerinti sablonkínálat (ld. mátrix).
-
-### 4.3 AI-generálás (kérdéssorból)
-- [ ] Onboarding kérdéssor: vállalkozás típusa, neve, szolgáltatások, elérhetőség, hangnem.
-- [ ] Az AI a **sablon adatstruktúráját** tölti ki (szekciók szövegei, javasolt színek) — NEM nyers kódot ad.
-- [ ] A generálás minősége tier-függő (Qwen/DeepSeek/Claude). Premium = legjobb szövegek.
-- [ ] Logó/kép feltöltés opció (kapcsolódik a 3.2 képkezeléshez).
-
-### 4.4 Helyben szerkesztés (laikus-barát)
-- [ ] „Kattints a szövegre, írd át" inline szerkesztés. NEM drag-and-drop.
-- [ ] Képcsere, színváltás előre definiált palettából. A szerkezet KÖTÖTT — nem lehet elrontani.
-- [ ] Mentés a strukturált adatba.
-
-### 4.5 Élő előnézet (BIZTONSÁG KRITIKUS)
-- [ ] Előnézet sandboxolt iframe-ben: `sandbox="allow-scripts"`, **`allow-same-origin` NÉLKÜL**.
-- [ ] A preview külön origin-on, elválasztva a NEXUS-app auth-sütijeitől.
-- [ ] Reszponzív előnézet (mobil/desktop váltó).
+### Infrastruktúra ✅
+- [x] Free tier modell váltás: Llama 4 Scout (`meta-llama/llama-4-scout-17b-16e-instruct`, Groq)
+- [x] Landing oldal frissítés: két fő funkció (Chat + Builder), frissített tier leírások
+- [x] Árazás oldal frissítés: modellnevek, Premium "Hamarosan" badge
+- [x] Navigáció: chat ↔ builder ↔ fiók, útmutató link everywhere
 
 ---
 
-## 5. Site builder — RÉTEG 2: publikálás (multi-tenant)
+## 3. Következő lépések (prioritás sorrendben)
 
-> **Cél:** a `tenant.nexus.hu` élővé tétele. Ez a projekt legnehezebb, leginkább alábecsült része.
+### M4 — Validáció (MOST)
+> **A legfontosabb lépés:** Mielőtt bármit tovább fejlesztünk, validálni kell, hogy a célközönség használja-e.
 
-### 5.1 Tenant-infrastruktúra
-- [ ] Tenant-modell: melyik site melyik aldomainen/domainen él, melyik csomagban.
-- [ ] Aldomain-választás/validálás a usernek (`valami.nexus.hu`), foglaltság-ellenőrzés.
-- [ ] Publikálás: a strukturált adatból statikus HTML renderelés (CDN-re) — ez az olcsó, gyors út névjegyoldalakhoz.
+- [ ] 2-3 valódi kisvállalkozónak megmutatni a terméket
+- [ ] Feedback gyűjtés: mit használnak, mit nem, mi hiányzik
+- [ ] Builder UX megfigyelés: hol akadnak el, mi nem intuitív
+- [ ] Döntés: merre tovább a feedback alapján
 
-### 5.2 Wildcard subdomain + SSL
-- [ ] `*.nexus.hu` DNS wildcard beállítás.
-- [ ] **Vercel-specifikus:** a domaint a Vercel névszerverére állítani (auto wildcard SSL).
-- [ ] Kérés-routing: `tenant.nexus.hu` → a helyes tenant tartalma (middleware).
+### M5 — Builder Réteg 2: Publikálás (multi-tenant)
+> **Cél:** `vallalkozas.nexus.hu` — élő weboldal egyetlen kattintással.
 
-### 5.3 Közzététel-flow
-- [ ] „Közzététel" gomb a szerkesztőben → publikál → azonnal él.
-- [ ] Újra-publikálás szerkesztés után (verziókezelés/cache-ürítés).
-- [ ] Tier-kapu: Free csak `*.nexus.hu`.
+- [ ] Tenant-modell: site ↔ subdomain mapping
+- [ ] Aldomain-választás/validálás (`valami.nexus.hu`)
+- [ ] `*.nexus.hu` DNS wildcard + Vercel auto SSL
+- [ ] Middleware: `tenant.nexus.hu` → helyes site HTML kiszolgálása
+- [ ] "Közzététel" gomb a szerkesztőben
+- [ ] Cache-kezelés újra-publikálásnál
 
----
+### M6 — Soft launch
+- [ ] Néhány valódi ügyfél, statikus oldalakkal, havidíjjal
+- [ ] Monitoring: költségek, használat, hibák
 
-## 6. Site builder — RÉTEG 3 és 4 (későbbi)
-
-### 6.1 Réteg 3 — Saját domain + SSL (Pro/Premium)
-- [ ] Domain-csatolás flow: user CNAME-et állít a regisztrátoránál.
-- [ ] Domain-tulajdon ellenőrzés + automatikus SSL generálás.
-- [ ] **DÖNTÉSI PONT a kezdés ELŐTT:** ellenőrizni, hogy a tenant saját domének tömeges, automatizált bekötése a friss Vercel-árazáson nem ütközik-e Enterprise-falba. Ha igen → Cloudflare-alapú megoldás mérlegelése a kiszolgált oldalakra.
-
-### 6.2 Réteg 4 — Dinamikus elemek (Üzleti csomag, Premium)
-- [ ] Kapcsolatfelvételi űrlap (email-továbbítás, pl. Resend — már be van kötve).
-- [ ] Időpontfoglalás (a fodrász/autószerelő tipikus igénye) — tenantonkénti backend-állapot.
-- [ ] Mini-adatbázis tenantonként. **Ez nagyságrenddel bonyolultabb** — külön termékág, drágább csomag.
+### M7 — Saját domain + dinamikus elemek (igény alapján)
+- [ ] Domain-csatolás flow (CNAME + SSL)
+- [ ] **DÖNTÉSI PONT:** Vercel-árazás ellenőrzése tömeges domain bekötésnél
+- [ ] Időpontfoglalás (fodrász/autószerelő tipikus igény)
+- [ ] Kapcsolatfelvételi űrlap email-továbbítással (Resend már bekötve)
 
 ---
 
-## 7. Keresztmetsző feladatok (végig kísérik a launchot)
+## 4. Builder továbbfejlesztési backlog
 
-### 7.1 Költség és kapacitás
-- [ ] **Free tier lokális Qwen kockázata:** a lokális modell NEM skálázódik — sok egyidejű Free user megfojtja. Teendő: szigorú Free-limit, és terv arra, ha a Free is cloud-modellre kell, hogy kerüljön (a Groq-fallback már létezik).
-- [ ] Hosting valós költségének számítása (tárhely, sávszél, build) → a havidíjnak fedeznie KELL.
-- [ ] Platformdöntés finomítása: NEXUS-app Vercelen; a kiszolgált tenant-oldalak skálán esetleg Cloudflare-re (R2 + Pages) költségokokból.
+> Ezek a validáció (M4) utánra, prioritás a feedback alapján.
 
-### 7.2 Árazás véglegesítése
-- [ ] Csomagárak: Start (statikus), Pro (saját domain), Üzleti (dinamikus). Induló versenyképes ár, siker-alapú emelés.
-- [ ] A chat-tier és a builder-tier összehangolása egyetlen előfizetésbe.
+### UX fejlesztések
+- [ ] Drag-and-drop szekció sorrend
+- [ ] Kép preview az editorban (nagyobb thumbnail)
+- [ ] Mobil-first szerkesztő (jelenleg desktop-optimalizált)
+- [ ] Inline szerkesztés az előnézetben (kattints a szövegre, írd át)
+- [ ] Szín picker per-elem (CTA gomb színe, kártya háttér)
 
-### 7.3 Jog/megfelelőség (magyar piac)
-- [ ] ÁSZF, Adatkezelési tájékoztató (GDPR) — a felhasználók adatait és a végfelhasználói oldalakat is.
-- [ ] Számlázás: a Stripe nem ad magyar NAV-kompatibilis számlát automatikusan — számlázó-integráció (pl. Számlázz.hu/Billingo) mérlegelése.
-- [ ] Tartalmi felelősség: a felhasználók által közzétett oldalak moderálási kerete.
+### Funkcionális bővítések
+- [ ] Több weboldal per fiók
+- [ ] Verziókezelés (korábbi állapot visszatöltése)
+- [ ] Egyéni betűtípus feltöltés
+- [ ] Egyéni CSS beillesztés (haladó mód)
+- [ ] Többnyelvű weboldal generálás
+- [ ] AI szöveg újragenerálás szekciónként (nem az egész oldal)
+- [ ] Sablon galéria (előre definiált iparágspecifikus sablonok)
+- [ ] Google Analytics / Meta Pixel kód beillesztés
 
-### 7.4 Biztonság (folyamatos)
-- [ ] Minden generált/szerkesztett/közzétett tartalom = felhasználói tartalom → sandbox/izoláció (ld. 4.5).
-- [ ] Tenant-izoláció: egy user soha ne férjen másik tenant adatához.
-- [ ] Titkok kezelése: kulcsok kizárólag env-ből, soha a repóban.
-
----
-
-## 8. Javasolt végrehajtási sorrend (mérföldkövek)
-
-1. **M0 — Higiénia** (2. szakasz): modell-címke, dev DB szétválasztás, feature branch. *(fél nap)*
-2. **M1 — Chat dokumentum-feldolgozás** (3.1): gyors érték, meglévő kódra épül. *(napok)*
-3. **M2 — Chat képértés Premium-only** (3.2): a tier-differenciálás kézzelfogható bizonyítéka. *(napok)*
-4. **M3 — Builder Réteg 1** (4. szakasz): generálás + szerkesztés + előnézet. A nagy „wow". *(hetek)*
-5. **M4 — Validáció:** 2–3 valódi kisvállalkozónak megmutatni, MIELŐTT a multi-tenantra mész.
-6. **M5 — Builder Réteg 2** (5. szakasz): publikálás `*.nexus.hu`-ra. *(hetek)*
-7. **M6 — Soft launch:** néhány valódi ügyfél, statikus oldalakkal, havidíjjal.
-8. **M7 — Réteg 3** (saját domain) és **Réteg 4** (dinamikus) igény szerint, fizető ügyfelek alapján.
+### Szekció bővítések
+- [ ] Videó szekció (YouTube/Vimeo embed)
+- [ ] Térkép szekció (Google Maps embed)
+- [ ] Blog/hírek szekció
+- [ ] Számláló/countdown szekció
+- [ ] Előtte/utána szekció (képösszehasonlítás)
 
 ---
 
-## 9. Elvek, amik végig érvényesek
+## 5. Keresztmetsző feladatok
 
-- **Ne hagyd félbe a kész részt egy újért.** A NEXUS chat él és fizet — minden réteg ráépül, nem helyettesíti.
-- **Minden réteg önmagában is megmutatható mérföldkő.** Ha leállsz, akkor is van működő termék.
-- **Az agentikus eszköz (opencode) a kódírást gyorsítja, NEM az architektúrát dönti el.** A multi-tenant/SSL/domain döntéseket előre, kézzel kell meghozni — ez a dokumentum erről a térkép.
-- **Validálj a nagy beruházások előtt.** Mielőtt hónapokat tennél a hostingba, derüljön ki, hogy a célközönség használja-e a Réteg 1-et.
+### 5.1 Költség és kapacitás
+- [x] Free tier: Groq (ingyenes API) → nincs szerver-terhelés
+- [ ] Vercel Blob költség monitoring (képtárolás)
+- [ ] Hosting költség vs. havidíj kalkuláció
+- [ ] Platformdöntés tenant-oldalakra: Vercel vs. Cloudflare (R2 + Pages)
+
+### 5.2 Árazás
+- [x] Free: 0 Ft — chat only
+- [x] Pro: 3 990 Ft/hó — chat + builder + dokumentumok
+- [ ] Premium: 5 990 Ft/hó — "Hamarosan" (chat + builder + vision + prémium sablonok)
+- [ ] Éves árazás kedvezménnyel
+
+### 5.3 Jog/megfelelőség (magyar piac)
+- [ ] ÁSZF, Adatkezelési tájékoztató (GDPR)
+- [ ] Számlázó-integráció (Számlázz.hu/Billingo) — Stripe nem ad NAV-kompatibilis számlát
+- [ ] Tartalmi felelősség: user-generated oldalak moderálása
+
+### 5.4 Biztonság
+- [x] Preview iframe: `sandbox="allow-scripts allow-same-origin"`
+- [x] Titkok: kulcsok env-ből, `.env.local` gitignore-ban
+- [x] Képfeltöltés: formátum + méret validálás, user-izolált Blob path
+- [ ] Tenant-izoláció (M5-nél): user soha ne férjen más site adatához
+- [ ] Rate limiting (Upstash Redis — már bekötve, de nincs használva)
+
+---
+
+## 6. Tech stack összefoglaló
+
+| Réteg | Technológia |
+|-------|------------|
+| Framework | Astro 6 + React 19 |
+| Stílus | Tailwind CSS 4 |
+| DB | Turso (libsql) + Drizzle ORM |
+| Auth | Better Auth |
+| Fizetés | Stripe (live) |
+| AI — Free | Llama 4 Scout (Groq) |
+| AI — Pro | DeepSeek V4 Flash |
+| AI — Premium | Claude Sonnet 4.6 (Anthropic) |
+| Képtárolás | Vercel Blob |
+| Email | Resend |
+| Hosting | Vercel |
+| Dev DB | Turso `dev-nexus` |
+| Prod DB | Turso `nexus` |
+
+---
+
+## 7. Elvek
+
+- **Ne hagyd félbe a kész részt egy újért.** A chat él és fizet — minden réteg ráépül.
+- **Minden réteg önmagában is megmutatható mérföldkő.**
+- **Validálj a nagy beruházások előtt.** A multi-tenant hosting előtt derüljön ki, hogy a Réteg 1-et használják-e.
+- **Az őszinte értéklépcső fontosabb a mesterséges lock-in-nél.**
