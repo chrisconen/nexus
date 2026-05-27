@@ -20,157 +20,155 @@ if (isLoggedIn) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="generator" content={Astro.generator} />
-    <meta name="description" content="NEXUS AI — Conen Digital saját fejlesztésű AI asszisztense. Weboldal készítésre tervezve, magyar piacra szabva." />
-    <title>NEXUS AI — Conen Digital</title>
+    <meta name="description" content="NEXUS — AI chat asszisztens és weboldal készítő magyar kisvállalkozásoknak. Percek alatt kész weboldal, AI-val generálva." />
+    <title>NEXUS — AI Chat & Weboldal Készítő</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased m-0 relative overflow-x-hidden">
 
     <div class="fixed inset-0 -z-10 overflow-hidden">
-  <div
-    class="absolute inset-0 bg-cover bg-bottom bg-no-repeat"
-    style="background-image: url('/landing-bg.webp');"
-  ></div>
-  <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/40 via-zinc-950/60 to-zinc-950/90"></div>
-</div>
+      <div class="absolute inset-0 bg-cover bg-bottom bg-no-repeat" style="background-image: url('/landing-bg.webp');"></div>
+      <div class="absolute inset-0 bg-gradient-to-t from-zinc-950/40 via-zinc-950/60 to-zinc-950/90"></div>
+    </div>
 
     <div class="relative min-h-screen flex flex-col">
 
       <header class="flex items-center justify-between px-6 py-5 max-w-6xl mx-auto w-full">
         <div class="flex items-center gap-3">
           <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span class="text-xs uppercase tracking-[0.3em] text-zinc-400">NEXUS AI</span>
+          <span class="text-xs uppercase tracking-[0.3em] text-zinc-400">NEXUS</span>
         </div>
         <nav class="flex items-center gap-6 text-sm">
-          {isLoggedIn && (
-            <span class="text-zinc-500 hidden sm:inline">Üdv, {userName}</span>
-            <a href="/chat" class="text-zinc-300 hover:text-emerald-400 transition-colors">Chat</a>
-            <a href="/fiok" class="text-zinc-300 hover:text-emerald-400 transition-colors">Fiók</a>
-          )}
-          {!isLoggedIn && (
-            <a href="/belepes" class="text-zinc-400 hover:text-zinc-200 transition-colors">Belépés</a>
-            <a href="/regisztracio" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">Regisztráció</a>
-          )}
+          <a href="#funkciok" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">Funkciók</a>
+          <a href="#arazas" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">Árazás</a>
+          <a href="/utmutato" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">Útmutató</a>
+          <a href="/belepes" class="text-zinc-400 hover:text-zinc-200 transition-colors">Belépés</a>
+          <a href="/regisztracio" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">Regisztráció</a>
         </nav>
       </header>
 
+      <!-- HERO -->
       <section class="px-6 py-16 md:py-24 max-w-4xl mx-auto w-full">
         <h1 class="text-5xl md:text-7xl font-light tracking-tight mb-6">
           <span class="text-zinc-300">NEXUS</span>
-          <span class="text-emerald-400">AI</span>
         </h1>
 
         <p class="text-xl md:text-2xl text-zinc-300 mb-4 max-w-2xl font-light">
-          Conen Digital saját fejlesztésű AI asszisztense.
+          AI chat asszisztens & weboldal készítő magyar kisvállalkozásoknak.
         </p>
 
         <p class="text-base text-zinc-400 max-w-2xl leading-relaxed">
-          Lokális és cloud nyílt forrású modellekkel, magyar piacra szabva.
-          Ingyenes és előfizetéses változatok.
+          Kérdezz bármit magyarul, töltsd fel dokumentumaidat, és készíts percek alatt professzionális weboldalt az AI segítségével — kód nélkül.
         </p>
 
-        {!isLoggedIn && (
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/regisztracio" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-6 py-3 rounded font-medium transition-colors inline-flex items-center gap-2">
-              Kezdés ingyenes Free tier-rel →
-            </a>
-            <a href="/belepes" class="border border-zinc-700 hover:border-zinc-500 text-zinc-300 px-6 py-3 rounded font-medium transition-colors">
-              Belépés
-            </a>
-          </div>
-        )}
-
-        {isLoggedIn && (
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/chat" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-6 py-3 rounded font-medium transition-colors inline-flex items-center gap-2">
-              Chat megnyitása →
-            </a>
-          </div>
-        )}
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a href="/regisztracio" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-6 py-3 rounded font-medium transition-colors inline-flex items-center gap-2">
+            Ingyenes regisztráció →
+          </a>
+          <a href="#funkciok" class="border border-zinc-700 hover:border-zinc-500 text-zinc-300 px-6 py-3 rounded font-medium transition-colors">
+            Megnézem a funkciókat
+          </a>
+        </div>
       </section>
 
-      <section class="px-6 py-12 max-w-6xl mx-auto w-full">
+      <!-- FUNKCIÓK -->
+      <section id="funkciok" class="px-6 py-16 max-w-6xl mx-auto w-full">
+        <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-4 text-center">Két eszköz, egy platform</div>
+        <h2 class="text-3xl font-light text-center text-zinc-200 mb-12">Mire használhatod a NEXUS-t?</h2>
+
+        <div class="grid md:grid-cols-2 gap-8">
+          <!-- AI Chat -->
+          <div class="border border-zinc-800 rounded-lg p-8 bg-zinc-950/60 backdrop-blur-sm">
+            <div class="text-3xl mb-4">💬</div>
+            <h3 class="text-xl text-zinc-200 mb-3">AI Chat Asszisztens</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed mb-4">
+              Magyarul válaszol, dokumentumokat dolgoz fel, képeket elemez. Kérdezz bármit — szövegírás, kódolás, üzleti tanácsadás.
+            </p>
+            <ul class="text-xs text-zinc-400 space-y-2">
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Magyar nyelvű válaszok</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>PDF/DOCX dokumentum feldolgozás</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Képelemzés (Premium)</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Beszélgetés-előzmények mentése</span></li>
+            </ul>
+          </div>
+
+          <!-- Site Builder -->
+          <div class="border border-emerald-800 rounded-lg p-8 bg-emerald-950/10 backdrop-blur-sm">
+            <div class="text-3xl mb-4">🌐</div>
+            <h3 class="text-xl text-zinc-200 mb-3">Weboldal Készítő</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed mb-4">
+              Az AI generál egy komplett weboldalt a vállalkozásodnak. Te csak szerkeszted, amit akarsz — kód nélkül, percek alatt.
+            </p>
+            <ul class="text-xs text-zinc-400 space-y-2">
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>AI által generált tartalom és struktúra</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>13 szekciótípus — hero, szolgáltatások, vélemények, GYIK, csapat...</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Élő előnézet szerkesztés közben</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Képfeltöltés, színpaletták, betűtípusok</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Letölthető HTML — bárhol hostolható</span></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <!-- ÁRAZÁS -->
+      <section id="arazas" class="px-6 py-16 max-w-6xl mx-auto w-full">
+        <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-4 text-center">Árazás</div>
+        <h2 class="text-3xl font-light text-center text-zinc-200 mb-12">Válaszd ki a csomagodat</h2>
+
         <div class="grid md:grid-cols-3 gap-6">
 
+          <!-- FREE -->
           <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-950/60 backdrop-blur-sm flex flex-col">
-            <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">INGYENES</div>
+            <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Free</div>
             <div class="text-2xl font-light text-zinc-200 mb-1">Ingyenes</div>
-            <div class="text-xs text-zinc-500 mb-6">korlátlan használat</div>
+            <div class="text-xs text-zinc-500 mb-6">korlátlan</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              <span class="text-zinc-500"> · INGYENES </span><strong class="text-emerald-400">NEXUS AI</strong>
-              <span class="text-zinc-500"> · Conen DIGITAL</span>
+              <strong class="text-emerald-400">NEXUS AI</strong>
+              <span class="text-zinc-500"> · Llama 4 Scout</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              Villámgyors hozzáférés NEXUS AI modellhez. Magyar szövegírás, kódolási segítség, weboldal-tervezés.
+              AI chat és weboldal készítő — ingyenesen. Magyar szövegírás, kódolási segítség, és egy kész weboldal percek alatt.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Magyar nyelvű chat</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>HTML/CSS/JS kód generálás</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Villámgyors válaszidő</span>
-              </li>
-              <li class="flex items-start gap-2 text-zinc-600">
-                <span class="mt-0.5">·</span>
-                <span>ULTRAGYORS válaszidő</span>
-              </li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Magyar nyelvű AI chat</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Weboldal készítő (AI generálás + szerkesztés)</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>HTML letöltés</span></li>
+              <li class="flex items-start gap-2 text-zinc-600"><span class="mt-0.5">·</span><span>Dokumentum-feldolgozás</span></li>
+              <li class="flex items-start gap-2 text-zinc-600"><span class="mt-0.5">·</span><span>Képelemzés</span></li>
             </ul>
 
-            {!isLoggedIn && (
-              <a href="/regisztracio" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
-                Ingyenes regisztráció
-              </a>
-            )}
-            {isLoggedIn && (
-              <a href="/chat" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
-                Chat megnyitása
-              </a>
-            )}
+            <a href="/regisztracio" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
+              Ingyenes regisztráció
+            </a>
           </div>
 
+          <!-- PRO -->
           <div class="border border-emerald-700 rounded-lg p-6 bg-emerald-950/20 backdrop-blur-sm flex flex-col relative">
             <div class="absolute -top-3 left-6 bg-emerald-600 text-zinc-100 text-xs uppercase tracking-wider px-2 py-1 rounded">
               Népszerű
             </div>
             <div class="text-xs uppercase tracking-wider text-emerald-400 mb-3">Pro</div>
             <div class="text-2xl font-light text-zinc-100 mb-1">3 990 Ft</div>
-            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              <strong class="text-emerald-400">NEXUS V4 FLASH</strong>
-              <span class="text-zinc-500"> · felhő alapú</span>
+              <strong class="text-emerald-400">NEXUS Pro</strong>
+              <span class="text-zinc-500"> · DeepSeek V4 Flash</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              A Conen DIGITAL NEXUS AI legfrissebb flash modellje. 1M token kontextus, gyors válaszidő, komplex feladatokhoz optimalizálva.
+              Felhő alapú AI modell 1M token kontextussal. Dokumentum-feldolgozás, jobb minőségű weboldal generálás, és gyorsabb válaszok.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Mindent, amit a Free tud</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Jobb minőség, gyorsabb válasz</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Hosszabb beszélgetések, nagyobb kontextus</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Üzleti dokumentumok, komplexebb kódolás</span>
-              </li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Mindent, amit a Free tud</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>PDF/DOCX dokumentum-feldolgozás</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>1M token kontextus — hosszú dokumentumok</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Jobb AI minőség a weboldal készítőben</span></li>
+              <li class="flex items-start gap-2 text-zinc-600"><span class="mt-0.5">·</span><span>Képelemzés</span></li>
             </ul>
 
             <a href="/arazas" class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
@@ -178,61 +176,62 @@ if (isLoggedIn) {
             </a>
           </div>
 
+          <!-- PREMIUM -->
           <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-950/60 backdrop-blur-sm flex flex-col relative">
-            <div class="absolute -top-3 left-6 bg-zinc-700 text-zinc-300 text-xs uppercase tracking-wider px-2 py-1 rounded">
-              Premium
+            <div class="absolute -top-3 left-6 bg-amber-600 text-zinc-100 text-xs uppercase tracking-wider px-2 py-1 rounded">
+              Hamarosan
             </div>
             <div class="text-xs uppercase tracking-wider text-zinc-400 mb-3">Premium</div>
             <div class="text-2xl font-light text-zinc-100 mb-1">5 990 Ft</div>
-            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan</div>
 
             <div class="text-sm text-zinc-300 mb-4">
               <strong class="text-emerald-400">NEXUS Premium</strong>
-              <span class="text-zinc-500"> · felhő alapú</span>
+              <span class="text-zinc-500"> · Claude Sonnet 4.6</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              A Conen DIGITAL - NEXUS AI legjobb modellje. Komplex elemzés, hosszú dokumentumok, kritikus üzleti feladatok.
+              A piac legjobb AI modellje. Képelemzés, komplex dokumentumok, kiváló minőségű weboldal generálás — a legigényesebb feladatokhoz.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Mindent, amit a Pro tud</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>A piacon elérhető legjobb minőség</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Kritikus döntésekhez, üzleti elemzésekhez</span>
-              </li>
-              <li class="flex items-start gap-2">
-                <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Hosszú dokumentumok, 200k+ token kontextus</span>
-              </li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Mindent, amit a Pro tud</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Képelemzés és vision</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>A legjobb AI minőség minden funkcióban</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Prémium weboldal sablonok (hamarosan)</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>Saját domain bekötés (hamarosan)</span></li>
             </ul>
 
-            <a href="/arazas" class="block text-center border border-zinc-600 hover:border-emerald-500 hover:text-emerald-400 text-zinc-200 px-4 py-2.5 rounded text-sm font-medium transition-colors">
-              Premium választása →
-            </a>
+            <div class="block text-center border border-zinc-700 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium cursor-default">
+              Hamarosan elérhető
+            </div>
           </div>
 
         </div>
       </section>
 
+      <!-- CTA -->
+      <section class="px-6 py-16 max-w-4xl mx-auto w-full text-center">
+        <h2 class="text-2xl font-light text-zinc-200 mb-4">Készen áll a vállalkozásod weboldala?</h2>
+        <p class="text-sm text-zinc-400 mb-8 max-w-lg mx-auto">
+          Regisztrálj ingyenesen, válaszolj néhány kérdésre, és perceken belül kész a weboldalad. Nem kell hozzá programozói tudás.
+        </p>
+        <a href="/regisztracio" class="bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-8 py-3 rounded font-medium transition-colors inline-flex items-center gap-2">
+          Weboldal készítése ingyenesen →
+        </a>
+      </section>
+
       <footer class="mt-auto px-6 py-8 max-w-6xl mx-auto w-full">
         <div class="border-t border-zinc-800 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-zinc-500">
           <div>
-            © 2026 NEXUS AI by
+            © 2026 NEXUS by
             <a href="https://conendigital.hu" class="text-emerald-400 hover:text-emerald-300 transition-colors ml-1">
               Conen Digital
             </a>
           </div>
           <div class="flex gap-4">
+            <a href="/utmutato" class="hover:text-zinc-300 transition-colors">Útmutató</a>
             <a href="https://conendigital.hu" class="hover:text-zinc-300 transition-colors">conendigital.hu</a>
-            <a href="https://github.com/chrisconen/nexus" class="hover:text-zinc-300 transition-colors">GitHub</a>
           </div>
         </div>
       </footer>

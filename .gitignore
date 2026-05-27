@@ -27,3 +27,6 @@ pnpm-debug.log*
 # Local environment overrides (KEEP SECRET)
 .env.local
 .env.*.local
+.env.local.backup
+
+.vercel

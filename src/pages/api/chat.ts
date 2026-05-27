@@ -5,7 +5,7 @@ import { eq, and } from "drizzle-orm";
 import { streamOllamaChat, type OllamaMessage } from "@/lib/llm/ollama";
 import { streamGroqChat, type GroqMessage } from "@/lib/llm/groq";
 import { streamDeepSeekChat, type DeepSeekMessage } from "@/lib/llm/deepseek";
-import { streamClaudeChat } from "@/lib/llm/claude";
+import { streamClaudeChat, type ClaudeContentBlock } from "@/lib/llm/claude";
 import { logData } from "@/lib/log";
 
 export const prerender = false;
@@ -40,11 +40,19 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const messages: LLMMessage[] = body.messages;
+  const imageData: { base64: string; mediaType: string } | undefined = body.image;
   const optOutTraining = body.optOutTraining === true;
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: "Üzenetek listája hiányzik vagy üres" }), {
       status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (imageData && user.tier !== "premium") {
+    return new Response(JSON.stringify({ error: "A képértés Premium funkció." }), {
+      status: 403,
       headers: { "Content-Type": "application/json" },
     });
   }
@@ -64,12 +72,26 @@ Ne használj emojikat.`,
   let lastError: Error | null = null;
 
   if (user.tier === "premium") {
-    // PREMIUM tier: Claude Sonnet 4.6
+    // PREMIUM tier: Claude Sonnet 4.6 (+ vision támogatás)
     try {
       if (import.meta.env.ANTHROPIC_API_KEY) {
+        // Ha kép van csatolva, az utolsó user üzenetet vision content blockká alakítjuk
+        let claudeMessages = fullMessages;
+        if (imageData?.base64) {
+          claudeMessages = fullMessages.map((m, i) => {
+            if (i === fullMessages.length - 1 && m.role === "user") {
+              const blocks: ClaudeContentBlock[] = [
+                { type: "image", source: { type: "base64", media_type: imageData.mediaType, data: imageData.base64 } },
+                { type: "text", text: typeof m.content === "string" ? m.content : "" },
+              ];
+              return { ...m, content: blocks };
+            }
+            return m;
+          });
+        }
         llmStream = {
           modelLabel: "claude-sonnet-4-6",
-          generator: streamClaudeChat(fullMessages),
+          generator: streamClaudeChat(claudeMessages),
         };
       }
     } catch (err) {

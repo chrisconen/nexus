@@ -77,6 +77,19 @@ export const conversation = sqliteTable("conversation", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
 
+// === SITE BUILDER TÁBLÁK ===
+
+export const site = sqliteTable("site", {
+  id: text("id").primaryKey(),
+  userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+  templateId: text("templateId").notNull().default("starter"),
+  data: text("data").notNull(), // JSON: SiteData
+  status: text("status", { enum: ["draft", "published"] }).notNull().default("draft"),
+  subdomain: text("subdomain").unique(), // pl. "fodrasz-mari" → fodrasz-mari.nexus.hu
+  createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
+  updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
+});
+
 export const message = sqliteTable("message", {
   id: text("id").primaryKey(),
   conversationId: text("conversationId").notNull().references(() => conversation.id, { onDelete: "cascade" }),

@@ -3,13 +3,17 @@ const ANTHROPIC_MODEL = import.meta.env.ANTHROPIC_MODEL || "claude-sonnet-4-6";
 const ANTHROPIC_BASE_URL = "https://api.anthropic.com/v1";
 const ANTHROPIC_VERSION = "2023-06-01";
 
+export type ClaudeContentBlock =
+  | { type: "text"; text: string }
+  | { type: "image"; source: { type: "base64"; media_type: string; data: string } };
+
 export interface ClaudeMessage {
   role: "user" | "assistant";
-  content: string;
+  content: string | ClaudeContentBlock[];
 }
 
 export async function* streamClaudeChat(
-  messages: Array<{ role: "system" | "user" | "assistant"; content: string }>
+  messages: Array<{ role: "system" | "user" | "assistant"; content: string | ClaudeContentBlock[] }>
 ): AsyncGenerator<{ token?: string; done?: boolean; tokensIn?: number; tokensOut?: number }> {
   if (!ANTHROPIC_API_KEY) {
     throw new Error("ANTHROPIC_API_KEY is not set");

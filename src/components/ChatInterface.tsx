@@ -30,6 +30,10 @@ export default function ChatInterface({ userTier, userName }: Props) {
   const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [optOutTraining, setOptOutTraining] = useState(false);
+  const [attachedDoc, setAttachedDoc] = useState<{ fileName: string; text: string } | null>(null);
+  const [attachedImage, setAttachedImage] = useState<{ fileName: string; base64: string; mediaType: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
 // Mobil/desktop alapállapot
 useEffect(() => {
@@ -136,15 +140,35 @@ useEffect(() => {
     setMessages((prev) => [...prev, { id: assistantId, role: "assistant", content: "" }]);
 
     try {
+      // Ha dokumentum van csatolva, a user üzenet elé illesztjük kontextusként
+      const chatMessages: Array<{ role: string; content: string }> = [...messages, userMessage].map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      let imageAttachment: { base64: string; mediaType: string } | undefined;
+
+      if (attachedDoc) {
+        const lastIdx = chatMessages.length - 1;
+        chatMessages[lastIdx] = {
+          ...chatMessages[lastIdx],
+          content: `[Csatolt dokumentum: ${attachedDoc.fileName}]\n\n${attachedDoc.text}\n\n---\n\nA fenti dokumentum alapján: ${chatMessages[lastIdx].content}`,
+        };
+        setAttachedDoc(null);
+      }
+
+      if (attachedImage) {
+        imageAttachment = { base64: attachedImage.base64, mediaType: attachedImage.mediaType };
+        setAttachedImage(null);
+      }
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           conversationId: currentConversationId,
-          messages: [...messages, userMessage].map((m) => ({
-            role: m.role,
-            content: m.content,
-          })),
+          messages: chatMessages,
+          image: imageAttachment,
           optOutTraining,
         }),
       });
@@ -203,6 +227,40 @@ useEffect(() => {
       setMessages((prev) => prev.filter((m) => m.id !== assistantId));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploading(true);
+    setError(null);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const res = await fetch("/api/upload", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Hiba a feltöltés közben");
+      }
+
+      if (data.type === "image") {
+        setAttachedImage({ fileName: data.fileName, base64: data.base64, mediaType: data.mediaType });
+      } else {
+        setAttachedDoc({ fileName: data.fileName, text: data.text });
+        if (data.truncated) {
+          setError(`A dokumentum szövege levágva (${Math.round(data.originalLength / 1000)}k → ${Math.round(data.extractedLength / 1000)}k karakter). Frissíts magasabb csomagra a teljes feldolgozáshoz.`);
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Fájlfeltöltési hiba");
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
     }
   }
 
@@ -365,7 +423,46 @@ useEffect(() => {
         {/* Input area */}
         <div className="border-t border-zinc-800 px-6 py-4 flex-shrink-0">
           <form onSubmit={handleSubmit} className="max-w-3xl mx-auto">
+            {(attachedDoc || attachedImage) && (
+              <div className="flex items-center gap-2 mb-2 bg-emerald-950/40 border border-emerald-900 rounded px-3 py-2 text-sm">
+                <span className="text-emerald-400">{attachedImage ? "🖼️" : "📎"}</span>
+                <span className="text-zinc-300 truncate flex-1">
+                  {attachedDoc?.fileName || attachedImage?.fileName}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => { setAttachedDoc(null); setAttachedImage(null); }}
+                  className="text-zinc-500 hover:text-red-400 text-xs"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
             <div className="flex gap-3 items-end">
+              {userTier !== "free" && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept={userTier === "premium"
+                      ? ".pdf,.docx,.txt,.png,.jpg,.jpeg,.gif,.webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,image/*"
+                      : ".pdf,.docx,.txt,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain"
+                    }
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={loading || uploading}
+                    className="flex items-center gap-1.5 bg-zinc-900 border border-zinc-700 hover:border-emerald-600 hover:text-emerald-400 text-zinc-400 disabled:opacity-50 transition-colors px-3 py-3 rounded-lg text-sm whitespace-nowrap"
+                    title="Dokumentum csatolása (PDF, DOCX, TXT)"
+                  >
+                    <span>{uploading ? "⏳" : "📎"}</span>
+                    <span className="hidden md:inline">{uploading ? "Feldolgozás..." : "Fájl"}</span>
+                  </button>
+                </>
+              )}
               <textarea
   ref={textareaRef}
   value={input}
@@ -374,7 +471,7 @@ useEffect(() => {
   disabled={loading}
   rows={1}
   className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 md:px-4 md:py-3 text-sm md:text-base text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
-  placeholder={loading ? "Válasz folyamatban..." : "Írj egy üzenetet..."}
+  placeholder={loading ? "Válasz folyamatban..." : attachedDoc ? "Kérdezz a dokumentumról..." : "Írj egy üzenetet..."}
 />
               <button
                 type="submit"

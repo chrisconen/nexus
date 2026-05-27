@@ -1,0 +1,717 @@
+---
+import "../styles/global.css";
+import { auth } from "@/lib/auth";
+
+const session = await auth.api.getSession({
+  headers: Astro.request.headers,
+});
+const isLoggedIn = !!session;
+---
+<!DOCTYPE html>
+<html lang="hu" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Használati útmutató — NEXUS Site Builder</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex">
+
+      <!-- SIDEBAR NAV -->
+      <aside id="sidebar" class="w-72 border-r border-zinc-800 bg-zinc-950 flex-shrink-0 overflow-y-auto fixed inset-y-0 left-0 z-30 transform -translate-x-full md:translate-x-0 md:relative transition-transform">
+        <div class="p-5 border-b border-zinc-800">
+          <a href="/" class="flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors mb-4">
+            ← NEXUS
+          </a>
+          <h2 class="text-sm font-medium text-zinc-200 uppercase tracking-wider">Útmutató</h2>
+          <p class="text-[10px] text-zinc-600 mt-1">NEXUS Pro Site Builder</p>
+
+          <!-- SEARCH -->
+          <div class="mt-4 relative">
+            <input
+              type="text"
+              id="doc-search"
+              placeholder="Keresés az útmutatóban..."
+              class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
+            />
+            <div id="search-results" class="absolute top-full left-0 right-0 bg-zinc-900 border border-zinc-800 rounded-b mt-0.5 max-h-60 overflow-y-auto hidden z-10"></div>
+          </div>
+        </div>
+
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-3 pb-1">Kezdőlépések</div>
+          <a href="#bevezetes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Bevezető</a>
+          <a href="#elso-lepesek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Első lépések</a>
+          <a href="#ai-generalas" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">AI generálás</a>
+          <a href="#felhasznaloi-felulet" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">A szerkesztő felület</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Szekciók</div>
+          <a href="#hero" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Hero / Főszekció</a>
+          <a href="#szolgaltatasok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Szolgáltatások</a>
+          <a href="#rolunk" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Rólunk</a>
+          <a href="#galeria" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Galéria</a>
+          <a href="#velemenyek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Vélemények</a>
+          <a href="#csapat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Csapat</a>
+          <a href="#ajanlatok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kiemelt ajánlatok</a>
+          <a href="#gyik" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">GYIK</a>
+          <a href="#cta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">CTA Banner</a>
+          <a href="#statisztikak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Statisztikák</a>
+          <a href="#arazas-szekció" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Árazás</a>
+          <a href="#kapcsolat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kapcsolat</a>
+          <a href="#partner-logok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Partner logók</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Testreszabás</div>
+          <a href="#szinpalettak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Színpaletták</a>
+          <a href="#betutipusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Betűtípusok</a>
+          <a href="#szekcio-stilusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Szekció stílusok</a>
+          <a href="#ikonok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Ikonok</a>
+          <a href="#kepek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Képek kezelése</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Haladó</div>
+          <a href="#seo-meta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">SEO & meta adatok</a>
+          <a href="#social-media" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Social media linkek</a>
+          <a href="#formspree" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kapcsolati űrlap (Formspree)</a>
+          <a href="#letoltes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Letöltés & hosting</a>
+          <a href="#billentyuparancsok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Billentyűparancsok</a>
+          <a href="#gyik-altalanos" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">GYIK (általános)</a>
+        </nav>
+      </aside>
+
+      <!-- MOBILE TOGGLE -->
+      <button id="sidebar-toggle" class="fixed top-4 left-4 z-40 md:hidden bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto px-6 md:px-12 py-12">
+
+          <!-- HEADER -->
+          <div class="flex items-center justify-between mb-12">
+            <div>
+              <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-2">NEXUS // Dokumentáció</div>
+              <h1 class="text-3xl font-light text-zinc-200">Site Builder Útmutató</h1>
+            </div>
+            {isLoggedIn && (
+              <a href="/builder" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">
+                Builder megnyitása →
+              </a>
+            )}
+          </div>
+
+          <!-- CONTENT -->
+          <div class="doc-content space-y-16">
+
+            <!-- BEVEZETŐ -->
+            <section id="bevezetes" class="doc-section">
+              <h2>Bevezető</h2>
+              <p>A NEXUS Site Builder egy AI-alapú weboldal készítő, amelyet kifejezetten magyar kisvállalkozások számára terveztünk. Segítségével <strong>percek alatt</strong> készíthetsz professzionális megjelenésű weboldalt — programozói tudás nélkül.</p>
+
+              <div class="tip">
+                <strong>Pro funkció:</strong> A Site Builder a Pro és Premium előfizetéssel érhető el. <a href="/arazas">Frissíts most →</a>
+              </div>
+
+              <h3>Mit kapsz?</h3>
+              <ul>
+                <li><strong>AI-generált tartalom</strong> — Az AI a vállalkozásod adatai alapján generálja a szövegeket, struktúrát</li>
+                <li><strong>13 szekciótípus</strong> — Hero, szolgáltatások, vélemények, csapat, GYIK, és még sok más</li>
+                <li><strong>Élő előnézet</strong> — Minden változás azonnal látszik a jobb oldali előnézetben</li>
+                <li><strong>Automatikus mentés</strong> — 2 másodperc inaktivitás után automatikusan ment</li>
+                <li><strong>Visszavonás/Újra</strong> — Ctrl+Z / Ctrl+Y, max 30 lépés</li>
+                <li><strong>HTML letöltés</strong> — Egyetlen, önálló HTML fájl, bárhol hostolható</li>
+              </ul>
+            </section>
+
+            <!-- ELSŐ LÉPÉSEK -->
+            <section id="elso-lepesek" class="doc-section">
+              <h2>Első lépések</h2>
+
+              <h3>1. Navigálj a Builder-hez</h3>
+              <p>Bejelentkezés után a Builder elérhető:</p>
+              <ul>
+                <li>A <strong>Chat</strong> oldal fejlécéből → "Site Builder" gomb</li>
+                <li>A <strong>Fiók</strong> oldalról → "Weboldal készítő" gomb</li>
+                <li>Közvetlenül: <code>/builder</code> URL</li>
+              </ul>
+
+              <h3>2. Onboarding kérdéssor</h3>
+              <p>Ha még nincs weboldalad, az onboarding kérdéssor fogad. Itt add meg:</p>
+              <ul>
+                <li><strong>Vállalkozás neve</strong> (kötelező) — pl. "Kovács Fodrászat"</li>
+                <li><strong>Típus</strong> (kötelező) — válaszd ki a legmegfelelőbb kategóriát</li>
+                <li><strong>Szolgáltatások</strong> — vesszővel elválasztva, pl. "Női hajvágás, Festés, Melír"</li>
+                <li><strong>Elérhetőségek</strong> — telefon, cím, nyitvatartás</li>
+                <li><strong>Hangnem</strong> — hivatalos, barátságos, vagy játékos</li>
+                <li><strong>Színpaletta</strong> — 8 előre definiált paletta közül választhatsz</li>
+              </ul>
+
+              <h3>3. Generálás</h3>
+              <p>A "Weboldal generálása" gombra kattintva az AI létrehozza a weboldal tartalmát. Ez tartalmazza a szövegeket, szekciók struktúráját, és a választott stílust. A generálás 10-30 másodpercet vesz igénybe.</p>
+
+              <div class="tip">
+                <strong>Tipp:</strong> Minél részletesebb adatokat adsz meg, annál jobb eredményt kapsz. A szolgáltatások és elérhetőségek segítik az AI-t releváns tartalom generálásában.
+              </div>
+            </section>
+
+            <!-- AI GENERÁLÁS -->
+            <section id="ai-generalas" class="doc-section">
+              <h2>AI generálás</h2>
+              <p>A NEXUS Site Builder az előfizetésed szintjéhez tartozó AI modellt használja a tartalom generálásához:</p>
+
+              <table>
+                <thead>
+                  <tr><th>Csomag</th><th>Modell</th><th>Minőség</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Pro</td><td>DeepSeek V4 Flash</td><td>Jó — gyors, hatékony</td></tr>
+                  <tr><td>Premium</td><td>Claude Sonnet 4.6</td><td>Kiváló — legárnyaltabb szövegek</td></tr>
+                </tbody>
+              </table>
+
+              <h3>Újragenerálás</h3>
+              <p>Ha nem tetszik az eredmény, a toolbar-ban az <strong>"Újragenerálás"</strong> gombbal új tartalmat kérhetsz — ugyanazokkal az onboarding válaszokkal. Az előző verzió a Ctrl+Z-vel visszahozható.</p>
+
+              <div class="warning">
+                <strong>Figyelem:</strong> Az újragenerálás felülírja a jelenlegi tartalmat. Ha vannak kézi szerkesztéseid, azok elvesznek — de a Ctrl+Z-vel visszaállíthatod.
+              </div>
+            </section>
+
+            <!-- FELHASZNÁLÓI FELÜLET -->
+            <section id="felhasznaloi-felulet" class="doc-section">
+              <h2>A szerkesztő felület</h2>
+              <p>A szerkesztő három fő részből áll:</p>
+
+              <h3>Bal panel — Szekciólista & Stílusok</h3>
+              <p>Két fül van:</p>
+              <ul>
+                <li><strong>Szekciók</strong> — az összes szekció listája, sorrendben. Kattints egy szekcióra a szerkesztéséhez.</li>
+                <li><strong>Stílusok</strong> — globális beállítások: színpaletta, betűtípusok, egyéni színek, vállalkozás adatai, SEO, footer, social linkek.</li>
+              </ul>
+
+              <h3>Aktív szekció vezérlői</h3>
+              <p>Amikor egy szekciót kiválasztasz, megjelennek a műveleti gombok:</p>
+              <ul>
+                <li><strong>▲ / ▼</strong> — szekció mozgatása fel/le</li>
+                <li><strong>⧉</strong> — szekció duplikálása</li>
+                <li><strong>●</strong> — szekció ki/bekapcsolása (látható/rejtett)</li>
+                <li><strong>✕</strong> — szekció törlése</li>
+              </ul>
+
+              <h3>Középső panel — Szekció szerkesztő</h3>
+              <p>A kiválasztott szekció mezőit szerkesztheted itt. Minden szekciótípusnak saját mezői vannak. Alul a <strong>szekció stílus</strong> vezérlők találhatók: háttérszín, szövegszín, igazítás, padding, margin.</p>
+
+              <h3>Jobb panel — Élő előnézet</h3>
+              <p>A weboldal valós idejű előnézete. Minden változtatás azonnal megjelenik. A toolbar-ban választhatsz <strong>Desktop</strong> vagy <strong>Mobil</strong> nézet között.</p>
+            </section>
+
+            <!-- SZEKCIÓK RÉSZLETESEN -->
+
+            <section id="hero" class="doc-section">
+              <h2>Hero / Főszekció</h2>
+              <p>A weboldal tetején megjelenő, figyelemfelkeltő szekció. Ez az első, amit a látogató lát.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Főcím</strong> — a legfontosabb üzenet, nagy betűmérettel</li>
+                <li><strong>Alcím</strong> — kiegészítő szöveg, kisebb betűmérettel</li>
+                <li><strong>Gomb szöveg</strong> — CTA gomb felirata, pl. "Foglaljon időpontot"</li>
+                <li><strong>Gomb link</strong> — hová mutasson a gomb (pl. #kapcsolat)</li>
+                <li><strong>Elrendezés</strong> — Bal / Közép / Jobb igazítás</li>
+                <li><strong>Háttérkép</strong> — feltölthetsz képet, ami a hero háttere lesz (gradiens overlay-vel)</li>
+              </ul>
+
+              <div class="tip">
+                <strong>Tipp:</strong> A hero háttérkép esetén sötét overlay automatikusan generálódik, hogy a szöveg olvasható maradjon. Ha nincs háttérkép, a szekció a háttérszín-beállítást használja.
+              </div>
+            </section>
+
+            <section id="szolgaltatasok" class="doc-section">
+              <h2>Szolgáltatások</h2>
+              <p>Szolgáltatásaid vagy termékeid kártya-formátumú megjelenítése.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Szekció cím</strong> — pl. "Szolgáltatásaink"</li>
+                <li><strong>Alcím</strong> — opcionális kiegészítő szöveg</li>
+                <li><strong>Oszlopok</strong> — 2, 3 vagy 4 oszlopos elrendezés</li>
+              </ul>
+
+              <h3>Kártyák mezői</h3>
+              <ul>
+                <li><strong>Név</strong> — szolgáltatás neve</li>
+                <li><strong>Leírás</strong> — rövid bemutató szöveg</li>
+                <li><strong>Ár</strong> — opcionális, pl. "5 000 Ft"</li>
+                <li><strong>Ikon</strong> — 25 SVG ikon közül választhatsz (olló, autó, szív, stb.)</li>
+              </ul>
+
+              <p>A <strong>"+ Szolgáltatás hozzáadása"</strong> gombbal bővítheted a listát, a kártyák <strong>"Törlés"</strong> gombjával csökkentheted.</p>
+            </section>
+
+            <section id="rolunk" class="doc-section">
+              <h2>Rólunk</h2>
+              <p>Bemutatkozó szekció szöveggel és opcionális képpel.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Cím</strong> — pl. "Rólunk"</li>
+                <li><strong>Szöveg</strong> — a vállalkozás története, értékei</li>
+                <li><strong>Elrendezés</strong> — Szöveg bal (kép jobb), Szöveg jobb (kép bal), Csak szöveg</li>
+                <li><strong>Kép</strong> — feltölthető kép a szöveg mellé</li>
+              </ul>
+            </section>
+
+            <section id="galeria" class="doc-section">
+              <h2>Galéria</h2>
+              <p>Képgaléria rács elrendezésben. Ideális munkáid, termékeid, üzleted bemutatásához.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Cím és alcím</strong></li>
+                <li><strong>Oszlopok</strong> — 2, 3 vagy 4 oszlop</li>
+                <li><strong>Képek</strong> — feltölthető képek, mindegyikhez alt szöveg megadható</li>
+              </ul>
+
+              <div class="tip">
+                <strong>Tipp:</strong> A képek 4:3 arányban jelennek meg, automatikusan levágva. Próbálj hasonló méretű képeket használni a legjobb eredményért.
+              </div>
+            </section>
+
+            <section id="velemenyek" class="doc-section">
+              <h2>Vélemények</h2>
+              <p>Ügyfélvélemények megjelenítése csillagos értékeléssel.</p>
+
+              <h3>Mezők véleményenként</h3>
+              <ul>
+                <li><strong>Név</strong> — az ügyfél neve</li>
+                <li><strong>Pozíció</strong> — opcionális, pl. "Visszatérő vendég"</li>
+                <li><strong>Vélemény</strong> — a vélemény szövege (idézőjelben jelenik meg)</li>
+                <li><strong>Értékelés</strong> — 1-5 csillag</li>
+                <li><strong>Profilkép</strong> — opcionális fotó</li>
+              </ul>
+            </section>
+
+            <section id="csapat" class="doc-section">
+              <h2>Csapat</h2>
+              <p>Csapattagok bemutatása fotóval, pozícióval, elérhetőséggel.</p>
+
+              <h3>Mezők tagonként</h3>
+              <ul>
+                <li><strong>Profilkép</strong> — kör alakban jelenik meg</li>
+                <li><strong>Név</strong> és <strong>Pozíció</strong></li>
+                <li><strong>Bio</strong> — rövid bemutatkozás</li>
+                <li><strong>Telefon</strong> és <strong>Email</strong> — kattintható linkekként jelennek meg</li>
+              </ul>
+            </section>
+
+            <section id="ajanlatok" class="doc-section">
+              <h2>Kiemelt ajánlatok</h2>
+              <p>Akciók, kedvezmények kiemelésére. Áthúzott eredeti ár + akciós ár + badge.</p>
+
+              <h3>Mezők ajánlatonként</h3>
+              <ul>
+                <li><strong>Ajánlat neve</strong> és <strong>Leírás</strong></li>
+                <li><strong>Eredeti ár</strong> — áthúzva jelenik meg</li>
+                <li><strong>Akciós ár</strong> — kiemelt, nagy betűkkel</li>
+                <li><strong>Badge</strong> — pl. "AKCIÓ", "-20%", "ÚJ" — sarokba forgatva jelenik meg</li>
+              </ul>
+            </section>
+
+            <section id="gyik" class="doc-section">
+              <h2>GYIK (Gyakran Ismételt Kérdések)</h2>
+              <p>Lenyíló kérdés-válasz lista. A látogatók kattintással nyithatják ki a válaszokat.</p>
+
+              <h3>Mezők kérdésenként</h3>
+              <ul>
+                <li><strong>Kérdés</strong> — a kattintható fejléc</li>
+                <li><strong>Válasz</strong> — a lenyíló tartalom</li>
+              </ul>
+
+              <div class="tip">
+                <strong>SEO tipp:</strong> A GYIK szekció javítja a keresőoptimalizálást, mert a Google FAQ rich result-ként is megjelenítheti.
+              </div>
+            </section>
+
+            <section id="cta" class="doc-section">
+              <h2>CTA Banner</h2>
+              <p>Figyelemfelkeltő, cselekvésre ösztönző sáv. Ideális a weboldal közepén vagy vége felé.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Főcím</strong> — pl. "Készen áll?"</li>
+                <li><strong>Szöveg</strong> — rövid ösztönző szöveg</li>
+                <li><strong>Gomb szöveg</strong> és <strong>Gomb link</strong></li>
+                <li><strong>Háttérszín</strong> — egyéni szín a CTA sávnak</li>
+              </ul>
+            </section>
+
+            <section id="statisztikak" class="doc-section">
+              <h2>Statisztikák</h2>
+              <p>Számok, eredmények kiemelése nagy, figyelemfelkeltő formátumban.</p>
+
+              <h3>Mezők statisztikánként</h3>
+              <ul>
+                <li><strong>Érték</strong> — pl. "500+", "10 év", "98%"</li>
+                <li><strong>Címke</strong> — pl. "Elégedett ügyfél", "Tapasztalat"</li>
+              </ul>
+            </section>
+
+            <section id="arazas-szekció" class="doc-section">
+              <h2>Árazás</h2>
+              <p>Árcsomagok összehasonlítása kártya formátumban. Kiemelt csomag nagyobb és szegélyezett.</p>
+
+              <h3>Mezők csomagonként</h3>
+              <ul>
+                <li><strong>Csomag neve</strong>, <strong>Ár</strong>, <strong>Időszak</strong> (pl. "/hó")</li>
+                <li><strong>Funkciók</strong> — soronként egy feature, pipa ikonnal</li>
+                <li><strong>Kiemelt</strong> — checkbox, a kiemelt csomag nagyobb és szegélyezett</li>
+                <li><strong>Gomb szöveg</strong></li>
+              </ul>
+            </section>
+
+            <section id="kapcsolat" class="doc-section">
+              <h2>Kapcsolat</h2>
+              <p>Elérhetőségek és opcionális kapcsolatfelvételi űrlap.</p>
+
+              <h3>Mezők</h3>
+              <ul>
+                <li><strong>Cím</strong> és <strong>Szöveg</strong></li>
+                <li><strong>Űrlap megjelenítése</strong> — be/ki kapcsoló</li>
+                <li><strong>Formspree endpoint</strong> — ha be van kapcsolva az űrlap (ld. <a href="#formspree">Formspree szekció</a>)</li>
+              </ul>
+              <p>Az elérhetőségek (telefon, email, cím, nyitvatartás) a <strong>Stílusok → Vállalkozás</strong> panelből jönnek.</p>
+            </section>
+
+            <section id="partner-logok" class="doc-section">
+              <h2>Partner logók</h2>
+              <p>Referenciák, partnerek logóinak megjelenítése. Szürkeárnyalatos alapállapot, hoverre színes.</p>
+
+              <h3>Mezők logónként</h3>
+              <ul>
+                <li><strong>Logo</strong> — feltölthető kép</li>
+                <li><strong>Alt szöveg</strong> — a partner neve</li>
+                <li><strong>Link URL</strong> — opcionális, kattintható link</li>
+              </ul>
+            </section>
+
+            <!-- TESTRESZABÁS -->
+
+            <section id="szinpalettak" class="doc-section">
+              <h2>Színpaletták</h2>
+              <p>8 előre definiált paletta közül választhatsz a <strong>Stílusok</strong> panelben:</p>
+
+              <div class="palette-grid">
+                <div class="palette-item"><span style="background:#059669" class="swatch"></span> Emerald</div>
+                <div class="palette-item"><span style="background:#2563eb" class="swatch"></span> Blue</div>
+                <div class="palette-item"><span style="background:#e11d48" class="swatch"></span> Rose</div>
+                <div class="palette-item"><span style="background:#d97706" class="swatch"></span> Amber</div>
+                <div class="palette-item"><span style="background:#059669;border:1px solid #e4e4e7" class="swatch" style="background:#fff"></span> Light</div>
+                <div class="palette-item"><span style="background:#0891b2" class="swatch"></span> Ocean</div>
+                <div class="palette-item"><span style="background:#7c3aed" class="swatch"></span> Purple</div>
+                <div class="palette-item"><span style="background:#15803d" class="swatch"></span> Forest</div>
+              </div>
+
+              <h3>Egyéni színek</h3>
+              <p>A paletta alatt egyéni color picker-ekkel finomhangolhatsz minden színt: primary, secondary, accent, background, surface, text, textMuted.</p>
+            </section>
+
+            <section id="betutipusok" class="doc-section">
+              <h2>Betűtípusok</h2>
+              <p>Két betűtípust állíthatsz: <strong>Címsor</strong> és <strong>Szövegtörzs</strong>. Elérhető Google Fonts:</p>
+              <ul>
+                <li><strong>Inter</strong> — modern, tiszta (alapértelmezett)</li>
+                <li><strong>Open Sans</strong> — olvasható, széles körben használt</li>
+                <li><strong>Roboto</strong> — Google Material stílus</li>
+                <li><strong>Playfair Display</strong> — elegáns serif</li>
+                <li><strong>Montserrat</strong> — geometrikus, erős</li>
+                <li><strong>Lora</strong> — klasszikus serif</li>
+                <li><strong>Poppins</strong> — kerekded, barátságos</li>
+                <li><strong>Raleway</strong> — könnyű, légies</li>
+              </ul>
+            </section>
+
+            <section id="szekcio-stilusok" class="doc-section">
+              <h2>Szekció stílusok</h2>
+              <p>Minden szekció szerkesztőjének alján találod a stílus vezérlőket:</p>
+              <ul>
+                <li><strong>Háttérszín</strong> — color picker, "X" gombbal visszaállítható az alapértelmezettre</li>
+                <li><strong>Szövegszín</strong> — felülírja a szekció szövegszínét</li>
+                <li><strong>Szöveg igazítás</strong> — Bal / Közép / Jobb</li>
+                <li><strong>Padding felül/alul</strong> — belső térköz, pl. "4rem", "80px"</li>
+                <li><strong>Margin felül/alul</strong> — külső térköz</li>
+              </ul>
+
+              <div class="tip">
+                <strong>Tipp:</strong> CSS mértékegységek használhatók: <code>rem</code>, <code>px</code>, <code>em</code>, <code>vh</code>. Példa: <code>4rem</code> = 64px, <code>2rem</code> = 32px.
+              </div>
+            </section>
+
+            <section id="ikonok" class="doc-section">
+              <h2>Ikonok</h2>
+              <p>A Szolgáltatások szekció kártyáin 25 SVG ikon közül választhatsz:</p>
+              <div class="icon-list">
+                Olló, Autó, Étkezés, Szív, Kalapács, Könyv, Kamera, Csillag, Óra, Pajzs, Villám, Csapat, Telefon, Email, Helyszín, Ajándék, Szállítás, WiFi, Csavarkulcs, Paletta, Zene, Ház, Aktatáska, Pipa
+              </div>
+              <p>Az ikonok <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a> stílusúak, 24x24-es SVG formátumban, és automatikusan a primary színt kapják.</p>
+            </section>
+
+            <section id="kepek" class="doc-section">
+              <h2>Képek kezelése</h2>
+
+              <h3>Támogatott formátumok</h3>
+              <ul>
+                <li><strong>WebP</strong> — ajánlott, kis méret, jó minőség</li>
+                <li><strong>AVIF</strong> — a legkisebb fájlméret</li>
+                <li><strong>PNG</strong> — átlátszó háttér esetén</li>
+                <li><strong>JPEG</strong> — fotók</li>
+              </ul>
+
+              <h3>Méretkorlát</h3>
+              <p>Maximum <strong>5 MB</strong> fájlonként.</p>
+
+              <h3>Hol használhatsz képeket?</h3>
+              <ul>
+                <li>Hero háttérkép</li>
+                <li>Rólunk szekció kép</li>
+                <li>Galéria képek</li>
+                <li>Csapattagok profilképe</li>
+                <li>Vélemények profilképe</li>
+                <li>Partner logók</li>
+                <li>Vállalkozás logó</li>
+              </ul>
+
+              <div class="warning">
+                <strong>Törlés:</strong> Ha egy képet eltávolítasz a szerkesztőből, a szerveren is törlődik — nem marad szemét. Ez nem visszavonható.
+              </div>
+            </section>
+
+            <!-- HALADÓ -->
+
+            <section id="seo-meta" class="doc-section">
+              <h2>SEO & meta adatok</h2>
+              <p>A <strong>Stílusok → SEO / Meta</strong> szekcióban szerkesztheted:</p>
+              <ul>
+                <li><strong>Oldal címe</strong> — a böngésző tab-ban megjelenő szöveg és a Google találatoknál</li>
+                <li><strong>Meta leírás</strong> — a Google találatokban megjelenő rövid leírás (max. 160 karakter ajánlott)</li>
+              </ul>
+              <p>Az Open Graph (og:title, og:description) meta tag-ek automatikusan generálódnak ezekből.</p>
+            </section>
+
+            <section id="social-media" class="doc-section">
+              <h2>Social media linkek</h2>
+              <p>A <strong>Stílusok → Footer / Social</strong> szekcióban adhatsz hozzá social media linkeket. Támogatott platformok:</p>
+              <ul>
+                <li>Facebook, Instagram, TikTok, YouTube, LinkedIn, X (Twitter), GitHub, Weboldal</li>
+              </ul>
+              <p>A linkek SVG ikonokkal jelennek meg a footer-ben, hoverre kiemelődnek a primary színnel.</p>
+
+              <h3>Hogyan adj hozzá?</h3>
+              <ol>
+                <li>Kattints a <strong>"+ Social link"</strong> gombra</li>
+                <li>Válaszd ki a platformot a legördülőből</li>
+                <li>Másold be a teljes profil URL-t (pl. <code>https://facebook.com/vallalkozasod</code>)</li>
+              </ol>
+            </section>
+
+            <section id="formspree" class="doc-section">
+              <h2>Kapcsolati űrlap (Formspree)</h2>
+              <p>A Kapcsolat szekció űrlapja a <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a> szolgáltatással működik. Ez egy ingyenes form backend — nem kell saját szervert üzemeltetned.</p>
+
+              <h3>Beállítás lépései</h3>
+              <ol>
+                <li>Regisztrálj a <a href="https://formspree.io/register" target="_blank" rel="noopener">formspree.io</a>-n (ingyenes terv elegendő)</li>
+                <li>Hozz létre egy új form-ot a dashboardon</li>
+                <li>Másold ki az endpoint URL-t — formátum: <code>https://formspree.io/f/xxxxx</code></li>
+                <li>A Builder-ben válaszd ki a Kapcsolat szekciót</li>
+                <li>Illeszd be az endpoint URL-t a <strong>"Formspree endpoint"</strong> mezőbe</li>
+              </ol>
+
+              <div class="tip">
+                <strong>Tipp:</strong> A Formspree ingyenes tervvel havi 50 beküldést kapsz. A beérkező üzeneteket emailben kapod meg, és a Formspree dashboardon is látod.
+              </div>
+
+              <div class="warning">
+                <strong>Formspree nélkül:</strong> Ha nem adsz meg endpoint-ot, az űrlap megjelenik, de a beküldés nem fog működni — egy figyelmeztető üzenet jelenik meg a látogatónak.
+              </div>
+            </section>
+
+            <section id="letoltes" class="doc-section">
+              <h2>Letöltés & hosting</h2>
+
+              <h3>Letöltés</h3>
+              <p>A toolbar-ban a <strong>"Letöltés"</strong> gombra kattintva egy önálló <code>.html</code> fájlt kapsz. Ez tartalmazza:</p>
+              <ul>
+                <li>Az összes CSS-t inline (nincs külső fájl)</li>
+                <li>Google Fonts betöltést</li>
+                <li>Reszponzív megjelenést (mobil + desktop)</li>
+                <li>Smooth scroll navigációt</li>
+                <li>Mobil hamburger menüt</li>
+              </ul>
+
+              <h3>Hol hostolhatod?</h3>
+              <p>A letöltött HTML fájl bárhol elhelyezhető:</p>
+              <ul>
+                <li><strong>GitHub Pages</strong> — ingyenes, egyszerű</li>
+                <li><strong>Netlify</strong> — ingyenes tier, drag & drop deploy</li>
+                <li><strong>Vercel</strong> — ingyenes, automatikus HTTPS</li>
+                <li><strong>Bármely web hosting</strong> — FTP-vel feltölthető</li>
+                <li><strong>Saját szerver</strong> — Apache, Nginx</li>
+              </ul>
+
+              <div class="tip">
+                <strong>Tipp:</strong> A képek (ha feltöltötted a Vercel Blob-ra) külső URL-ről töltődnek be. Ha saját hostingra költözöl, a képeket is le kell töltened és a HTML-ben az URL-eket cserélned.
+              </div>
+            </section>
+
+            <section id="billentyuparancsok" class="doc-section">
+              <h2>Billentyűparancsok</h2>
+              <table>
+                <thead>
+                  <tr><th>Parancs</th><th>Billentyű</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Visszavonás</td><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td></tr>
+                  <tr><td>Újra</td><td><kbd>Ctrl</kbd> + <kbd>Y</kbd> vagy <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></td></tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="gyik-altalanos" class="doc-section">
+              <h2>GYIK (általános)</h2>
+
+              <details>
+                <summary>Hány weboldalt készíthetek?</summary>
+                <p>Jelenleg egy weboldalt tároltunk fiókonként. Ha újat szeretnél, az előzőt felülírja az újragenerálás.</p>
+              </details>
+
+              <details>
+                <summary>Elveszíthetem a munkámat?</summary>
+                <p>Az automatikus mentés 2 másodpercenként menti a változásokat. A Ctrl+Z-vel 30 lépést tudsz visszavonni. Ha bezárod a böngészőt, a legutóbb mentett állapot megmarad.</p>
+              </details>
+
+              <details>
+                <summary>Használhatok saját betűtípust?</summary>
+                <p>Jelenleg 8 Google Font közül választhatsz. Egyéni betűtípus támogatás a jövőben érkezik.</p>
+              </details>
+
+              <details>
+                <summary>Hogyan módosítom az űrlap mezőit?</summary>
+                <p>Az űrlap mezői jelenleg fixek (Név, Email, Üzenet). Egyéni mezők támogatása a jövőben érkezik.</p>
+              </details>
+
+              <details>
+                <summary>Működik mobilon a szerkesztő?</summary>
+                <p>A szerkesztő desktop-ra optimalizált. Mobilon az előnézet megtekinthető, de a szerkesztés kényelmesebb nagyobb képernyőn.</p>
+              </details>
+
+              <details>
+                <summary>Mi történik, ha lemondom az előfizetést?</summary>
+                <p>A meglévő weboldalad megmarad és letölthető marad a periódus végéig. Utána a Builder nem lesz elérhető, de a letöltött HTML fájl örökre a tiéd.</p>
+              </details>
+            </section>
+
+          </div>
+
+          <!-- FOOTER -->
+          <footer class="mt-16 pt-8 border-t border-zinc-800 text-xs text-zinc-600 text-center">
+            <p>NEXUS Site Builder — <a href="https://conendigital.hu" class="text-emerald-500 hover:text-emerald-400">Conen Digital</a></p>
+          </footer>
+
+        </div>
+      </main>
+    </div>
+
+    <style>
+      html { scroll-behavior: smooth; }
+      .doc-content h2 { font-size: 1.5rem; font-weight: 300; color: #e4e4e7; padding-bottom: 0.5rem; border-bottom: 1px solid #27272a; margin-bottom: 1rem; }
+      .doc-content h3 { font-size: 1rem; font-weight: 600; color: #d4d4d8; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+      .doc-content p { font-size: 0.875rem; color: #a1a1aa; line-height: 1.7; margin-bottom: 0.75rem; }
+      .doc-content ul, .doc-content ol { font-size: 0.875rem; color: #a1a1aa; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+      .doc-content li { margin-bottom: 0.4rem; line-height: 1.6; }
+      .doc-content strong { color: #d4d4d8; }
+      .doc-content a { color: #34d399; text-decoration: none; }
+      .doc-content a:hover { text-decoration: underline; }
+      .doc-content code { background: #18181b; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.8rem; color: #34d399; }
+      .doc-content kbd { background: #27272a; border: 1px solid #3f3f46; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; color: #d4d4d8; }
+      .doc-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.8rem; }
+      .doc-content th { text-align: left; padding: 0.5rem; border-bottom: 1px solid #3f3f46; color: #d4d4d8; font-weight: 600; }
+      .doc-content td { padding: 0.5rem; border-bottom: 1px solid #27272a; color: #a1a1aa; }
+      .doc-content details { border-bottom: 1px solid #27272a; padding: 0.75rem 0; }
+      .doc-content summary { cursor: pointer; font-weight: 600; font-size: 0.875rem; color: #d4d4d8; }
+      .doc-content details p { margin-top: 0.5rem; }
+      .tip { background: #052e16; border: 1px solid #064e3b; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.8rem; color: #6ee7b7; }
+      .warning { background: #451a03; border: 1px solid #92400e; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.8rem; color: #fbbf24; }
+      .palette-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+      .palette-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #a1a1aa; }
+      .swatch { display: inline-block; width: 1.25rem; height: 1.25rem; border-radius: 50%; }
+      .icon-list { font-size: 0.8rem; color: #a1a1aa; line-height: 2; }
+      .doc-nav.active { background: #18181b; color: #34d399; }
+    </style>
+
+    <script>
+      // Sidebar toggle (mobile)
+      const sidebar = document.getElementById("sidebar");
+      const toggle = document.getElementById("sidebar-toggle");
+      toggle?.addEventListener("click", () => {
+        sidebar?.classList.toggle("-translate-x-full");
+      });
+
+      // Active nav tracking
+      const sections = document.querySelectorAll<HTMLElement>(".doc-section");
+      const navLinks = document.querySelectorAll<HTMLAnchorElement>(".doc-nav");
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove("active"));
+            const active = document.querySelector(`.doc-nav[href="#${entry.target.id}"]`);
+            active?.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+
+      sections.forEach(s => observer.observe(s));
+
+      // Search
+      const searchInput = document.getElementById("doc-search") as HTMLInputElement;
+      const searchResults = document.getElementById("search-results");
+
+      interface SearchEntry { title: string; id: string; text: string; }
+
+      const searchData: SearchEntry[] = [];
+      sections.forEach(s => {
+        const h2 = s.querySelector("h2");
+        searchData.push({
+          title: h2?.textContent || "",
+          id: s.id,
+          text: s.textContent || "",
+        });
+      });
+
+      searchInput?.addEventListener("input", () => {
+        const q = searchInput.value.toLowerCase().trim();
+        if (!q || !searchResults) {
+          searchResults?.classList.add("hidden");
+          return;
+        }
+
+        const matches = searchData.filter(e =>
+          e.title.toLowerCase().includes(q) || e.text.toLowerCase().includes(q)
+        ).slice(0, 8);
+
+        if (matches.length === 0) {
+          searchResults.innerHTML = '<div class="px-3 py-2 text-xs text-zinc-500">Nincs találat</div>';
+        } else {
+          searchResults.innerHTML = matches.map(m =>
+            `<a href="#${m.id}" class="block px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-emerald-400 transition-colors">${m.title}</a>`
+          ).join("");
+        }
+        searchResults.classList.remove("hidden");
+      });
+
+      searchInput?.addEventListener("blur", () => {
+        setTimeout(() => searchResults?.classList.add("hidden"), 200);
+      });
+    </script>
+  </body>
+</html>
