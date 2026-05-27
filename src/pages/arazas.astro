@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
+import BugReport from "@/components/BugReport.astro";
 
 // Server-side session check — itt NEM kötelező a bejelentkezés.
 // Kijelentkezett user is megnézheti az árakat, neki regisztrációt ajánlunk.
@@ -293,5 +294,6 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
         });
       });
     </script>
+    <BugReport />
   </body>
 </html>

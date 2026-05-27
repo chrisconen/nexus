@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import SignOutButton from "@/components/SignOutButton";
+import BugReport from "@/components/BugReport.astro";
 import { db, user as userTable } from "@/lib/db";
 import { eq } from "drizzle-orm";
 
@@ -152,5 +153,6 @@ const periodEndStr = dbUser?.subscriptionPeriodEnd
         </div>
       </div>
     </div>
+    <BugReport />
   </body>
 </html>

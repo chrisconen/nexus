@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
+import BugReport from "@/components/BugReport.astro";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -713,5 +714,6 @@ const isLoggedIn = !!session;
         setTimeout(() => searchResults?.classList.add("hidden"), 200);
       });
     </script>
+    <BugReport />
   </body>
 </html>

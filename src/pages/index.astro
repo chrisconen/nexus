@@ -1,6 +1,7 @@
 ---
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
+import BugReport from "@/components/BugReport.astro";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -237,5 +238,6 @@ if (isLoggedIn) {
       </footer>
 
     </div>
+    <BugReport />
   </body>
 </html>

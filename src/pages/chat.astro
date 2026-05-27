@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import ChatInterface from "@/components/ChatInterface";
+import BugReport from "@/components/BugReport.astro";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -55,5 +56,6 @@ const tierLabel = {
       />
 
     </div>
+    <BugReport />
   </body>
 </html>

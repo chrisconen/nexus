@@ -2,6 +2,7 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import SiteBuilder from "@/components/SiteBuilder";
+import BugReport from "@/components/BugReport.astro";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -29,5 +30,6 @@ if (user.tier === "free") {
     <div class="h-screen flex flex-col">
       <SiteBuilder client:load userTier={user.tier} userName={user.name} />
     </div>
+    <BugReport />
   </body>
 </html>
