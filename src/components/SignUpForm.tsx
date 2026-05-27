@@ -43,6 +43,7 @@ export default function SignUpForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [touched, setTouched] = useState({
@@ -55,7 +56,7 @@ export default function SignUpForm() {
   const allPasswordOK = passwordChecks.every((c) => c.ok);
   const emailOK = isValidEmail(email);
   const nameOK = name.trim().length >= 2;
-  const formValid = nameOK && emailOK && allPasswordOK;
+  const formValid = nameOK && emailOK && allPasswordOK && acceptTerms;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -183,6 +184,21 @@ export default function SignUpForm() {
           </ul>
         )}
       </div>
+
+      <label className="flex items-start gap-3 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          checked={acceptTerms}
+          onChange={(e) => setAcceptTerms(e.target.checked)}
+          className="accent-emerald-600 w-4 h-4 mt-0.5 flex-shrink-0"
+        />
+        <span className="text-xs text-zinc-400 leading-relaxed">
+          Elolvastam és elfogadom az{" "}
+          <a href="/aszf" target="_blank" className="text-emerald-400 hover:text-emerald-300 underline">ÁSZF</a>-et
+          és az{" "}
+          <a href="/adatvedelem" target="_blank" className="text-emerald-400 hover:text-emerald-300 underline">Adatkezelési tájékoztatót</a>.
+        </span>
+      </label>
 
       {error && (
         <div className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded px-4 py-2">

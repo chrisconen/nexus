@@ -223,20 +223,41 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
 
         </div>
 
-        <!-- Hibaüzenet helye (a 3-as lépésben a JS ide ír) -->
+        <!-- ÁSZF checkbox -->
+        <div class="flex justify-center mt-8">
+          <label class="flex items-start gap-3 cursor-pointer select-none max-w-md">
+            <input
+              type="checkbox"
+              id="accept-terms-checkout"
+              class="accent-emerald-600 w-4 h-4 mt-0.5 flex-shrink-0"
+            />
+            <span class="text-xs text-zinc-400 leading-relaxed">
+              Elolvastam és elfogadom az
+              <a href="/aszf" target="_blank" class="text-emerald-400 hover:text-emerald-300 underline">ÁSZF</a>-et
+              és az
+              <a href="/adatvedelem" target="_blank" class="text-emerald-400 hover:text-emerald-300 underline">Adatkezelési tájékoztatót</a>.
+            </span>
+          </label>
+        </div>
+
+        <!-- Hibaüzenet helye -->
         <p id="checkout-error" class="hidden text-sm text-red-400 text-center mt-6"></p>
 
-        <p class="text-xs text-zinc-600 text-center mt-8">
+        <p class="text-xs text-zinc-600 text-center mt-4">
           A fizetést a Stripe biztonságos rendszere kezeli. Kártyaadataid sosem kerülnek a NEXUS szervereire.
         </p>
 
         <footer class="mt-auto pt-12">
           <div class="border-t border-zinc-800 pt-6 flex flex-wrap items-center justify-between gap-4 text-xs text-zinc-500">
             <div>
-              © 2026 NEXUS AI by
+              © 2026 NEXUS by
               <a href="https://conendigital.hu" class="text-emerald-400 hover:text-emerald-300 transition-colors ml-1">
                 Conen Digital
               </a>
+            </div>
+            <div class="flex gap-4">
+              <a href="/aszf" class="hover:text-zinc-300 transition-colors">ÁSZF</a>
+              <a href="/adatvedelem" class="hover:text-zinc-300 transition-colors">Adatvédelem</a>
             </div>
           </div>
         </footer>
@@ -255,10 +276,17 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
         errorEl.classList.remove("hidden");
       }
 
+      const termsCheckbox = document.getElementById("accept-terms-checkout") as HTMLInputElement;
+
       document.querySelectorAll<HTMLButtonElement>(".checkout-btn").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const tier = btn.dataset.checkoutTier;
           if (!tier) return;
+
+          if (!termsCheckbox?.checked) {
+            showError("Kérjük, fogadd el az ÁSZF-et és az Adatkezelési tájékoztatót a folytatáshoz.");
+            return;
+          }
 
           // Loading állapot
           const originalText = btn.textContent;
