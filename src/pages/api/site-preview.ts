@@ -28,7 +28,7 @@ export const GET: APIRoute = async ({ request }) => {
   }
 
   const siteData: SiteData = JSON.parse(result[0].data);
-  const html = renderSiteHtml(siteData);
+  const html = renderSiteHtml(siteData, { editable: true });
 
   return new Response(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },
@@ -42,7 +42,7 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const siteData: SiteData = await request.json();
-  const html = renderSiteHtml(siteData);
+  const html = renderSiteHtml(siteData, { editable: true });
 
   return new Response(html, {
     headers: { "Content-Type": "text/html; charset=utf-8" },

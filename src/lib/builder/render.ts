@@ -6,6 +6,10 @@ import type {
 } from "./types";
 import { getIcon, getSocialIcon } from "./icons";
 
+export interface RenderOptions {
+  editable?: boolean;
+}
+
 function esc(str: string): string {
   return str
     .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
@@ -25,13 +29,17 @@ function sectionStyleAttr(s?: SectionStyle): string {
   return parts.length ? ` style="${parts.join(";")}"` : "";
 }
 
+function ea(path: string, editable: boolean): string {
+  return editable ? ` data-edit="${path}"` : "";
+}
+
 function stars(rating: number): string {
   return "★".repeat(Math.min(rating, 5)) + "☆".repeat(Math.max(0, 5 - rating));
 }
 
 // === SECTION RENDERERS ===
 
-function renderHero(s: HeroSection, b: SiteData["business"]): string {
+function renderHero(s: HeroSection, b: SiteData["business"], e = false): string {
   const align = s.style?.textAlign || (s.layout === "center" ? "center" : s.layout === "right" ? "right" : "left");
   const styleParts: string[] = [];
   if (s.backgroundImageUrl) {
@@ -51,27 +59,27 @@ function renderHero(s: HeroSection, b: SiteData["business"]): string {
     <div class="${hasImage ? "hero-overlay" : "hero-content"}">
       <div class="container" style="text-align:${align}">
         ${b.logoUrl ? `<img src="${esc(b.logoUrl)}" alt="${esc(b.name)}" class="logo">` : ""}
-        <h1>${esc(s.headline)}</h1>
-        <p class="subtitle">${esc(s.subheadline)}</p>
-        <a href="${esc(s.ctaUrl || "#kapcsolat")}" class="btn">${esc(s.ctaText)}</a>
+        <h1${ea("headline",e)}>${esc(s.headline)}</h1>
+        <p class="subtitle"${ea("subheadline",e)}>${esc(s.subheadline)}</p>
+        <a href="${esc(s.ctaUrl || "#kapcsolat")}" class="btn"${ea("ctaText",e)}>${esc(s.ctaText)}</a>
       </div>
     </div>
   </section>`;
 }
 
-function renderServices(s: ServicesSection): string {
+function renderServices(s: ServicesSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="grid cols-${s.columns || 3}">
-        ${s.items.map(i => `
+        ${s.items.map((i,idx) => `
           <div class="card">
             ${i.icon ? `<div class="card-icon">${getIcon(i.icon) || esc(i.icon)}</div>` : ""}
-            <h3>${esc(i.name)}</h3>
-            <p>${esc(i.description)}</p>
-            ${i.price ? `<div class="price">${esc(i.price)}</div>` : ""}
+            <h3${ea(`items.${idx}.name`,e)}>${esc(i.name)}</h3>
+            <p${ea(`items.${idx}.description`,e)}>${esc(i.description)}</p>
+            ${i.price ? `<div class="price"${ea(`items.${idx}.price`,e)}>${esc(i.price)}</div>` : ""}
           </div>
         `).join("")}
       </div>
@@ -79,25 +87,25 @@ function renderServices(s: ServicesSection): string {
   </section>`;
 }
 
-function renderAbout(s: AboutSection): string {
+function renderAbout(s: AboutSection, e = false): string {
   const cls = s.layout === "text-right" ? "about-layout reverse" : s.layout === "text-only" ? "about-layout text-only" : "about-layout";
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container ${cls}">
       <div class="about-text">
-        <h2>${esc(s.title)}</h2>
-        <p>${esc(s.text)}</p>
+        <h2${ea("title",e)}>${esc(s.title)}</h2>
+        <p${ea("text",e)}>${esc(s.text)}</p>
       </div>
       ${s.imageUrl && s.layout !== "text-only" ? `<img src="${esc(s.imageUrl)}" alt="${esc(s.title)}" class="about-img">` : ""}
     </div>
   </section>`;
 }
 
-function renderGallery(s: GallerySection): string {
+function renderGallery(s: GallerySection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
       ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
       <div class="gallery-grid cols-${s.columns || 3}">
         ${s.images.map(img => `<img src="${esc(img.url)}" alt="${esc(img.alt)}" loading="lazy">`).join("")}
@@ -106,12 +114,12 @@ function renderGallery(s: GallerySection): string {
   </section>`;
 }
 
-function renderContact(s: ContactSection, b: SiteData["business"]): string {
+function renderContact(s: ContactSection, b: SiteData["business"], e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      <p class="sec-subtitle">${esc(s.text)}</p>
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      <p class="sec-subtitle"${ea("text",e)}>${esc(s.text)}</p>
       <div class="contact-grid">
         <div class="contact-info">
           ${b.phone ? `<div class="contact-item"><strong>Telefon:</strong> <a href="tel:${esc(b.phone)}">${esc(b.phone)}</a></div>` : ""}
@@ -134,22 +142,22 @@ function renderContact(s: ContactSection, b: SiteData["business"]): string {
   </section>`;
 }
 
-function renderTestimonials(s: TestimonialsSection): string {
+function renderTestimonials(s: TestimonialsSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="grid cols-2">
-        ${s.items.map(t => `
+        ${s.items.map((t,idx) => `
           <div class="testimonial-card">
             ${t.rating ? `<div class="stars">${stars(t.rating)}</div>` : ""}
-            <blockquote>"${esc(t.text)}"</blockquote>
+            <blockquote${ea(`items.${idx}.text`,e)}>"${esc(t.text)}"</blockquote>
             <div class="testimonial-author">
               ${t.imageUrl ? `<img src="${esc(t.imageUrl)}" alt="${esc(t.name)}" class="avatar">` : ""}
               <div>
-                <strong>${esc(t.name)}</strong>
-                ${t.role ? `<span>${esc(t.role)}</span>` : ""}
+                <strong${ea(`items.${idx}.name`,e)}>${esc(t.name)}</strong>
+                ${t.role ? `<span${ea(`items.${idx}.role`,e)}>${esc(t.role)}</span>` : ""}
               </div>
             </div>
           </div>
@@ -159,19 +167,19 @@ function renderTestimonials(s: TestimonialsSection): string {
   </section>`;
 }
 
-function renderTeam(s: TeamSection): string {
+function renderTeam(s: TeamSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="grid cols-3">
-        ${s.members.map(m => `
+        ${s.members.map((m,idx) => `
           <div class="team-card">
             ${m.imageUrl ? `<img src="${esc(m.imageUrl)}" alt="${esc(m.name)}" class="team-img">` : `<div class="team-img-placeholder"></div>`}
-            <h3>${esc(m.name)}</h3>
-            <div class="team-role">${esc(m.role)}</div>
-            ${m.bio ? `<p>${esc(m.bio)}</p>` : ""}
+            <h3${ea(`members.${idx}.name`,e)}>${esc(m.name)}</h3>
+            <div class="team-role"${ea(`members.${idx}.role`,e)}>${esc(m.role)}</div>
+            ${m.bio ? `<p${ea(`members.${idx}.bio`,e)}>${esc(m.bio)}</p>` : ""}
             <div class="team-contact">
               ${m.phone ? `<a href="tel:${esc(m.phone)}">${esc(m.phone)}</a>` : ""}
               ${m.email ? `<a href="mailto:${esc(m.email)}">${esc(m.email)}</a>` : ""}
@@ -183,21 +191,21 @@ function renderTeam(s: TeamSection): string {
   </section>`;
 }
 
-function renderOffers(s: OffersSection): string {
+function renderOffers(s: OffersSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="grid cols-3">
-        ${s.items.map(o => `
+        ${s.items.map((o,idx) => `
           <div class="offer-card">
-            ${o.badge ? `<div class="offer-badge">${esc(o.badge)}</div>` : ""}
-            <h3>${esc(o.title)}</h3>
-            <p>${esc(o.description)}</p>
+            ${o.badge ? `<div class="offer-badge"${ea(`items.${idx}.badge`,e)}>${esc(o.badge)}</div>` : ""}
+            <h3${ea(`items.${idx}.title`,e)}>${esc(o.title)}</h3>
+            <p${ea(`items.${idx}.description`,e)}>${esc(o.description)}</p>
             <div class="offer-pricing">
               ${o.originalPrice ? `<span class="original-price">${esc(o.originalPrice)}</span>` : ""}
-              <span class="discount-price">${esc(o.discountPrice)}</span>
+              <span class="discount-price"${ea(`items.${idx}.discountPrice`,e)}>${esc(o.discountPrice)}</span>
             </div>
             ${o.ctaText ? `<a href="#kapcsolat" class="btn btn-sm">${esc(o.ctaText)}</a>` : ""}
           </div>
@@ -207,17 +215,17 @@ function renderOffers(s: OffersSection): string {
   </section>`;
 }
 
-function renderFaq(s: FaqSection): string {
+function renderFaq(s: FaqSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="faq-list">
-        ${s.items.map(f => `
+        ${s.items.map((f,idx) => `
           <details class="faq-item">
-            <summary>${esc(f.question)}</summary>
-            <p>${esc(f.answer)}</p>
+            <summary${ea(`items.${idx}.question`,e)}>${esc(f.question)}</summary>
+            <p${ea(`items.${idx}.answer`,e)}>${esc(f.answer)}</p>
           </details>
         `).join("")}
       </div>
@@ -225,29 +233,29 @@ function renderFaq(s: FaqSection): string {
   </section>`;
 }
 
-function renderCta(s: CtaSection, contactHref: string): string {
+function renderCta(s: CtaSection, contactHref: string, e = false): string {
   const bg = s.backgroundColorOverride ? `background:${s.backgroundColorOverride}` : "background:var(--c-primary)";
   const href = s.buttonUrl && s.buttonUrl !== "#kapcsolat" ? s.buttonUrl : contactHref;
   return `
   <section class="sec sec-cta" style="${bg}"${sectionStyleAttr(s.style)}>
     <div class="container" style="text-align:center">
-      <h2 style="color:#fff">${esc(s.headline)}</h2>
-      <p style="color:rgba(255,255,255,0.8);margin-bottom:2rem">${esc(s.text)}</p>
-      <a href="${esc(href)}" class="btn btn-white">${esc(s.buttonText)}</a>
+      <h2 style="color:#fff"${ea("headline",e)}>${esc(s.headline)}</h2>
+      <p style="color:rgba(255,255,255,0.8);margin-bottom:2rem"${ea("text",e)}>${esc(s.text)}</p>
+      <a href="${esc(href)}" class="btn btn-white"${ea("buttonText",e)}>${esc(s.buttonText)}</a>
     </div>
   </section>`;
 }
 
-function renderStats(s: StatsSection): string {
+function renderStats(s: StatsSection, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      ${s.title ? `<h2>${esc(s.title)}</h2>` : ""}
+      ${s.title ? `<h2${ea("title",e)}>${esc(s.title)}</h2>` : ""}
       <div class="stats-grid">
-        ${s.items.map(st => `
+        ${s.items.map((st,idx) => `
           <div class="stat-item">
-            <div class="stat-value">${esc(st.value)}</div>
-            <div class="stat-label">${esc(st.label)}</div>
+            <div class="stat-value"${ea(`items.${idx}.value`,e)}>${esc(st.value)}</div>
+            <div class="stat-label"${ea(`items.${idx}.label`,e)}>${esc(st.label)}</div>
           </div>
         `).join("")}
       </div>
@@ -255,17 +263,17 @@ function renderStats(s: StatsSection): string {
   </section>`;
 }
 
-function renderPricing(s: PricingSection, contactHref: string): string {
+function renderPricing(s: PricingSection, contactHref: string, e = false): string {
   return `
   <section class="sec"${sectionStyleAttr(s.style)}>
     <div class="container">
-      <h2>${esc(s.title)}</h2>
-      ${s.subtitle ? `<p class="sec-subtitle">${esc(s.subtitle)}</p>` : ""}
+      <h2${ea("title",e)}>${esc(s.title)}</h2>
+      ${s.subtitle ? `<p class="sec-subtitle"${ea("subtitle",e)}>${esc(s.subtitle)}</p>` : ""}
       <div class="pricing-grid">
-        ${s.plans.map(p => `
+        ${s.plans.map((p,idx) => `
           <div class="pricing-card ${p.highlighted ? "highlighted" : ""}">
-            <h3>${esc(p.name)}</h3>
-            <div class="pricing-price">${esc(p.price)}</div>
+            <h3${ea(`plans.${idx}.name`,e)}>${esc(p.name)}</h3>
+            <div class="pricing-price"${ea(`plans.${idx}.price`,e)}>${esc(p.price)}</div>
             ${p.period ? `<div class="pricing-period">${esc(p.period)}</div>` : ""}
             <ul>
               ${p.features.map(f => `<li>${esc(f)}</li>`).join("")}
@@ -299,22 +307,22 @@ function findContactId(data: SiteData): string {
   return contact ? `#s-${contact.id}` : "#";
 }
 
-function renderSection(sec: Section, data: SiteData): string {
+function renderSection(sec: Section, data: SiteData, e = false): string {
   if (!sec.enabled) return "";
   const contactHref = findContactId(data);
   switch (sec.type) {
-    case "hero": return renderHero(sec, data.business);
-    case "services": return renderServices(sec);
-    case "about": return renderAbout(sec);
-    case "gallery": return renderGallery(sec);
-    case "contact": return renderContact(sec, data.business);
-    case "testimonials": return renderTestimonials(sec);
-    case "team": return renderTeam(sec);
-    case "offers": return renderOffers(sec);
-    case "faq": return renderFaq(sec);
-    case "cta": return renderCta(sec, contactHref);
-    case "stats": return renderStats(sec);
-    case "pricing": return renderPricing(sec, contactHref);
+    case "hero": return renderHero(sec, data.business, e);
+    case "services": return renderServices(sec, e);
+    case "about": return renderAbout(sec, e);
+    case "gallery": return renderGallery(sec, e);
+    case "contact": return renderContact(sec, data.business, e);
+    case "testimonials": return renderTestimonials(sec, e);
+    case "team": return renderTeam(sec, e);
+    case "offers": return renderOffers(sec, e);
+    case "faq": return renderFaq(sec, e);
+    case "cta": return renderCta(sec, contactHref, e);
+    case "stats": return renderStats(sec, e);
+    case "pricing": return renderPricing(sec, contactHref, e);
     case "logos": return renderLogos(sec);
   }
 }
@@ -343,14 +351,15 @@ function renderNav(data: SiteData): string {
 
 // === MAIN RENDER ===
 
-export function renderSiteHtml(data: SiteData): string {
+export function renderSiteHtml(data: SiteData, opts: RenderOptions = {}): string {
+  const editable = !!opts.editable;
   const p = data.globalStyles.colors;
   const f = data.globalStyles.fonts;
   const fontImport = [f.heading, f.body].filter(Boolean).map(fn => fn.replace(/ /g, "+")).join("&family=");
 
   const sectionsHtml = data.sections
     .map(sec => {
-      const html = renderSection(sec, data);
+      const html = renderSection(sec, data, editable);
       if (!html) return "";
       return html.replace('<section class="sec', `<section id="s-${sec.id}" class="sec`);
     })
@@ -543,6 +552,46 @@ export function renderSiteHtml(data: SiteData): string {
       <p style="margin-top:.5rem;font-size:.75rem;color:var(--c-muted)">Készítette: <a href="https://nexus.conendigital.hu" style="color:var(--c-primary);text-decoration:none">NEXUS</a></p>
     </div>
   </footer>
+${editable ? `
+<style>
+  [data-edit]{outline:1px dashed transparent;outline-offset:2px;transition:outline-color .15s;cursor:text;min-width:1em;min-height:1em}
+  [data-edit]:hover{outline-color:color-mix(in srgb,var(--c-primary) 50%,transparent)}
+  [data-edit]:focus{outline:2px solid var(--c-primary);outline-offset:2px;background:color-mix(in srgb,var(--c-primary) 5%,transparent)}
+</style>
+<script>
+(function(){
+  var active=null;
+  function sid(el){var s=el.closest('[id^="s-"]');return s?s.id.slice(2):null}
+  document.addEventListener('click',function(ev){
+    var t=ev.target.closest('[data-edit]');
+    if(!t)return;
+    ev.preventDefault();
+    ev.stopPropagation();
+    if(active===t)return;
+    if(active)commit(active);
+    active=t;
+    t.contentEditable='true';
+    t.focus();
+    var r=document.createRange();r.selectNodeContents(t);r.collapse(false);
+    var s=window.getSelection();s.removeAllRanges();s.addRange(r);
+  });
+  function commit(el){
+    var id=sid(el),p=el.getAttribute('data-edit'),v=el.innerText.trim();
+    el.contentEditable='false';
+    if(id&&p)parent.postMessage({source:'nx-inline',type:'EDIT',sectionId:id,path:p,value:v},'*');
+    active=null;
+  }
+  document.addEventListener('blur',function(ev){
+    if(ev.target&&ev.target.hasAttribute&&ev.target.hasAttribute('data-edit')&&ev.target.contentEditable==='true')commit(ev.target);
+  },true);
+  document.addEventListener('keydown',function(ev){
+    if(!active)return;
+    if(ev.key==='Enter'&&!ev.shiftKey){ev.preventDefault();active.blur()}
+    if(ev.key==='Escape'){ev.preventDefault();active.contentEditable='false';active=null;parent.postMessage({source:'nx-inline',type:'CANCEL'},'*')}
+  });
+  parent.postMessage({source:'nx-inline',type:'READY'},'*');
+})();
+</script>` : ""}
 </body>
 </html>`;
 }

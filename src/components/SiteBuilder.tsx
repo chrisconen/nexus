@@ -2,6 +2,24 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import type { SiteData, Section, SectionType, SectionStyle } from "@/lib/builder/types";
 import { COLOR_PALETTES, FONT_OPTIONS, SECTION_REGISTRY, SERVICE_ICON_OPTIONS, createDefaultSection } from "@/lib/builder/types";
 
+function setByPath(obj: any, path: string, value: string): any {
+  const keys = path.split(".");
+  let cur = obj;
+  for (let i = 0; i < keys.length - 1; i++) {
+    const k = keys[i];
+    if (cur[k] == null) return obj;
+    // tömb index kezelése
+    if (Array.isArray(cur[k])) {
+      cur[k] = [...cur[k]];
+    } else if (typeof cur[k] === "object") {
+      cur[k] = { ...cur[k] };
+    }
+    cur = cur[k];
+  }
+  cur[keys[keys.length - 1]] = value;
+  return obj;
+}
+
 interface Props { userTier: string; userName: string; }
 type Step = "onboarding" | "editor";
 
@@ -84,6 +102,9 @@ export default function SiteBuilder({ userTier, userName }: Props) {
   const [showAddSection, setShowAddSection] = useState(false);
   const [editorPanel, setEditorPanel] = useState<"sections" | "global">("sections");
   const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [editorPanelOpen, setEditorPanelOpen] = useState(true);
+  const [fullPreview, setFullPreview] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
@@ -117,16 +138,22 @@ export default function SiteBuilder({ userTier, userName }: Props) {
             history.init(loaded);
             setSiteId(data.sites[0].id);
             setStep("editor");
+            if (!sessionStorage.getItem("nx-tip-shown")) {
+              sessionStorage.setItem("nx-tip-shown", "1");
+              setTimeout(() => toast("Tipp: kattints bármelyik szövegre az előnézetben, és ott helyben átírhatod.", "info"), 1500);
+            }
           }
         }
       } catch {}
     })();
   }, []);
 
-  // Live preview — frissül minden siteData változáskor
+  // Live preview — debounced (200ms), frissül minden siteData változáskor
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   useEffect(() => {
     if (!siteData) return;
-    (async () => {
+    if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
+    previewTimeoutRef.current = setTimeout(async () => {
       try {
         const res = await fetch("/api/site-preview", {
           method: "POST",
@@ -135,7 +162,22 @@ export default function SiteBuilder({ userTier, userName }: Props) {
         });
         if (res.ok) setPreviewHtml(await res.text());
       } catch {}
-    })();
+    }, 200);
+    return () => { if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current); };
+  }, [siteData]);
+
+  // Inline edit — postMessage listener az iframe-ből
+  useEffect(() => {
+    function onMessage(ev: MessageEvent) {
+      const msg = ev.data;
+      if (!msg || msg.source !== "nx-inline") return;
+      if (msg.type === "EDIT") {
+        const { sectionId, path, value } = msg as { sectionId: string; path: string; value: string };
+        updateSection(sectionId, (s) => setByPath(structuredClone(s), path, value));
+      }
+    }
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
   }, [siteData]);
 
   // Auto-save — 2 sec debounce
@@ -366,46 +408,51 @@ export default function SiteBuilder({ userTier, userName }: Props) {
     <div className="flex-1 flex flex-col min-h-0">
       {/* Toolbar */}
       <div className="border-b border-zinc-800 px-4 py-2 flex items-center gap-2 flex-shrink-0">
-        <span className="text-xs text-zinc-500 uppercase tracking-wider">NEXUS Builder</span>
+        <span className="text-xs text-zinc-400 uppercase tracking-wider">NEXUS Builder</span>
 
         <div className="flex gap-1 ml-3">
-          <button onClick={history.undo} disabled={!history.canUndo} className="text-zinc-500 hover:text-zinc-300 disabled:text-zinc-700 px-1.5 py-1 text-xs rounded" title="Visszavonás (Ctrl+Z)">↩</button>
-          <button onClick={history.redo} disabled={!history.canRedo} className="text-zinc-500 hover:text-zinc-300 disabled:text-zinc-700 px-1.5 py-1 text-xs rounded" title="Újra (Ctrl+Y)">↪</button>
+          <button onClick={history.undo} disabled={!history.canUndo} className="text-zinc-400 hover:text-zinc-100 disabled:text-zinc-600 px-1.5 py-1 text-xs rounded" title="Visszavonás (Ctrl+Z)">↩</button>
+          <button onClick={history.redo} disabled={!history.canRedo} className="text-zinc-400 hover:text-zinc-100 disabled:text-zinc-600 px-1.5 py-1 text-xs rounded" title="Újra (Ctrl+Y)">↪</button>
         </div>
 
         <div className="flex gap-1 ml-2 border-l border-zinc-800 pl-2">
           {(["desktop", "mobile"] as const).map(m => (
-            <button key={m} onClick={() => setPreviewMode(m)} className={`px-2 py-1 rounded text-xs ${previewMode === m ? "bg-zinc-800 text-zinc-300" : "text-zinc-600 hover:text-zinc-400"}`}>
+            <button key={m} onClick={() => setPreviewMode(m)} className={`px-2 py-1 rounded text-xs ${previewMode === m ? "bg-zinc-800 text-zinc-300" : "text-zinc-400 hover:text-zinc-200"}`}>
               {m === "desktop" ? "Desktop" : "Mobil"}
             </button>
           ))}
         </div>
 
         <div className="flex-1 flex justify-center">
-          <span className="text-xs text-zinc-600">
+          <span className="text-xs text-zinc-400">
             {saving ? "Mentés..." : "Automatikusan mentve"}
           </span>
         </div>
 
-        <button onClick={handleRegenerate} disabled={loading} className="text-zinc-500 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-800 rounded transition-colors disabled:opacity-50" title="Újragenerálás">
+        <button onClick={() => { const next = !fullPreview; setFullPreview(next); setSidebarOpen(!next); setEditorPanelOpen(!next); }} className="text-zinc-300 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-600 rounded transition-colors" title="Teljes képernyős előnézet">
+          {fullPreview ? "⛶ Kilépés" : "⛶ Előnézet"}
+        </button>
+        <button onClick={handleRegenerate} disabled={loading} className="text-zinc-300 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-600 rounded transition-colors disabled:opacity-50" title="Újragenerálás">
           {loading ? "..." : "Újragenerálás"}
         </button>
         {siteId && (
-          <a href={`/api/site-download?id=${siteId}`} className="text-zinc-500 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-800 rounded transition-colors">
+          <a href={`/api/site-download?id=${siteId}`} className="text-zinc-300 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-600 rounded transition-colors">
             Letöltés
           </a>
         )}
-        <a href="/utmutato" target="_blank" className="text-zinc-500 hover:text-zinc-300 text-xs px-2" title="Útmutató">?</a>
-        <a href="/chat" className="text-zinc-500 hover:text-zinc-300 text-xs px-2">Chat</a>
+        <a href="/utmutato" target="_blank" className="flex items-center gap-1 text-zinc-300 hover:text-emerald-400 text-xs px-2 py-1 border border-zinc-600 rounded transition-colors" title="Útmutató / Súgó">
+          <span>?</span><span>Útmutató</span>
+        </a>
+        <a href="/chat" className="text-zinc-300 hover:text-zinc-100 text-xs px-2 py-1 border border-zinc-600 rounded transition-colors">Chat</a>
       </div>
 
       {/* Split view: sidebar + editor + preview */}
       <div className="flex-1 flex min-h-0">
         {/* Left sidebar — section list */}
-        <div className="w-60 border-r border-zinc-800 flex flex-col flex-shrink-0 overflow-hidden">
+        {sidebarOpen && <div className="w-60 border-r border-zinc-800 flex flex-col flex-shrink-0 overflow-hidden">
           <div className="p-2 border-b border-zinc-800 flex gap-1">
-            <button onClick={() => setEditorPanel("sections")} className={`flex-1 text-xs py-1 rounded ${editorPanel === "sections" ? "bg-zinc-800 text-zinc-200" : "text-zinc-500"}`}>Szekciók</button>
-            <button onClick={() => setEditorPanel("global")} className={`flex-1 text-xs py-1 rounded ${editorPanel === "global" ? "bg-zinc-800 text-zinc-200" : "text-zinc-500"}`}>Stílusok</button>
+            <button onClick={() => setEditorPanel("sections")} className={`flex-1 text-xs py-1 rounded ${editorPanel === "sections" ? "bg-zinc-800 text-zinc-200" : "text-zinc-400 hover:text-zinc-200"}`}>Szekciók</button>
+            <button onClick={() => setEditorPanel("global")} className={`flex-1 text-xs py-1 rounded ${editorPanel === "global" ? "bg-zinc-800 text-zinc-200" : "text-zinc-400 hover:text-zinc-200"}`}>Stílusok</button>
           </div>
 
           <div className="flex-1 overflow-y-auto p-1.5 space-y-0.5">
@@ -421,11 +468,11 @@ export default function SiteBuilder({ userTier, userName }: Props) {
                         <span className={`flex-1 truncate text-xs ${isActive ? "text-zinc-200" : "text-zinc-400"}`}>{reg.label}</span>
                         {isActive && (
                           <div className="flex gap-0.5">
-                            <button onClick={e => { e.stopPropagation(); moveSection(sec.id, -1); }} className="text-zinc-600 hover:text-zinc-300 text-[10px] px-0.5" title="Fel">▲</button>
-                            <button onClick={e => { e.stopPropagation(); moveSection(sec.id, 1); }} className="text-zinc-600 hover:text-zinc-300 text-[10px] px-0.5" title="Le">▼</button>
-                            <button onClick={e => { e.stopPropagation(); duplicateSection(sec.id); }} className="text-zinc-600 hover:text-emerald-400 text-[10px] px-0.5" title="Duplikálás">⧉</button>
-                            <button onClick={e => { e.stopPropagation(); updateSection(sec.id, s => ({ ...s, enabled: !s.enabled })); }} className={`text-[10px] px-0.5 ${sec.enabled ? "text-emerald-500" : "text-zinc-600"}`} title="Ki/Be">●</button>
-                            <button onClick={e => { e.stopPropagation(); deleteSection(sec.id); }} className="text-zinc-600 hover:text-red-400 text-[10px] px-0.5" title="Törlés">✕</button>
+                            <button onClick={e => { e.stopPropagation(); moveSection(sec.id, -1); }} className="text-zinc-400 hover:text-zinc-100 text-[11px] px-0.5" title="Fel">▲</button>
+                            <button onClick={e => { e.stopPropagation(); moveSection(sec.id, 1); }} className="text-zinc-400 hover:text-zinc-100 text-[11px] px-0.5" title="Le">▼</button>
+                            <button onClick={e => { e.stopPropagation(); duplicateSection(sec.id); }} className="text-zinc-400 hover:text-emerald-400 text-[11px] px-0.5" title="Duplikálás">⧉</button>
+                            <button onClick={e => { e.stopPropagation(); updateSection(sec.id, s => ({ ...s, enabled: !s.enabled })); }} className={`text-[11px] px-0.5 ${sec.enabled ? "text-emerald-500" : "text-zinc-400"}`} title="Ki/Be">●</button>
+                            <button onClick={e => { e.stopPropagation(); deleteSection(sec.id); }} className="text-zinc-400 hover:text-red-400 text-[11px] px-0.5" title="Törlés">✕</button>
                           </div>
                         )}
                       </div>
@@ -439,7 +486,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
             ) : (
               <div className="space-y-3 p-1">
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1.5 uppercase tracking-wider">Színpaletta</label>
+                  <label className="block text-[11px] text-zinc-300 mb-1.5 uppercase tracking-wider">Színpaletta</label>
                   <div className="flex gap-1.5 flex-wrap">
                     {Object.entries(COLOR_PALETTES).map(([key, p]) => (
                       <button key={key} onClick={() => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, colors: p } }))} className={`flex items-center gap-1 px-1.5 py-1 rounded text-[10px] border ${siteData.globalStyles.colors.primary === p.primary ? "border-emerald-500 bg-emerald-950/40" : "border-zinc-800"}`}>
@@ -450,28 +497,28 @@ export default function SiteBuilder({ userTier, userName }: Props) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">Címsor betűtípus</label>
-                  <select value={siteData.globalStyles.fonts.heading} onChange={e => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, fonts: { ...d.globalStyles.fonts, heading: e.target.value } } }))} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-200">
+                  <label className="block text-[11px] text-zinc-300 mb-1 uppercase tracking-wider">Címsor betűtípus</label>
+                  <select value={siteData.globalStyles.fonts.heading} onChange={e => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, fonts: { ...d.globalStyles.fonts, heading: e.target.value } } }))} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
                     {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1 uppercase tracking-wider">Szövegtörzs</label>
-                  <select value={siteData.globalStyles.fonts.body} onChange={e => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, fonts: { ...d.globalStyles.fonts, body: e.target.value } } }))} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-xs text-zinc-200">
+                  <label className="block text-[11px] text-zinc-300 mb-1 uppercase tracking-wider">Szövegtörzs</label>
+                  <select value={siteData.globalStyles.fonts.body} onChange={e => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, fonts: { ...d.globalStyles.fonts, body: e.target.value } } }))} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-xs text-zinc-200">
                     {FONT_OPTIONS.map(f => <option key={f.value} value={f.value}>{f.label}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1.5 uppercase tracking-wider">Egyéni színek</label>
+                  <label className="block text-[11px] text-zinc-300 mb-1.5 uppercase tracking-wider">Egyéni színek</label>
                   {(["primary", "secondary", "accent", "background", "surface", "text", "textMuted"] as const).map(key => (
                     <div key={key} className="flex items-center gap-2 mb-1">
                       <input type="color" value={siteData.globalStyles.colors[key]} onChange={e => updateSiteData(d => ({ ...d, globalStyles: { ...d.globalStyles, colors: { ...d.globalStyles.colors, [key]: e.target.value } } }))} className="w-5 h-5 rounded border-0 cursor-pointer" />
-                      <span className="text-[10px] text-zinc-500 capitalize">{key}</span>
+                      <span className="text-[11px] text-zinc-400 capitalize">{key}</span>
                     </div>
                   ))}
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1.5 uppercase tracking-wider">Vállalkozás</label>
+                  <label className="block text-[11px] text-zinc-300 mb-1.5 uppercase tracking-wider">Vállalkozás</label>
                   <div className="space-y-1.5">
                     <ImageUpload label="Logó" value={siteData.business.logoUrl || ""} onChange={v => updateSiteData(d => ({ ...d, business: { ...d.business, logoUrl: v } }))} onDelete={deleteImage} />
                     <SmallField label="Név" value={siteData.business.name} onChange={v => updateSiteData(d => ({ ...d, business: { ...d.business, name: v } }))} />
@@ -483,14 +530,14 @@ export default function SiteBuilder({ userTier, userName }: Props) {
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1.5 uppercase tracking-wider">SEO / Meta</label>
+                  <label className="block text-[11px] text-zinc-300 mb-1.5 uppercase tracking-wider">SEO / Meta</label>
                   <div className="space-y-1.5">
                     <SmallField label="Oldal címe" value={siteData.meta?.title || ""} onChange={v => updateSiteData(d => ({ ...d, meta: { ...d.meta, title: v } }))} />
                     <SmallField label="Meta leírás" value={siteData.meta?.description || ""} onChange={v => updateSiteData(d => ({ ...d, meta: { ...d.meta, description: v } }))} />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-[10px] text-zinc-500 mb-1.5 uppercase tracking-wider">Footer / Social</label>
+                  <label className="block text-[11px] text-zinc-300 mb-1.5 uppercase tracking-wider">Footer / Social</label>
                   <div className="space-y-1.5">
                     <SmallField label="Footer szöveg" value={siteData.footer?.text || ""} onChange={v => updateSiteData(d => ({ ...d, footer: { ...d.footer, socials: d.footer?.socials || [], text: v } }))} />
                     {(siteData.footer?.socials || []).map((s, i) => (
@@ -506,7 +553,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
                           <option value="website">Web</option>
                         </select>
                         <input type="text" value={s.url} onChange={e => updateSiteData(d => { const socials = [...(d.footer?.socials || [])]; socials[i] = { ...socials[i], url: e.target.value }; return { ...d, footer: { ...d.footer, socials } }; })} placeholder="https://..." className="flex-1 bg-zinc-900 border border-zinc-800 rounded px-1 py-1 text-[10px] text-zinc-200" />
-                        <button onClick={() => updateSiteData(d => ({ ...d, footer: { ...d.footer, socials: (d.footer?.socials || []).filter((_, j) => j !== i) } }))} className="text-[10px] text-zinc-600 hover:text-red-400 px-1">✕</button>
+                        <button onClick={() => updateSiteData(d => ({ ...d, footer: { ...d.footer, socials: (d.footer?.socials || []).filter((_, j) => j !== i) } }))} className="text-[11px] text-zinc-400 hover:text-red-400 px-1">✕</button>
                       </div>
                     ))}
                     <button onClick={() => updateSiteData(d => ({ ...d, footer: { ...d.footer, socials: [...(d.footer?.socials || []), { platform: "facebook" as const, url: "" }] } }))} className="w-full border border-dashed border-zinc-700 rounded py-1 text-[10px] text-zinc-500 hover:text-emerald-400 hover:border-emerald-700">+ Social link</button>
@@ -515,10 +562,10 @@ export default function SiteBuilder({ userTier, userName }: Props) {
               </div>
             )}
           </div>
-        </div>
+        </div>}
 
         {/* Middle — section editor */}
-        <div className="w-80 border-r border-zinc-800 flex-shrink-0 overflow-y-auto p-4">
+        {editorPanelOpen && <div className="w-80 border-r border-zinc-800 flex-shrink-0 overflow-y-auto p-4">
           {showAddSection ? (
             <div>
               <div className="flex justify-between items-center mb-3">
@@ -548,7 +595,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
               Válassz egy szekciót a bal oldali listából a szerkesztéshez
             </div>
           )}
-        </div>
+        </div>}
 
         {/* Right — live preview */}
         <div className="flex-1 bg-zinc-900 flex items-center justify-center p-3 min-h-0">
@@ -627,7 +674,7 @@ function SectionEditor({ section, onUpdate, onDeleteImage }: { section: Section;
         {s.showForm && (
           <div>
             <Field label="Formspree endpoint" value={s.formEndpoint || ""} onChange={v => set({ formEndpoint: v })} placeholder="https://formspree.io/f/xxxxx" />
-            <p className="text-[10px] text-zinc-600 mt-1">Regisztrálj a <a href="https://formspree.io" target="_blank" rel="noopener" className="text-emerald-500 hover:underline">formspree.io</a>-n, hozz létre egy form-ot, és másold be az endpoint URL-t.</p>
+            <p className="text-[11px] text-zinc-400 mt-1">Regisztrálj a <a href="https://formspree.io" target="_blank" rel="noopener" className="text-emerald-500 hover:underline">formspree.io</a>-n, hozz létre egy form-ot, és másold be az endpoint URL-t.</p>
           </div>
         )}
       </div>;
@@ -749,24 +796,24 @@ function SectionEditor({ section, onUpdate, onDeleteImage }: { section: Section;
 function SectionStyleEditor({ style, onUpdate }: { style: SectionStyle; onUpdate: (s: SectionStyle) => void }) {
   return (
     <div className="border-t border-zinc-800 pt-3 mt-3">
-      <h4 className="text-[10px] text-zinc-500 uppercase tracking-wider mb-2">Szekció stílus</h4>
+      <h4 className="text-[11px] text-zinc-300 uppercase tracking-wider mb-2">Szekció stílus</h4>
       <div className="grid grid-cols-2 gap-2">
         <div>
-          <label className="block text-[10px] text-zinc-600 mb-0.5">Háttérszín</label>
+          <label className="block text-[11px] text-zinc-400 mb-0.5">Háttérszín</label>
           <div className="flex items-center gap-1.5">
             <input type="color" value={style.backgroundColor || "#18181b"} onChange={e => onUpdate({ ...style, backgroundColor: e.target.value })} className="w-5 h-5 rounded border-0 cursor-pointer" />
-            <button onClick={() => onUpdate({ ...style, backgroundColor: undefined })} className="text-[10px] text-zinc-600 hover:text-zinc-400">X</button>
+            <button onClick={() => onUpdate({ ...style, backgroundColor: undefined })} className="text-[11px] text-zinc-400 hover:text-zinc-200">X</button>
           </div>
         </div>
         <div>
-          <label className="block text-[10px] text-zinc-600 mb-0.5">Szövegszín</label>
+          <label className="block text-[11px] text-zinc-400 mb-0.5">Szövegszín</label>
           <div className="flex items-center gap-1.5">
             <input type="color" value={style.textColor || "#e4e4e7"} onChange={e => onUpdate({ ...style, textColor: e.target.value })} className="w-5 h-5 rounded border-0 cursor-pointer" />
-            <button onClick={() => onUpdate({ ...style, textColor: undefined })} className="text-[10px] text-zinc-600 hover:text-zinc-400">X</button>
+            <button onClick={() => onUpdate({ ...style, textColor: undefined })} className="text-[11px] text-zinc-400 hover:text-zinc-200">X</button>
           </div>
         </div>
         <div className="col-span-2">
-          <label className="block text-[10px] text-zinc-600 mb-0.5">Szöveg igazítás</label>
+          <label className="block text-[11px] text-zinc-400 mb-0.5">Szöveg igazítás</label>
           <div className="flex gap-1.5">
             {([["left", "Bal"], ["center", "Közép"], ["right", "Jobb"]] as const).map(([val, label]) => (
               <button key={val} onClick={() => onUpdate({ ...style, textAlign: style.textAlign === val ? undefined : val })} className={`flex-1 py-1 rounded text-[10px] border transition-colors ${style.textAlign === val ? "border-emerald-500 bg-emerald-950/40 text-emerald-400" : "border-zinc-800 text-zinc-500"}`}>{label}</button>
@@ -787,8 +834,8 @@ function SectionStyleEditor({ style, onUpdate }: { style: SectionStyle; onUpdate
 function Field({ label, value, onChange, required, placeholder }: { label: string; value: string; onChange: (v: string) => void; required?: boolean; placeholder?: string }) {
   return (
     <div>
-      <label className="block text-[10px] text-zinc-500 mb-0.5">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)} required={required} placeholder={placeholder} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none" />
+      <label className="block text-[11px] text-zinc-400 mb-0.5">{label}</label>
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} required={required} placeholder={placeholder} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none" />
     </div>
   );
 }
@@ -796,8 +843,8 @@ function Field({ label, value, onChange, required, placeholder }: { label: strin
 function FieldTextarea({ label, value, onChange, placeholder, rows }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; rows?: number }) {
   return (
     <div>
-      <label className="block text-[10px] text-zinc-500 mb-0.5">{label}</label>
-      <textarea value={value} onChange={e => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none resize-none" />
+      <label className="block text-[11px] text-zinc-400 mb-0.5">{label}</label>
+      <textarea value={value} onChange={e => onChange(e.target.value)} rows={rows || 3} placeholder={placeholder} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none resize-none" />
     </div>
   );
 }
@@ -805,8 +852,8 @@ function FieldTextarea({ label, value, onChange, placeholder, rows }: { label: s
 function SelectField({ label, value, options, onChange }: { label: string; value: string; options: [string, string][]; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="block text-[10px] text-zinc-500 mb-0.5">{label}</label>
-      <select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none">
+      <label className="block text-[11px] text-zinc-400 mb-0.5">{label}</label>
+      <select value={value} onChange={e => onChange(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1.5 text-xs text-zinc-100 focus:border-emerald-500 focus:outline-none">
         {options.map(([v, l]) => <option key={v} value={v}>{l}</option>)}
       </select>
     </div>
@@ -816,8 +863,8 @@ function SelectField({ label, value, options, onChange }: { label: string; value
 function SmallField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
   return (
     <div>
-      <label className="block text-[10px] text-zinc-600 mb-0.5">{label}</label>
-      <input type="text" value={value} onChange={e => onChange(e.target.value)} className="w-full bg-zinc-900 border border-zinc-800 rounded px-2 py-1 text-[11px] text-zinc-200 focus:border-emerald-500 focus:outline-none" />
+      <label className="block text-[11px] text-zinc-400 mb-0.5">{label}</label>
+      <input type="text" value={value} onChange={e => onChange(e.target.value)} className="w-full bg-zinc-950 border border-zinc-700 rounded px-2 py-1 text-[11px] text-zinc-200 focus:border-emerald-500 focus:outline-none" />
     </div>
   );
 }
@@ -826,8 +873,8 @@ function ItemCard({ index, onDelete, children }: { index: number; onDelete: () =
   return (
     <div className="border border-zinc-800 rounded-lg p-2.5 space-y-2">
       <div className="flex justify-between items-center">
-        <span className="text-[10px] text-zinc-600">#{index + 1}</span>
-        <button onClick={onDelete} className="text-[10px] text-zinc-600 hover:text-red-400">Törlés</button>
+        <span className="text-[11px] text-zinc-400">#{index + 1}</span>
+        <button onClick={onDelete} className="text-[11px] text-zinc-400 hover:text-red-400">Törlés</button>
       </div>
       {children}
     </div>
@@ -867,7 +914,7 @@ function ImageUpload({ label, value, onChange, onDelete }: { label: string; valu
 
   return (
     <div>
-      <label className="block text-[10px] text-zinc-500 mb-0.5">{label}</label>
+      <label className="block text-[11px] text-zinc-400 mb-0.5">{label}</label>
       {value ? (
         <div className="flex items-center gap-2">
           <img src={value} alt="" className="w-12 h-12 object-cover rounded border border-zinc-700" />
