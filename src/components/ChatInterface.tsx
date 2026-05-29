@@ -71,6 +71,36 @@ useEffect(() => {
       background: conic-gradient(from var(--border-angle), #10b981, #047857, #34d399, #047857, #10b981);
       animation: border-rotate 4s linear infinite;
     }
+    @keyframes snake-orbit {
+      0%   { transform: rotate(0deg) translateX(9px); opacity: 0; }
+      8%   { opacity: 1; }
+      78%  { opacity: 1; }
+      100% { transform: rotate(360deg) translateX(9px); opacity: 0; }
+    }
+    .snake-loader {
+      position: relative;
+      width: 28px;
+      height: 28px;
+    }
+    .snake-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      margin: -2px 0 0 -2px;
+      background: #34d399;
+      border-radius: 50%;
+      animation: snake-orbit 1.2s ease-in-out infinite;
+    }
+    .snake-dot:nth-child(1)  { animation-delay: 0s; }
+    .snake-dot:nth-child(2)  { animation-delay: 0.15s; }
+    .snake-dot:nth-child(3)  { animation-delay: 0.3s; }
+    .snake-dot:nth-child(4)  { animation-delay: 0.45s; }
+    .snake-dot:nth-child(5)  { animation-delay: 0.6s; }
+    .snake-dot:nth-child(6)  { animation-delay: 0.75s; }
+    .snake-dot:nth-child(7)  { animation-delay: 0.9s; }
+    .snake-dot:nth-child(8)  { animation-delay: 1.05s; }
   `;
   document.head.appendChild(style);
 }, []);
