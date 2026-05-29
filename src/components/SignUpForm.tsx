@@ -193,7 +193,7 @@ export default function SignUpForm() {
           className="accent-emerald-600 w-4 h-4 mt-0.5 flex-shrink-0"
         />
         <span className="text-xs text-zinc-400 leading-relaxed">
-          Elolvastam és elfogadom az{" "}
+          Elfogadom az{" "}
           <a href="/aszf" target="_blank" className="text-emerald-400 hover:text-emerald-300 underline">ÁSZF</a>-et
           és az{" "}
           <a href="/adatvedelem" target="_blank" className="text-emerald-400 hover:text-emerald-300 underline">Adatkezelési tájékoztatót</a>.
