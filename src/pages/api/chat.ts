@@ -7,6 +7,8 @@ import { streamGroqChat, type GroqMessage } from "@/lib/llm/groq";
 import { streamDeepSeekChat, type DeepSeekMessage } from "@/lib/llm/deepseek";
 import { streamClaudeChat, type ClaudeContentBlock } from "@/lib/llm/claude";
 import { logData } from "@/lib/log";
+import { NEXUS_BASE_SYSTEM_PROMPT, NEXUS_TIER_ADDENDUM } from "@/lib/llm/prompts/nexus-system";
+import { buildWebpageContext } from "@/lib/llm/web-fetcher";
 
 export const prerender = false;
 
@@ -57,15 +59,19 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // Webpage context preprocessor — ha az utolsó user üzenet URL-t tartalmaz, letöltjük a tényadatokat
+  const webpageContext = await buildWebpageContext(messages);
+
   const systemPrompt: LLMMessage = {
     role: "system",
-    content: `Te a NEXUS AI vagy, a Conen Digital saját fejlesztésű AI asszisztense.
-Magyar nyelven válaszolj, egyszerűen és tömören.
-Nem kell elnézést kérned vagy bocsánatot kérned semmiért.
-Ne használj emojikat.`,
+    content: NEXUS_BASE_SYSTEM_PROMPT + NEXUS_TIER_ADDENDUM[user.tier],
   };
 
-  const fullMessages = [systemPrompt, ...messages];
+  const fullMessages: LLMMessage[] = webpageContext
+    ? [systemPrompt, webpageContext, ...messages]
+    : [systemPrompt, ...messages];
+
+  console.log(JSON.stringify(fullMessages, null, 2));
 
   // Tier-routing
   let llmStream: StreamOptions | null = null;
