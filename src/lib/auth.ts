@@ -41,7 +41,7 @@ export const auth = betterAuth({
     "http://localhost:4321",
     "http://127.0.0.1:4321",
     "https://nexus-self-eight.vercel.app",
-    "weboldal-konfigurator-v2.html",
+    "https://nexus.conendigital.hu",
   ],
 });
 
