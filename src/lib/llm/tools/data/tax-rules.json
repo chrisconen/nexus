@@ -1,0 +1,50 @@
+[
+  {
+    "topic": "Általános áfakulcs",
+    "keywords": ["afa", "áfa", "áfakulcs", "afa mérték", "általános áfa"],
+    "content": "Magyarországon az általános áfakulcs 27% (2025-ben is). Kedvezményes kulcsok: 18% (alapvető élelmiszerek, szálláshely-szolgáltatás, éttermi étkezés), 5% (gyógyszerek, könyvek, távhő, internet, állatgyógyászati szolgáltatás). A NAV online számlaadat-szolgáltatásban minden belföldi számlát rögzíteni kell.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "Számla kötelező adatai",
+    "keywords": ["számla", "számlázás", "számla adatok", "online számla", "számla kellékek"],
+    "content": "A számla kötelező adatai: kibocsátó neve, címe, adószáma; vevő neve, címe (adószáma áfás számlánál); számla sorszáma; kibocsátás dátuma; teljesítés dátuma; fizetési határidő; termék/szolgáltatás megnevezése, mennyisége, egységára, nettó értéke; áfakulcs, áfa összege; bruttó összeg. Online számla: 2025-ben már minden belföldi számlát 24 órán belül fel kell tölteni a NAV-hoz.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "Nyugtaadási kötelezettség",
+    "keywords": ["nyugta", "nyugtázás", "pénztárgép", "online pénztárgép", "blokk"],
+    "content": "Minden készpénzes fizetésnél nyugtát kell adni. Online pénztárgép használata kötelező a készpénzes forgalmat bonyolító vállalkozásoknak. A nyugtaadás elmulasztása 500.000 Ft-ig terjedő mulasztási bírsággal sújtható. A nyugtán szerepelnie kell: kibocsátó neve, adószáma, pénztárgép azonosító, dátum, termék megnevezése, nettó/bruttó összeg, áfa tartalom.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "EKÁER",
+    "keywords": ["ekaer", "ekáer", "fuvar", "közúti szállítás", "árufuvarozás"],
+    "content": "EKÁER (Elektronikus Közúti Áruforgalom Ellenőrző Rendszer) kockázatos termékek közúti szállításának bejelentésére szolgál. Bejelentési kötelezettség: ha a fuvar tárgya kockázatos termék (építőanyag, élelmiszer nagyker, üzemanyag, dohány, alkohol) és nettó 2,5M Ft feletti. A bejelentést a fuvar megkezdése előtt kell megtenni az EKÁER rendszerben. A bejelentés ingyenes, online történik. Hiányában 500.000 Ft-ig terjedő bírság szabható ki.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "KATA",
+    "keywords": ["kata", "kisadózó", "kata 2025", "kisadózó vállalkozások"],
+    "content": "A KATA (kisadózó vállalkozások tételes adója) 2025-ben: főállású kisadózó havi 50.000 Ft (vagy választható 75.000 Ft magasabb ellátásokkal). Éves bevételi limit: 12 millió Ft. A limit feletti rész 40%-os adóval terhelt. KATA csak magánszemélyként folytatott tevékenységre választható. Nem lehet KATA tag: cég tagja, kültag, ha az üzleti évben a saját cégtől kapott jövedelem meghaladja a minimálbért.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "Számviteli határidők",
+    "keywords": ["határidő", "bevallás", "adóbevallás", "éves beszámoló", "mérleg"],
+    "content": "Főbb határidők: áfa bevallás: tárgyhót követő 20. nap; társasági adó (Tao): adóévet követő 5. hó 31.; SZJA: május 20.; éves beszámoló letétbe helyezése: adóévet követő 5. hó 31.; iparűzési adó (IPA): évente két részletben, március 15. és szeptember 15.; szociális hozzájárulási adó (szocho): havonta, tárgyhónapot követő 12. nap.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "ÁFA visszaigénylés",
+    "keywords": ["áfa visszaigénylés", "áfa visszaigénylés határidő", "visszaigényelhető áfa"],
+    "content": "Az áfa visszaigénylésére az adóalanynak a bevallás benyújtásával egyidejűleg van lehetősége. Általános szabály: a visszaigénylés határideje a tárgyévet követő év január 1-től számított 5 év (elévülés). A visszaigénylés feltétele, hogy a beszerzés a vállalkozás adóköteles tevékenységéhez kapcsolódjon. Ellenőrzött körben (év közbeni visszaigénylés) 30 napon belül utalja a NAV.",
+    "lastUpdated": "2025-01-01"
+  },
+  {
+    "topic": "Átalányadózás",
+    "keywords": ["átalányadó", "átalányadózás", "átalány szerinti adózás"],
+    "content": "Átalányadózás: egyéni vállalkozók számára elérhető egyszerűsített adózási forma. Bevételi limit: évi 25 millió Ft (általános), 50 millió Ft (kiskereskedő). Költséghányad: általános 40%, kiskereskedelmi 80%, személyszállítás 80%. Az átalányadó mértéke: éves minimálbér feléig (2025: 1.560.000 Ft) 0%, afelett 15% SZJA. Ezen felül szocho és egészségbiztosítási járulék fizetendő.",
+    "lastUpdated": "2025-01-01"
+  }
+]

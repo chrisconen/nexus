@@ -1,6 +1,6 @@
 const URL_REGEX = /https?:\/\/[^\s<>"']+/i;
 const FETCH_TIMEOUT = 10_000;
-const HTML_PREVIEW_LENGTH = 5000;
+const HTML_PREVIEW_LENGTH = 15_000;
 
 interface FetchResult {
   status: string;
@@ -35,7 +35,8 @@ async function safeFetch(url: string): Promise<FetchResult> {
 function stripStyleAndScript(html: string): string {
   return html
     .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, "")
-    .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, "");
+    // Structured data (JSON-LD) is content, not code — keep it for the model
+    .replace(/<script(?![^>]*type=(["']?)application\/ld\+json\1?)[^>]*>[\s\S]*?<\/script>/gi, "");
 }
 
 function stripUrlCredentials(raw: string): string {

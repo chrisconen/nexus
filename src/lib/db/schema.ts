@@ -73,6 +73,7 @@ export const conversation = sqliteTable("conversation", {
   id: text("id").primaryKey(),
   userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
   title: text("title").notNull().default("Új beszélgetés"),
+  pinned: integer("pinned", { mode: "boolean" }).notNull().default(false),
   createdAt: integer("createdAt", { mode: "timestamp" }).notNull(),
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });

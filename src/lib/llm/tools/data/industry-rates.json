@@ -1,0 +1,18 @@
+[
+  { "keywords": ["web", "webfejlesztés", "programozó", "fejlesztő", "it", "informatika", "szoftver", "programozás"], "minRate": 6000, "maxRate": 15000, "label": "IT / webfejlesztés" },
+  { "keywords": ["fodrász", "hajvágás", "hajfestés", "szépség", "fodrászat"], "minRate": 3000, "maxRate": 8000, "label": "Fodrászat / szépségipar" },
+  { "keywords": ["fotós", "fotózás", "videó", "videózás", "fotó"], "minRate": 8000, "maxRate": 25000, "label": "Fotózás / videózás" },
+  { "keywords": ["grafikus", "design", "grafikai", "tervező", "arculat"], "minRate": 5000, "maxRate": 12000, "label": "Grafika / design" },
+  { "keywords": ["ügyvéd", "jogász", "ügyvivő", "jog"], "minRate": 15000, "maxRate": 40000, "label": "Jogászat" },
+  { "keywords": ["könyvelő", "könyvvitel", "adótanácsadó", "adótanácsadás"], "minRate": 6000, "maxRate": 15000, "label": "Könyvelés / adótanácsadás" },
+  { "keywords": ["építész", "építőipar", "kivitelező", "felújítás", "építkezés"], "minRate": 4000, "maxRate": 10000, "label": "Építőipar" },
+  { "keywords": ["szerelő", "villanyszerelő", "vízvezeték", "gázszerelő", "fűtésszerelő"], "minRate": 5000, "maxRate": 12000, "label": "Szerelőipar" },
+  { "keywords": ["tanár", "oktató", "tutor", "edző", "képzés"], "minRate": 4000, "maxRate": 12000, "label": "Oktatás / edzés" },
+  { "keywords": ["masszázs", "szépségápolás", "kozmetika", "kozmetikus"], "minRate": 4000, "maxRate": 10000, "label": "Masszázs / kozmetika" },
+  { "keywords": ["pék", "cukrász", "pékáru", "sütemény", "cukrászda"], "minRate": 2500, "maxRate": 5000, "label": "Pék / cukrász" },
+  { "keywords": ["festő", "mázoló", "lakberendező", "lakásfelújítás"], "minRate": 4000, "maxRate": 9000, "label": "Festés / lakberendezés" },
+  { "keywords": ["kert", "kertész", "kertépítés", "karbantartás", "kertészet"], "minRate": 3000, "maxRate": 8000, "label": "Kertészet" },
+  { "keywords": ["karbantartás", "házimunka", "takarítás"], "minRate": 2500, "maxRate": 5000, "label": "Takarítás / karbantartás" },
+  { "keywords": ["szállítás", "futár", "logisztika", "fuvarozás"], "minRate": 3000, "maxRate": 7000, "label": "Szállítás / logisztika" },
+  { "keywords": ["fordító", "tolmács", "fordítás"], "minRate": 5000, "maxRate": 12000, "label": "Fordítás / tolmácsolás" }
+]

@@ -1,6 +1,8 @@
 import type { APIRoute } from "astro";
 import { auth } from "@/lib/auth";
-import { buildGeneratePrompt, parseSiteDataFromAI, type OnboardingAnswers } from "@/lib/builder/generate";
+import { parseSiteDataFromAI, type OnboardingAnswers } from "@/lib/builder/generate";
+import { skillRouter } from "@/lib/llm/skills";
+import "@/lib/llm/skills/setup";
 
 export const prerender = false;
 
@@ -23,23 +25,27 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
-  const prompt = buildGeneratePrompt(answers);
-
   try {
+    // Skill routing — a promptot és a modellt a site-builder skill határozza meg
+    const route = skillRouter("site-builder", user.tier, { answers });
+
     let aiResponse: string;
 
-    // Tier-alapú modell kiválasztás
-    if (user.tier === "premium" && import.meta.env.ANTHROPIC_API_KEY) {
-      aiResponse = await callClaude(prompt);
-    } else if (user.tier === "pro" && import.meta.env.DEEPSEEK_API_KEY) {
-      aiResponse = await callDeepSeek(prompt);
-    } else if (import.meta.env.GROQ_API_KEY) {
-      aiResponse = await callGroq(prompt);
-    } else {
-      return new Response(JSON.stringify({ error: "Nincs elérhető AI szolgáltatás" }), {
-        status: 503,
-        headers: { "Content-Type": "application/json" },
-      });
+    switch (route.provider) {
+      case "claude":
+        if (!import.meta.env.ANTHROPIC_API_KEY) throw new Error("Claude API key not configured");
+        aiResponse = await callClaude(route.systemPrompt);
+        break;
+      case "deepseek":
+        if (!import.meta.env.DEEPSEEK_API_KEY) throw new Error("DeepSeek API key not configured");
+        aiResponse = await callDeepSeek(route.systemPrompt);
+        break;
+      case "groq":
+        if (!import.meta.env.GROQ_API_KEY) throw new Error("Groq API key not configured");
+        aiResponse = await callGroq(route.systemPrompt);
+        break;
+      default:
+        throw new Error(`Nincs elérhető AI szolgáltatás a site-builder skillhez`);
     }
 
     const siteData = parseSiteDataFromAI(aiResponse, answers);

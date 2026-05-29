@@ -2,7 +2,6 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import ChatInterface from "@/components/ChatInterface";
-import BugReport from "@/components/BugReport.astro";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -13,11 +12,6 @@ if (!session) {
 }
 
 const { user } = session;
-const tierLabel = {
-  free: "Free · NEXUS Basic",
-  pro: "Pro · NEXUS Pro",
-  premium: "Premium · NEXUS Premium",
-}[user.tier as "free" | "pro" | "premium"] || "Free";
 ---
 <!DOCTYPE html>
 <html lang="hu" class="h-full">
@@ -30,32 +24,13 @@ const tierLabel = {
   <body class="h-full bg-zinc-950 text-zinc-100 font-mono antialiased m-0">
     <div class="h-screen flex flex-col">
 
-      <header class="border-b border-zinc-800 px-6 py-4 flex items-center justify-between flex-shrink-0">
-        <div class="flex items-center gap-4">
-          <a href="/" class="text-zinc-400 hover:text-emerald-400 transition-colors text-sm">
-            ← NEXUS AI
-          </a>
-          <span class="text-zinc-700">/</span>
-          <span class="text-xs uppercase tracking-wider text-emerald-400">{tierLabel}</span>
-        </div>
-        <div class="flex items-center gap-4">
-          <a href="/builder" class="text-xs text-emerald-600 hover:text-emerald-400 transition-colors border border-emerald-800 px-2 py-1 rounded">
-            Site Builder
-          </a>
-          <span class="text-xs text-zinc-500 hidden sm:inline">{user.email}</span>
-          <a href="/fiok" class="text-xs text-zinc-500 hover:text-zinc-300 transition-colors">
-            Fiók
-          </a>
-        </div>
-      </header>
-
       <ChatInterface
         client:load
         userTier={user.tier}
         userName={user.name}
+        userEmail={user.email}
       />
 
     </div>
-    <BugReport />
   </body>
 </html>
