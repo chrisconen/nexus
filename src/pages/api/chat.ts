@@ -304,7 +304,13 @@ export const POST: APIRoute = async ({ request }) => {
           }
         }
 
-        // Close the stream immediately — no blocking DB/API calls here
+        // DB save BEFORE closing the stream — Vercel terminates the function
+        // after the response closes, so fire-and-forget after close() never runs.
+        if (!optOutTraining) {
+          await saveStreamConversation(user, messages, assistantResponse, modelLabel, tokensIn, tokensOut, preConversationId)
+            .catch(e => console.error("[chat] DB save error:", e));
+        }
+
         controller.enqueue(
           encoder.encode(
             JSON.stringify({
@@ -316,12 +322,6 @@ export const POST: APIRoute = async ({ request }) => {
           )
         );
         controller.close();
-
-        // DB save runs after stream is closed (fire-and-forget)
-        if (!optOutTraining) {
-          saveStreamConversation(user, messages, assistantResponse, modelLabel, tokensIn, tokensOut, preConversationId)
-            .catch(e => console.error("[chat] DB save error:", e));
-        }
       } catch (streamErr) {
         console.error("Stream error from", modelLabel, ":", streamErr);
 
