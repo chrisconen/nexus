@@ -71,38 +71,6 @@ useEffect(() => {
       background: conic-gradient(from var(--border-angle), #10b981, #047857, #34d399, #047857, #10b981);
       animation: border-rotate 4s linear infinite;
     }
-    @keyframes snake-orbit {
-      0%   { offset-distance: 0%;   opacity: 0; }
-      8%   { opacity: 1; }
-      78%  { opacity: 1; }
-      100% { offset-distance: 100%; opacity: 0; }
-    }
-
-    .snake-loader {
-      position: relative;
-      width: 5px;
-      height: 10px;
-    }
-
-    .snake-dot {
-      position: absolute;
-      width: 2px;
-      height: 2px;
-      background: #34d399;
-      border-radius: 50%;
-      offset-path: rect(0px 7px 12px 0px round 3px);
-      offset-rotate: 0deg;
-      animation: snake-orbit 2s ease-in-out infinite;
-    }
-
-    .snake-dot:nth-child(1) { animation-delay: 0s; }
-    .snake-dot:nth-child(2) { animation-delay: 0.2s; }
-    .snake-dot:nth-child(3) { animation-delay: 0.4s; }
-    .snake-dot:nth-child(4) { animation-delay: 0.6s; }
-    .snake-dot:nth-child(5) { animation-delay: 0.8s; }
-    .snake-dot:nth-child(6) { animation-delay: 1.0s; }
-    .snake-dot:nth-child(7) { animation-delay: 1.2s; }
-    .snake-dot:nth-child(8) { animation-delay: 1.4s; }
   `;
   document.head.appendChild(style);
 }, []);
@@ -658,10 +626,12 @@ useEffect(() => {
 
         {/* Messages + Input közös wrapper — üres állapotban együtt centrírozva */}
         <div className={`flex-1 flex flex-col min-h-0 relative ${messages.length === 0 ? "justify-center" : ""}`}>
-          {/* Ovális glow effekt a chat mögött — Gemini-stílusú */}
-          <div className="absolute inset-0 pointer-events-none overflow-hidden">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-[radial-gradient(ellipse_at_center,_rgba(16,185,129,0.12)_0%,_rgba(16,185,129,0.05)_40%,_transparent_70%)] rounded-full" />
-          </div>
+          {/* Ovális glow effekt a chat mögött — csak üres állapotban */}
+          {messages.length === 0 && (
+            <div className="absolute inset-0 pointer-events-none overflow-hidden">
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[700px] bg-[radial-gradient(ellipse_at_center,_rgba(16,185,129,0.12)_0%,_rgba(16,185,129,0.05)_40%,_transparent_70%)] rounded-full" />
+            </div>
+          )}
         {/* Messages */}
         <div className={`${messages.length === 0 ? "px-6" : "flex-1 overflow-y-auto px-6 py-8 min-h-0"}`}>
           <div className="max-w-3xl mx-auto space-y-6 w-full">
