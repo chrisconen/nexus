@@ -495,7 +495,7 @@ useEffect(() => {
           </div>
 
           {/* Conversations lista */}
-          <div className="flex-1 overflow-y-auto p-2">
+          <div className="flex-1 overflow-y-auto p-2 sidebar-scroll">
             {conversations.length === 0 ? (
               <div className="text-xs text-zinc-600 text-center mt-4">
                 Még nincsenek beszélgetéseid.
