@@ -11,7 +11,8 @@
     "preview": "astro preview",
     "astro": "astro",
     "db:generate": "drizzle-kit generate",
-    "db:push": "drizzle-kit push",
+    "db:migrate": "node --experimental-strip-types src/lib/db/migrate.ts",
+    "db:migrate:prod": "node --experimental-strip-types src/lib/db/migrate.ts --prod",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

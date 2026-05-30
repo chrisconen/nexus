@@ -475,6 +475,13 @@ useEffect(() => {
 
   return (
     <div className="flex-1 flex min-h-0">
+      {/* Mobil backdrop — az aside ELŐTT, hogy ne nyelje el a sidebar kattintásokat */}
+      {sidebarOpen && (
+        <div
+          onClick={() => setSidebarOpen(false)}
+          className="fixed inset-0 bg-black/50 z-20 md:hidden"
+        />
+      )}
       {/* Sidebar — teljes nézet */}
       <aside
         className={`${
@@ -482,13 +489,6 @@ useEffect(() => {
         } transition-all duration-200 border-r border-zinc-800 flex-shrink-0 overflow-hidden
         fixed md:relative inset-y-0 left-0 z-30 bg-zinc-950 md:bg-transparent`}
       >
-        {/* Mobil backdrop */}
-        {sidebarOpen && (
-          <div
-            onClick={() => setSidebarOpen(false)}
-            className="fixed inset-0 bg-black/50 z-20 md:hidden"
-          />
-        )}
         <div className="w-64 h-full flex flex-col">
           {/* Top: NEXUS logo + tier + close toggle */}
           <div className="p-3 border-b border-zinc-800 flex items-center justify-between">
