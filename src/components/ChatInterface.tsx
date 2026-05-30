@@ -623,8 +623,8 @@ useEffect(() => {
       {/* Main chat area — DeepSeek-stílusú tiszta layout */}
       <div className="flex-1 flex flex-col min-h-0 relative">
 
-        {/* Floating gombok — jobb alsó sarok */}
-        <div className="absolute bottom-4 right-4 z-20 flex flex-col items-end gap-2">
+        {/* Floating gombok — jobb alsó sarok, mobilon rejtve mert belelóg a chat inputba */}
+        <div className="absolute bottom-4 right-4 z-20 hidden md:flex flex-col items-end gap-2">
           {/* Bug report */}
           <a
             href="https://github.com/chrisconen/nexus/issues/new?labels=bug&template=bug_report.md"
@@ -920,7 +920,7 @@ useEffect(() => {
                 {loading ? "..." : "Küld"}
               </button>
             </div>
-            <div className="flex items-center justify-between mt-2 gap-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between mt-2 gap-1 sm:gap-4">
               <label className="flex items-center gap-2 text-xs text-zinc-600 hover:text-zinc-400 cursor-pointer select-none">
                 <input
                   type="checkbox"
@@ -930,12 +930,14 @@ useEffect(() => {
                 />
                 <span>Adataim nem használhatók fel a modell fejlesztéséhez</span>
               </label>
-              {currentSkill !== "chat-assistant" && (
-                <span className="text-[10px] uppercase tracking-wider bg-emerald-900/50 text-emerald-400 px-1.5 py-0.5 rounded flex-shrink-0">
-                  {skillLabel(currentSkill)}
-                </span>
-              )}
-              <span className="text-xs text-zinc-600 flex-shrink-0">{tierLabel}</span>
+              <div className="flex items-center gap-2 self-end sm:self-auto">
+                {currentSkill !== "chat-assistant" && (
+                  <span className="text-[10px] uppercase tracking-wider bg-emerald-900/50 text-emerald-400 px-1.5 py-0.5 rounded whitespace-nowrap">
+                    {skillLabel(currentSkill)}
+                  </span>
+                )}
+                <span className="text-xs text-zinc-600">{tierLabel}</span>
+              </div>
             </div>
           </form>
         </div>
