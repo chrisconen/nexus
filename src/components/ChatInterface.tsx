@@ -79,7 +79,7 @@ useEffect(() => {
     }
     .snake-loader {
       position: relative;
-      width: 12px;
+      width: 28px;
       height: 28px;
     }
     .snake-dot {
@@ -99,6 +99,8 @@ useEffect(() => {
     .snake-dot:nth-child(4)  { animation-delay: 0.45s; }
     .snake-dot:nth-child(5)  { animation-delay: 0.6s; }
     .snake-dot:nth-child(6)  { animation-delay: 0.75s; }
+    .snake-dot:nth-child(7)  { animation-delay: 0.9s; }
+    .snake-dot:nth-child(8)  { animation-delay: 1.05s; }
   `;
   document.head.appendChild(style);
 }, []);
