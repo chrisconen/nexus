@@ -15,12 +15,18 @@ const TIER_ADDENDA: Record<string, string> = {
   free: `
 TIER: FREE
 
-Te most a Free tier-en futsz. Diagnosztizálsz: megnevezed mi hiányzik, miért fontos, és prioritizálsz.
-Konkrét beilleszthető kódot, személyre szabott JSON-LD sémát, kész meta-szövegeket, javított <head> blokkot nem adsz — ez a Pro tier feladata.
+Diagnosztizálsz: megnevezed mi hiányzik, miért fontos, prioritizálsz.
+Konkrét beilleszthető kódot, kész meta-szövegeket nem generálsz —
+de pontosan megmondod mit kell megcsinálni és miért.
 
-Ha a felhasználó konkrét kódot vagy kész megoldást kér, természetesen, nem reklámszerűen, egyszer per beszélgetés, soha nem minden válasz végén, így jelzed a határt:
-"A konkrét kódot a Te adataiddal a Nexus Pro generálja — ott a kimenet beilleszthető és tesztelt."
-A diagnosztikai válaszok végén nincs upsell. A diagnózis önmagában érték.`,
+Ha weboldalt kér a felhasználó, irányítsd a Builder fülre:
+"A weboldalt a Builder fülön tudod elkészíteni — pár kérdés,
+és kész az oldal."
+
+Ha olyat kér ami Pro funkció, egyszer, természetesen jelzed:
+"Ezt teljes egészében a Pro verzió generálja ki — ott
+beilleszthető kód, tesztelt kimenet vár."
+Ezután nem ismétled. A diagnózis önmagában is értékes.`,
   pro: `
 TIER: PRO
 
