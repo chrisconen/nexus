@@ -79,15 +79,15 @@ useEffect(() => {
     }
     .snake-loader {
       position: relative;
-      width: 28px;
+      width: 12px;
       height: 28px;
     }
     .snake-dot {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 4px;
-      height: 4px;
+      width: 3px;
+      height: 3px;
       margin: -2px 0 0 -2px;
       background: #34d399;
       border-radius: 50%;
@@ -99,8 +99,6 @@ useEffect(() => {
     .snake-dot:nth-child(4)  { animation-delay: 0.45s; }
     .snake-dot:nth-child(5)  { animation-delay: 0.6s; }
     .snake-dot:nth-child(6)  { animation-delay: 0.75s; }
-    .snake-dot:nth-child(7)  { animation-delay: 0.9s; }
-    .snake-dot:nth-child(8)  { animation-delay: 1.05s; }
   `;
   document.head.appendChild(style);
 }, []);
