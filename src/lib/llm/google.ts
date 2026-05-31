@@ -210,6 +210,7 @@ export async function runGoogleToolLoop(
       finalContent,
       rounds: rounds + 1,
       usage: { promptTokens: totalPromptTokens, completionTokens: totalCompletionTokens },
+      builderRedirect: detectGoogleBuilderRedirect(messages),
     };
   }
 
@@ -218,5 +219,18 @@ export async function runGoogleToolLoop(
     finalContent: lastMsg.role === "assistant" && lastMsg.content ? lastMsg.content : "Túl sok lépés — kérlek pontosítsd a kérdésed.",
     rounds,
     usage: { promptTokens: totalPromptTokens, completionTokens: totalCompletionTokens },
+    builderRedirect: detectGoogleBuilderRedirect(messages),
   };
+}
+
+function detectGoogleBuilderRedirect(messages: GoogleMessage[]): boolean {
+  return messages.some((m) => {
+    if (m.role !== "tool") return false;
+    const content = typeof m.content === "string"
+      ? m.content
+      : Array.isArray(m.content)
+        ? JSON.stringify(m.content)
+        : "";
+    return content.includes("BUILDER_REDIRECT");
+  });
 }

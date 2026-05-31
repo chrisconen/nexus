@@ -65,6 +65,8 @@ export interface ToolLoopResult {
   rounds: number;
   /** Token használat */
   usage: { promptTokens: number; completionTokens: number };
+  /** Ha valamelyik tool BUILDER_REDIRECT-et adott vissza */
+  builderRedirect?: boolean;
 }
 
 // ---------------------------------------------------------------------------
@@ -215,6 +217,7 @@ export async function runGroqToolLoop(
       messages,
       rounds: rounds + 1,
       usage: { promptTokens: totalPromptTokens, completionTokens: totalCompletionTokens },
+      builderRedirect: detectBuilderRedirect(messages),
     };
   }
 
@@ -228,7 +231,15 @@ export async function runGroqToolLoop(
     messages,
     rounds,
     usage: { promptTokens: totalPromptTokens, completionTokens: totalCompletionTokens },
+    builderRedirect: detectBuilderRedirect(messages),
   };
+}
+
+/** Scan tool messages for BUILDER_REDIRECT */
+function detectBuilderRedirect(messages: GroqMessage[]): boolean {
+  return messages.some(
+    (m) => m.role === "tool" && typeof m.content === "string" && m.content.includes("BUILDER_REDIRECT")
+  );
 }
 
 /**

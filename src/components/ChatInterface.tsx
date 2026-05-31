@@ -305,6 +305,7 @@ useEffect(() => {
       const decoder = new TextDecoder();
       let accumulated = "";
       let returnedConversationId: string | null = null;
+      let seenBuilderRedirect = false;
       let lineBuffer = "";
 
       while (true) {
@@ -363,10 +364,13 @@ useEffect(() => {
           if (parsed.error) {
             throw new Error(parsed.error);
           }
+          if (parsed.builderRedirect) {
+            seenBuilderRedirect = true;
+          }
         }
       }
 
-      if (accumulated.includes("Builder fülön")) {
+      if (seenBuilderRedirect) {
         setBuilderHighlighted(true);
       }
 

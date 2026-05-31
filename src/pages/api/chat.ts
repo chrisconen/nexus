@@ -100,6 +100,7 @@ export const POST: APIRoute = async ({ request }) => {
     let finalContent = "";
     let toolCount = 0;
     let modelUsed = route.modelLabel;
+    let builderRedirect = false;
 
     const runToolLoop = async (): Promise<void> => {
       const previousMessages = messages
@@ -114,10 +115,12 @@ export const POST: APIRoute = async ({ request }) => {
         const result = await runGoogleToolLoop(route.systemPrompt, userText, previousMessages, tools);
         finalContent = result.finalContent;
         toolCount = result.rounds;
+        builderRedirect = result.builderRedirect ?? false;
       } else {
         const result = await runGroqToolLoop(route.systemPrompt, userText, previousMessages, tools);
         finalContent = result.finalContent;
         toolCount = result.rounds;
+        builderRedirect = result.builderRedirect ?? false;
       }
     };
 
@@ -151,10 +154,10 @@ export const POST: APIRoute = async ({ request }) => {
       const cid = body.conversationId || crypto.randomUUID();
       saveConversationFast(body, user, messages, finalContent, modelUsed, userText, cid)
         .catch(e => console.error("[chat] DB save error:", e));
-      return produceToolStream(finalContent, toolCount, modelUsed, body, cid);
+      return produceToolStream(finalContent, toolCount, modelUsed, body, cid, builderRedirect);
     }
 
-    return produceToolStream(finalContent, toolCount, modelUsed, body, null);
+    return produceToolStream(finalContent, toolCount, modelUsed, body, null, builderRedirect);
   }
 
   // Provider kiválasztás a route alapján
@@ -437,6 +440,7 @@ async function produceToolStream(
   modelLabel: string,
   body: any,
   conversationId: string | null,
+  builderRedirect?: boolean,
 ): Promise<Response> {
   const cid = conversationId || body.conversationId || crypto.randomUUID();
 
@@ -454,6 +458,7 @@ async function produceToolStream(
           skillUsed: "tool-assistant",
           toolCount: toolCount > 0 ? toolCount : undefined,
           done: true,
+          ...(builderRedirect ? { builderRedirect: true } : {}),
         }) + "\n"));
         controller.close();
       } catch (err) {
