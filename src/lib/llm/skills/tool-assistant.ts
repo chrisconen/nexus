@@ -77,7 +77,7 @@ Ezután 1-2 mondat összegzés és konkrét javaslatok. NE írj általános SEO 
 - web_search: az eredmény első 3 találatát pontosan idézd címmel és linkkel
 - generate_website: a generálás után add meg a preview URL-t és mit tartalmaz az oldal
   Ha a tool "BUILDER_REDIRECT" üzenetet ad vissza, pontosan ezt mondd:
-  "A weboldalt a Builder fülön tudod elkészíteni — kattints rá, töltsd ki a pár kérdést, és kész az oldal."
+  "A weboldalt a Site Builder oldalon tudod elkészíteni, bal oldalon alul van a gomb — kattints rá, töltsd ki a pár kérdést, és kész az oldal."
   Semmi mást ne mondj, ne ajánlj más eszközt.
 - invoice_info: a konkrét NAV szabályt idézd (áfakulcs, határidő, stb.)
 - calculate_pricing: a teljes ártáblázatot add meg (nettó, bruttó, áfa)
