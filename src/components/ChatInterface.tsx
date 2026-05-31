@@ -51,6 +51,7 @@ export default function ChatInterface({ userTier, userName, userEmail }: Props) 
   const [lastModelUsed, setLastModelUsed] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
+  const [builderHighlighted, setBuilderHighlighted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // CSS inject — glow button + snake loading dots
@@ -86,8 +87,8 @@ useEffect(() => {
       position: absolute;
       top: 50%;
       left: 50%;
-      width: 3px;
-      height: 3px;
+      width: 4px;
+      height: 4px;
       margin: -2px 0 0 -2px;
       background: #34d399;
       border-radius: 50%;
@@ -365,9 +366,12 @@ useEffect(() => {
         }
       }
 
+      if (accumulated.includes("Builder fülön")) {
+        setBuilderHighlighted(true);
+      }
+
       if (returnedConversationId) {
         setCurrentConversationId(returnedConversationId);
-        // Frissítjük a konverzációk listáját (új beszélgetés esetén legalábbis)
         fetchConversations();
       }
     } catch (err) {
@@ -570,7 +574,11 @@ useEffect(() => {
           <div className="p-3 border-t border-zinc-800 space-y-2">
             <a
               href="/builder"
-              className="flex items-center gap-2 text-xs text-emerald-600 hover:text-emerald-400 border border-emerald-800/50 hover:border-emerald-700 rounded px-3 py-2 transition-colors w-full"
+              className={`flex items-center gap-2 text-xs rounded px-3 py-2 transition-all w-full ${
+                builderHighlighted
+                  ? "bg-emerald-600 text-white hover:bg-emerald-500 border border-emerald-600"
+                  : "text-emerald-600 hover:text-emerald-400 border border-emerald-800/50 hover:border-emerald-700"
+              }`}
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
