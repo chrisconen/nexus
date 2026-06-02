@@ -1,6 +1,5 @@
 export const SKILL_IDS = {
   CHAT_ASSISTANT: "chat-assistant",
-  KB_RETRIEVER: "knowledge-base-retriever",
   TOOL_ASSISTANT: "tool-assistant",
   WEB_AUDITOR: "web-auditor",
 } as const;
@@ -103,22 +102,6 @@ const DETECTORS: SkillDetector[] = [
         return { confidence: "high", reason: "Dokumentum elemzés észlelve" };
       }
 
-      return null;
-    },
-  },
-  {
-    skillId: SKILL_IDS.KB_RETRIEVER,
-    detect: (userMessage) => {
-      const text = userMessage.toLowerCase();
-      const keywords = [
-        "ár", "árak", "mennyibe kerül", "seo", "wcag", "eaa", "astro",
-        "wordpress", "next.js", "shopify", "woocommerce", "json-ld",
-        "pwa", "centaur", "iker", "ax-readiness", "mcp", "core web vitals",
-      ];
-
-      if (keywords.some((kw) => text.includes(kw))) {
-        return { confidence: "medium", reason: "Szakmai kulcsszó észlelve" };
-      }
       return null;
     },
   },
