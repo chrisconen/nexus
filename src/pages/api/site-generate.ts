@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { parseSiteDataFromAI, type OnboardingAnswers } from "@/lib/builder/generate";
 import { skillRouter } from "@/lib/llm/skills";
 import "@/lib/llm/skills/setup";
+import { checkSiteGenerationLimit, incrementSiteGeneration } from "@/lib/usage";
 
 export const prerender = false;
 
@@ -16,6 +17,24 @@ export const POST: APIRoute = async ({ request }) => {
   }
 
   const { user } = session;
+
+  // Tier gate — Free users cannot access the builder API
+  if (user.tier === "free") {
+    return new Response(JSON.stringify({ error: "A site builder Pro vagy Premium funkció." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Monthly generation limit (Pro: 10/hó, Premium: korlátlan)
+  const { allowed, remaining } = await checkSiteGenerationLimit(user.id, user.tier);
+  if (!allowed) {
+    return new Response(
+      JSON.stringify({ error: "Elérted a havi weboldal-generálási limitedet (Pro: 10/hó). Premium csomaggal korlátlan." }),
+      { status: 429, headers: { "Content-Type": "application/json" } },
+    );
+  }
+
   const answers: OnboardingAnswers = await request.json();
 
   if (!answers.businessName || !answers.businessType) {
@@ -50,7 +69,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     const siteData = parseSiteDataFromAI(aiResponse, answers);
 
-    return new Response(JSON.stringify({ data: siteData }), {
+    // Track usage (fire-and-forget)
+    incrementSiteGeneration(user.id).catch(e => console.error("[site-generate] usage increment error:", e));
+
+    return new Response(JSON.stringify({ data: siteData, remaining: remaining - 1 }), {
       headers: { "Content-Type": "application/json" },
     });
   } catch (err) {

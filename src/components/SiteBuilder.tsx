@@ -107,6 +107,8 @@ export default function SiteBuilder({ userTier, userName }: Props) {
   const [fullPreview, setFullPreview] = useState(false);
   const [toasts, setToasts] = useState<Toast[]>([]);
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [regenSectionId, setRegenSectionId] = useState<string | null>(null);
+  const [regenDropdownOpen, setRegenDropdownOpen] = useState(false);
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
   const lastSavedRef = useRef<string>("");
 
@@ -179,6 +181,14 @@ export default function SiteBuilder({ userTier, userName }: Props) {
     window.addEventListener("message", onMessage);
     return () => window.removeEventListener("message", onMessage);
   }, [siteData]);
+
+  // Dropdown bezárás kattintásra
+  useEffect(() => {
+    if (!regenDropdownOpen) return;
+    function handleClick() { setRegenDropdownOpen(false); }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [regenDropdownOpen]);
 
   // Auto-save — 2 sec debounce
   useEffect(() => {
@@ -284,6 +294,37 @@ export default function SiteBuilder({ userTier, userName }: Props) {
       ...d,
       sections: d.sections.map(s => s.id === id ? updater({ ...s }) : s),
     }));
+  }
+
+  async function regenSection(sectionId: string, direction: string) {
+    if (!siteData) return;
+    const section = siteData.sections.find(s => s.id === sectionId);
+    if (!section) return;
+
+    setRegenSectionId(sectionId);
+    setRegenDropdownOpen(false);
+
+    try {
+      const res = await fetch("/api/builder/regenerate-section", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ section, direction }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Ismeretlen hiba" }));
+        toast(err.error || "Hiba az újragenerálás közben", "error");
+        return;
+      }
+
+      const { section: updated } = await res.json();
+      updateSection(sectionId, () => updated);
+      toast("Szekció átírva — visszavonható Ctrl+Z-vel", "success");
+    } catch {
+      toast("Hálózati hiba az újragenerálás közben", "error");
+    } finally {
+      setRegenSectionId(null);
+    }
   }
 
   function moveSection(id: string, dir: -1 | 1) {
@@ -586,7 +627,44 @@ export default function SiteBuilder({ userTier, userName }: Props) {
             </div>
           ) : activeSec ? (
             <div className="space-y-4">
-              <h3 className="text-xs text-zinc-300 uppercase tracking-wider">{SECTION_REGISTRY[activeSec.type].icon} {SECTION_REGISTRY[activeSec.type].label}</h3>
+              <div className="flex items-center justify-between gap-2">
+                <h3 className="text-xs text-zinc-300 uppercase tracking-wider">{SECTION_REGISTRY[activeSec.type].icon} {SECTION_REGISTRY[activeSec.type].label}</h3>
+                {userTier !== "free" && (
+                  <div className="relative">
+                    <button
+                      onClick={() => setRegenDropdownOpen(o => !o)}
+                      disabled={regenSectionId === activeSec.id}
+                      className="flex items-center gap-1 text-[11px] px-2 py-1 rounded border border-zinc-700 text-zinc-300 hover:text-emerald-400 hover:border-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-wait"
+                      title="AI szöveg átírás"
+                    >
+                      {regenSectionId === activeSec.id ? (
+                        <span className="animate-spin inline-block w-3 h-3 border border-emerald-400 border-t-transparent rounded-full" />
+                      ) : (
+                        <span>✨</span>
+                      )}
+                      <span>Átírás</span>
+                    </button>
+                    {regenDropdownOpen && (
+                      <div className="absolute right-0 top-full mt-1 z-50 bg-zinc-900 border border-zinc-700 rounded-lg shadow-xl w-48 py-1">
+                        {(["shorter","longer","friendly","formal","professional","energetic"] as const).map(dir => (
+                          <button
+                            key={dir}
+                            onClick={() => regenSection(activeSec.id, dir)}
+                            className="w-full text-left px-3 py-1.5 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-emerald-400 transition-colors"
+                          >
+                            {dir === "shorter" && "✂️ Rövidebb"}
+                            {dir === "longer" && "📝 Hosszabb"}
+                            {dir === "friendly" && "😊 Barátságosabb"}
+                            {dir === "formal" && "🎩 Hivatalosabb"}
+                            {dir === "professional" && "💼 Szakszerűbb"}
+                            {dir === "energetic" && "⚡ Energikusabb"}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
               <SectionEditor section={activeSec} onUpdate={(s) => updateSection(activeSec.id, () => s)} onDeleteImage={deleteImage} />
               <SectionStyleEditor style={activeSec.style || {}} onUpdate={(style) => updateSection(activeSec.id, s => ({ ...s, style }))} />
             </div>

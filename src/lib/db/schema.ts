@@ -91,6 +91,15 @@ export const site = sqliteTable("site", {
   updatedAt: integer("updatedAt", { mode: "timestamp" }).notNull(),
 });
 
+export const usageMonthly = sqliteTable("usageMonthly", {
+  userId: text("userId").notNull().references(() => user.id, { onDelete: "cascade" }),
+  yearMonth: text("yearMonth").notNull(), // YYYY-MM
+  siteGenerationCount: integer("siteGenerationCount").notNull().default(0),
+  sectionRegenCount: integer("sectionRegenCount").notNull().default(0),
+}, (table) => ({
+  pk: primaryKey({ columns: [table.userId, table.yearMonth] }),
+}));
+
 export const message = sqliteTable("message", {
   id: text("id").primaryKey(),
   conversationId: text("conversationId").notNull().references(() => conversation.id, { onDelete: "cascade" }),

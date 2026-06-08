@@ -13,6 +13,7 @@ import "@/lib/llm/skills/setup";
 import "@/lib/llm/tools/register-all";
 import { detectIntent } from "@/lib/chat/intent-detector";
 import { getOpenAITools } from "@/lib/llm/tools";
+import { checkChatLimit } from "@/lib/usage";
 
 export const prerender = false;
 
@@ -62,6 +63,17 @@ export const POST: APIRoute = async ({ request }) => {
       status: 403,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // === Daily chat limit (Free tier: 50/nap) ===
+  if (user.tier === "free") {
+    const { allowed, remaining } = await checkChatLimit(user.id, user.tier);
+    if (!allowed) {
+      return new Response(
+        JSON.stringify({ error: `Elérted a napi ${50} üzenet limitedet. Holnap újra próbálhatod, vagy válts Pro csomagra a korlátlan chathez.` }),
+        { status: 429, headers: { "Content-Type": "application/json" } },
+      );
+    }
   }
 
   // === Intent detection ===
