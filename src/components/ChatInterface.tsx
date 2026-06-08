@@ -50,6 +50,7 @@ export default function ChatInterface({ userTier, userName, userEmail }: Props) 
   const [currentSkill, setCurrentSkill] = useState("chat-assistant");
   const [lastModelUsed, setLastModelUsed] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [dailyRemaining, setDailyRemaining] = useState<number | null>(null);
   const [copiedMessageId, setCopiedMessageId] = useState<string | null>(null);
   const [builderHighlighted, setBuilderHighlighted] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -121,6 +122,19 @@ useEffect(() => {
     const timer = setTimeout(() => setCopiedMessageId(null), 2000);
     return () => clearTimeout(timer);
   }, [copiedMessageId]);
+
+  // Free tier napi üzenet-számláló betöltése
+  useEffect(() => {
+    if (userTier !== "free") return;
+    fetch("/api/usage")
+      .then(r => r.json())
+      .then(data => {
+        if (typeof data.chat?.remaining === "number") {
+          setDailyRemaining(data.chat.remaining);
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Konverzációk lista betöltése (opcionális kereséssel)
   const fetchConversations = useCallback(async (query?: string) => {
@@ -374,6 +388,11 @@ useEffect(() => {
         setBuilderHighlighted(true);
       }
 
+      // Free tier: csökkentjük a helyi számlálót sikeres üzenet után
+      if (userTier === "free") {
+        setDailyRemaining(prev => (prev !== null ? Math.max(0, prev - 1) : null));
+      }
+
       if (returnedConversationId) {
         setCurrentConversationId(returnedConversationId);
         fetchConversations();
@@ -428,11 +447,11 @@ useEffect(() => {
   }
 
   const tierLabel =
-    userTier === "free"
-      ? "Free tier · korlátlan"
-      : userTier === "pro"
-      ? "Pro tier · Korlátlan"
-      : "Premium tier · Korlátlan";
+    userTier === "pro"
+      ? "Pro · korlátlan chat"
+      : userTier === "premium"
+      ? "Premium · korlátlan"
+      : null; // Free-nél külön counter jelenik meg
 
   // --- Tier-alapú példák a welcome képernyőhöz ---
   const tierName =
@@ -440,7 +459,7 @@ useEffect(() => {
 
   const TIER_HINTS: Record<string, { title: string; icon: string; hints: string[] }> = {
     free: {
-      title: "Free tier — napi ingyenes használat",
+      title: "Free tier — 50 üzenet / nap",
       icon: "🌱",
       hints: [
         "Mennyi az áfa 2026-ban?",
@@ -450,7 +469,7 @@ useEffect(() => {
       ],
     },
     pro: {
-      title: "Pro tier — korlátlan használat + dokumentumok",
+      title: "Pro tier — korlátlan chat + weboldal készítő",
       icon: "⚡",
       hints: [
         "Generálj weboldalat egy virágkötőnek Budapesten",
@@ -963,7 +982,19 @@ useEffect(() => {
                     {skillLabel(currentSkill)}
                   </span>
                 )}
-                <span className="text-xs text-zinc-600">{tierLabel}</span>
+                {userTier === "free" && dailyRemaining !== null ? (
+                  <span className={`text-[11px] font-mono tabular-nums px-1.5 py-0.5 rounded border ${
+                    dailyRemaining > 20
+                      ? "text-zinc-500 border-zinc-800"
+                      : dailyRemaining > 5
+                      ? "text-amber-500 border-amber-900/50"
+                      : "text-red-400 border-red-900/50"
+                  }`}>
+                    {dailyRemaining} / 50 üzenet ma
+                  </span>
+                ) : tierLabel ? (
+                  <span className="text-xs text-zinc-600">{tierLabel}</span>
+                ) : null}
               </div>
             </div>
           </form>
