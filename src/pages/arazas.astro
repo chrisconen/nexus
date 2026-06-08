@@ -54,7 +54,7 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             )}
             <div class="text-xs uppercase tracking-wider text-zinc-500 mb-3">Free</div>
             <div class="text-2xl font-light text-zinc-200 mb-1">Ingyenes</div>
-            <div class="text-xs text-zinc-500 mb-6">korlátlan</div>
+            <div class="text-xs text-zinc-500 mb-6">50 üzenet / nap</div>
 
             <div class="text-sm text-zinc-300 mb-4">
               <strong class="text-emerald-400">NEXUS AI</strong>
@@ -62,7 +62,7 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              AI chat és weboldal készítő — ingyenesen. Magyar szövegírás, kódolási segítség, és egy kész weboldal percek alatt.
+              Magyar AI chat asszisztens — ingyenesen. Szövegírás, kódolási segítség, üzleti tanácsok. Napi 50 üzenet.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
@@ -72,11 +72,15 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Weboldal készítő (AI generálás + szerkesztés)</span>
+                <span>Kód elemzés és tanácsadás</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>HTML letöltés</span>
+                <span>Üzleti, stratégiai tanácsok</span>
+              </li>
+              <li class="flex items-start gap-2 text-zinc-600">
+                <span class="mt-0.5">·</span>
+                <span>Weboldal készítő — Pro-tól</span>
               </li>
             </ul>
 
@@ -110,7 +114,7 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             )}
             <div class="text-xs uppercase tracking-wider text-emerald-400 mb-3">Pro</div>
             <div class="text-2xl font-light text-zinc-100 mb-1">3 990 Ft</div>
-            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan chat</div>
 
             <div class="text-sm text-zinc-300 mb-4">
               <strong class="text-emerald-400">NEXUS Pro</strong>
@@ -118,25 +122,33 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              Felhő alapú AI modell 1M token kontextussal. Dokumentum-feldolgozás, jobb minőségű weboldal generálás, gyorsabb válaszok.
+              Felhő alapú AI modell 1M token kontextussal. Dokumentum-feldolgozás, teljes weboldal készítő, AI szekció-átírás.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Mindent, amit a Free tud</span>
+                <span>Korlátlan chat (DeepSeek V4 Flash, 1M kontextus)</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>PDF/DOCX dokumentum-feldolgozás</span>
+                <span>Weboldal készítő — teljes hozzáférés</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>1M token kontextus — hosszú dokumentumok</span>
+                <span>Weboldal generálás: 10 / hó</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Jobb AI minőség a weboldal készítőben</span>
+                <span>AI szekció-átírás: 30 / hó</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>PDF/DOCX dokumentum-feldolgozás (max 50k karakter)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>HTML letöltés</span>
               </li>
             </ul>
 
@@ -170,15 +182,15 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             )}
             <div class="text-xs uppercase tracking-wider text-zinc-400 mb-3">Premium</div>
             <div class="text-2xl font-light text-zinc-100 mb-1">5 990 Ft</div>
-            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan üzenet</div>
+            <div class="text-xs text-zinc-500 mb-6">/ hó · korlátlan minden</div>
 
             <div class="text-sm text-zinc-300 mb-4">
               <strong class="text-emerald-400">NEXUS Premium</strong>
-              <span class="text-zinc-500"> · NEXUS v4 Premium</span>
+              <span class="text-zinc-500"> · Claude Sonnet</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
-              A Conen DIGITAL legjobb AI modellje. Képelemzés, komplex dokumentumok, kiváló minőségű weboldal generálás — a legigényesebb feladatokhoz.
+              A legjobb AI modell minden funkcióhoz. Korlátlan chat, generálás és átírás, képelemzés, komplex dokumentumok — semmi limit.
             </p>
 
             <ul class="text-xs text-zinc-400 space-y-2 mb-6">
@@ -188,15 +200,19 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Képelemzés és vision</span>
+                <span>Korlátlan weboldal generálás és AI átírás</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>A legjobb AI minőség minden funkcióban</span>
+                <span>Képelemzés és vision (Claude)</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="text-emerald-500 mt-0.5">✓</span>
-                <span>Prémium sablonok & saját domain (hamarosan)</span>
+                <span>PDF/DOCX feldolgozás (max 200k karakter)</span>
+              </li>
+              <li class="flex items-start gap-2">
+                <span class="text-emerald-500 mt-0.5">✓</span>
+                <span>Saját domain bekötés (hamarosan)</span>
               </li>
             </ul>
 
