@@ -493,6 +493,28 @@ useEffect(() => {
   const currentHints = TIER_HINTS[userTier] || TIER_HINTS.free;
   const [showHints, setShowHints] = useState(false);
 
+  // Sidebar dátum-csoportosítás
+  function groupConversationsByDate(convs: Conversation[]) {
+    const now = new Date();
+    const todayStr = now.toISOString().slice(0, 10);
+    const yest = new Date(now.getTime() - 86400000).toISOString().slice(0, 10);
+    const weekAgo = new Date(now.getTime() - 7 * 86400000).toISOString().slice(0, 10);
+    const groups = [
+      { label: "Ma", items: [] as Conversation[] },
+      { label: "Tegnap", items: [] as Conversation[] },
+      { label: "Ezen a héten", items: [] as Conversation[] },
+      { label: "Régebbi", items: [] as Conversation[] },
+    ];
+    for (const c of convs) {
+      const d = c.updatedAt.slice(0, 10);
+      if (d === todayStr) groups[0].items.push(c);
+      else if (d === yest) groups[1].items.push(c);
+      else if (d >= weekAgo) groups[2].items.push(c);
+      else groups[3].items.push(c);
+    }
+    return groups.filter(g => g.items.length > 0);
+  }
+
   const handleHintClick = (hint: string) => {
     setInput(hint);
     setShowHints(false);
@@ -521,7 +543,13 @@ useEffect(() => {
           <div className="p-3 border-b border-zinc-800 flex items-center justify-between">
             <a href="/" className="flex items-center gap-2 no-underline min-w-0">
               <span className="text-emerald-400 font-bold text-sm tracking-wide">NEXUS AI</span>
-              <span className="text-[10px] text-zinc-600 uppercase hidden sm:inline">{tierName} tier</span>
+              {userTier === "free" ? (
+                <span className="text-[9px] bg-zinc-800 text-zinc-400 px-1.5 py-0.5 rounded-full uppercase tracking-wide hidden sm:inline">Free</span>
+              ) : userTier === "pro" ? (
+                <span className="text-[9px] bg-emerald-900/60 text-emerald-400 border border-emerald-800/50 px-1.5 py-0.5 rounded-full uppercase tracking-wide hidden sm:inline">Pro</span>
+              ) : (
+                <span className="text-[9px] bg-amber-900/40 text-amber-400 border border-amber-800/50 px-1.5 py-0.5 rounded-full uppercase tracking-wide hidden sm:inline">Premium</span>
+              )}
             </a>
             <button
               onClick={() => setSidebarOpen(false)}
@@ -551,45 +579,52 @@ useEffect(() => {
             />
           </div>
 
-          {/* Conversations lista */}
+          {/* Conversations lista — dátum szerint csoportosítva */}
           <div className="flex-1 overflow-y-auto p-2 sidebar-scroll">
             {conversations.length === 0 ? (
               <div className="text-xs text-zinc-600 text-center mt-4">
                 Még nincsenek beszélgetéseid.
               </div>
             ) : (
-              <ul className="space-y-1">
-                {conversations.map((conv) => (
-                  <li key={conv.id}>
-                    <button
-                      onClick={() => loadConversation(conv.id)}
-                      className={`group w-full text-left px-3 py-2 rounded text-sm transition-colors flex items-center justify-between gap-2 ${
-                        currentConversationId === conv.id
-                          ? "bg-zinc-800 text-zinc-100"
-                          : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
-                      }`}
-                    >
-                      <span className="truncate flex-1">{conv.title}</span>
-                      <span
-                        onClick={(e) => togglePin(conv.id, !conv.pinned, e)}
-                        className={`text-xs flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${
-                          conv.pinned ? "text-emerald-500 opacity-100" : "text-zinc-600 hover:text-emerald-400"
-                        }`}
-                        title={conv.pinned ? "Kipinelés" : "Pinelyés"}
-                      >
-                        📌
-                      </span>
-                      <span
-                        onClick={(e) => deleteConversation(conv.id, e)}
-                        className="text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0"
-                        title="Törlés"
-                      >
-                        ×
-                      </span>
-                    </button>
-                  </li>
+              <div className="space-y-3">
+                {groupConversationsByDate(conversations).map((group) => (
+                  <div key={group.label}>
+                    <div className="text-[10px] uppercase tracking-wider text-zinc-600 px-2 mb-1">{group.label}</div>
+                    <ul className="space-y-0.5">
+                      {group.items.map((conv) => (
+                        <li key={conv.id}>
+                          <button
+                            onClick={() => loadConversation(conv.id)}
+                            className={`group w-full text-left px-3 py-2 rounded text-sm transition-colors flex items-center justify-between gap-2 ${
+                              currentConversationId === conv.id
+                                ? "bg-zinc-800 text-zinc-100"
+                                : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                            }`}
+                          >
+                            <span className="truncate flex-1 text-xs">{conv.title}</span>
+                            <span
+                              onClick={(e) => togglePin(conv.id, !conv.pinned, e)}
+                              className={`text-xs flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity ${
+                                conv.pinned ? "text-emerald-500 opacity-100" : "text-zinc-600 hover:text-emerald-400"
+                              }`}
+                              title={conv.pinned ? "Kipinelés" : "Pinelés"}
+                            >
+                              📌
+                            </span>
+                            <span
+                              onClick={(e) => deleteConversation(conv.id, e)}
+                              className="text-zinc-600 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity text-xs flex-shrink-0"
+                              title="Törlés"
+                            >
+                              ×
+                            </span>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 ))}
-              </ul>
+              </div>
             )}
           </div>
 
@@ -669,35 +704,22 @@ useEffect(() => {
       {/* Main chat area — DeepSeek-stílusú tiszta layout */}
       <div className="flex-1 flex flex-col min-h-0 relative">
 
-        {/* Floating gombok — jobb alsó sarok, mobilon rejtve mert belelóg a chat inputba */}
-        <div className="absolute bottom-4 right-4 z-20 hidden md:flex flex-col items-end gap-2">
-          {/* Bug report */}
+        {/* Floating bug report — jobb alsó sarok, halványabb mint volt */}
+        <div className="absolute bottom-4 right-4 z-20 hidden md:flex">
           <a
             href="https://github.com/chrisconen/nexus/issues/new?labels=bug&template=bug_report.md"
             target="_blank"
             rel="noopener"
-            className="flex items-center gap-2 bg-zinc-900/90 border border-zinc-700 hover:border-emerald-600 text-zinc-400 hover:text-emerald-400 px-3 py-2 rounded-full text-xs backdrop-blur-sm transition-all group"
+            className="flex items-center gap-2 bg-zinc-900/80 border border-zinc-800 hover:border-zinc-600 text-zinc-600 hover:text-zinc-400 px-3 py-2 rounded-full text-xs backdrop-blur-sm transition-all group"
             title="Hiba jelentése"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="12" cy="12" r="10"/>
               <line x1="12" y1="8" x2="12" y2="12"/>
               <line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
             <span className="hidden group-hover:inline">Hiba jelentése</span>
           </a>
-          {/* Hogyan használjam? glow gomb */}
-          <div className="relative rounded-lg p-[2px] overflow-hidden nexus-glow-btn">
-            <div className="relative rounded-[5px] bg-zinc-950">
-              <button
-                onClick={() => setShowHints(!showHints)}
-                className="text-[10px] uppercase tracking-wider text-zinc-400 hover:text-emerald-300 px-3 py-1.5 rounded-[5px] transition-colors block whitespace-nowrap"
-                title="Hogyan használjam?"
-              >
-                {showHints ? "✕ bezár" : "Hogyan használjam?"}
-              </button>
-            </div>
-          </div>
         </div>
 
         {/* Messages + Input közös wrapper — üres állapotban együtt centrírozva */}
@@ -738,6 +760,12 @@ useEffect(() => {
                 <p className="text-xs text-zinc-700 mt-6">
                   Kattints egy példára, vagy írd be a kérdésed
                 </p>
+                <button
+                  onClick={() => setShowHints(!showHints)}
+                  className="mt-3 text-[11px] text-zinc-600 hover:text-zinc-400 transition-colors underline underline-offset-2"
+                >
+                  {showHints ? "✕ Bezárás" : "Hogyan használjam?"}
+                </button>
 
                 {/* "Hogyan használjam?" információs panel */}
                 {showHints && (
@@ -955,7 +983,7 @@ useEffect(() => {
   onKeyDown={handleKeyDown}
   disabled={loading}
   rows={1}
-  className="flex-1 bg-zinc-900 border border-zinc-800 rounded-lg px-3 py-2 md:px-4 md:py-3 text-sm md:text-base text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
+  className="flex-1 bg-zinc-950 border border-zinc-700 rounded-lg px-3 py-2 md:px-4 md:py-3 text-sm md:text-base text-zinc-100 placeholder-zinc-500 focus:border-emerald-500 focus:outline-none transition-colors resize-none disabled:opacity-50"
   placeholder={loading ? "Válasz folyamatban..." : attachedDoc ? "Kérdezz a dokumentumról..." : "Írj egy üzenetet..."}
 />
               <button
