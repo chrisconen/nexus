@@ -20,7 +20,7 @@ function setByPath(obj: any, path: string, value: string): any {
   return obj;
 }
 
-interface Props { userTier: string; userName: string; }
+interface Props { userTier: string; userName: string; locale?: string; }
 type Step = "onboarding" | "editor";
 
 // === TOAST SYSTEM ===
@@ -89,7 +89,63 @@ function useHistory(initial: SiteData | null) {
   return { data: present, set, undo, redo, init, canUndo: past.length > 0, canRedo: future.length > 0 };
 }
 
-export default function SiteBuilder({ userTier, userName }: Props) {
+export default function SiteBuilder({ userTier, userName, locale: localeProp }: Props) {
+  const locale = localeProp || "hu";
+  const builderStrings: Record<string, Record<string, string>> = {
+    hu: {
+      saved: "Minden változás mentve",
+      error: "Hiba történt",
+      tipInlineEdit: "Tipp: kattints bármelyik szövegre az előnézetben, és ott helyben átírhatod.",
+      savedOk: "Mentve",
+      saveError: "Mentési hiba",
+      siteGenerated: "Weboldal generálva!",
+      generateFirst: "Először generálj egy oldalt az onboarding-gal",
+      regenerated: "Újragenerálva!",
+      regenError: "Újragenerálási hiba",
+      regenErrorDetail: "Hiba az újragenerálás közben",
+      sectionRewritten: "Szekció átírva — visszavonható Ctrl+Z-vel",
+      networkError: "Hálózati hiba az újragenerálás közben",
+      sectionDuplicated: "Szekció duplikálva",
+      sectionDeleted: "Szekció törölve",
+      sectionAdded: "{label} hozzáadva",
+    },
+    en: {
+      saved: "All changes saved",
+      error: "An error occurred",
+      tipInlineEdit: "Tip: click any text in the preview to edit it inline.",
+      savedOk: "Saved",
+      saveError: "Save error",
+      siteGenerated: "Website generated!",
+      generateFirst: "First generate a page using the onboarding",
+      regenerated: "Regenerated!",
+      regenError: "Regeneration error",
+      regenErrorDetail: "Error during regeneration",
+      sectionRewritten: "Section rewritten — undo with Ctrl+Z",
+      networkError: "Network error during regeneration",
+      sectionDuplicated: "Section duplicated",
+      sectionDeleted: "Section deleted",
+      sectionAdded: "{label} added",
+    },
+    de: {
+      saved: "Alle Änderungen gespeichert",
+      error: "Ein Fehler ist aufgetreten",
+      tipInlineEdit: "Tipp: Klicken Sie auf einen Text in der Vorschau, um ihn direkt zu bearbeiten.",
+      savedOk: "Gespeichert",
+      saveError: "Speicherfehler",
+      siteGenerated: "Website generiert!",
+      generateFirst: "Generieren Sie zuerst eine Seite mit dem Onboarding",
+      regenerated: "Neu generiert!",
+      regenError: "Fehler bei der Neugenerierung",
+      regenErrorDetail: "Fehler während der Neugenerierung",
+      sectionRewritten: "Abschnitt umgeschrieben — rückgängig mit Ctrl+Z",
+      networkError: "Netzwerkfehler während der Neugenerierung",
+      sectionDuplicated: "Abschnitt dupliziert",
+      sectionDeleted: "Abschnitt gelöscht",
+      sectionAdded: "{label} hinzugefügt",
+    },
+  };
+  const bStr = builderStrings[locale] || builderStrings.hu;
+
   const [step, setStep] = useState<Step>("onboarding");
   const history = useHistory(null);
   const siteData = history.data;
@@ -142,7 +198,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
             setStep("editor");
             if (!sessionStorage.getItem("nx-tip-shown")) {
               sessionStorage.setItem("nx-tip-shown", "1");
-              setTimeout(() => toast("Tipp: kattints bármelyik szövegre az előnézetben, és ott helyben átírhatod.", "info"), 1500);
+              setTimeout(() => toast(bStr.tipInlineEdit, "info"), 1500);
             }
           }
         }
@@ -206,9 +262,9 @@ export default function SiteBuilder({ userTier, userName }: Props) {
           body: JSON.stringify({ id: siteId, data: siteData }),
         });
         lastSavedRef.current = json;
-        toast("Mentve", "success");
+        toast(bStr.savedOk, "success");
       } catch {
-        toast("Mentési hiba", "error");
+        toast(bStr.saveError, "error");
       } finally {
         setSaving(false);
       }
@@ -253,9 +309,9 @@ export default function SiteBuilder({ userTier, userName }: Props) {
         lastSavedRef.current = JSON.stringify(data.data);
       }
       setStep("editor");
-      toast("Weboldal generálva!", "success");
+      toast(bStr.siteGenerated, "success");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Hiba történt");
+      setError(err instanceof Error ? err.message : bStr.error);
     } finally {
       setLoading(false);
     }
@@ -263,7 +319,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
 
   async function handleRegenerate() {
     if (!businessName || !businessType) {
-      toast("Először generálj egy oldalt az onboarding-gal", "error");
+      toast(bStr.generateFirst, "error");
       return;
     }
     setLoading(true);
@@ -276,9 +332,9 @@ export default function SiteBuilder({ userTier, userName }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
       history.set(data.data);
-      toast("Újragenerálva!", "success");
+      toast(bStr.regenerated, "success");
     } catch {
-      toast("Újragenerálási hiba", "error");
+      toast(bStr.regenError, "error");
     } finally {
       setLoading(false);
     }
@@ -312,16 +368,16 @@ export default function SiteBuilder({ userTier, userName }: Props) {
       });
 
       if (!res.ok) {
-        const err = await res.json().catch(() => ({ error: "Ismeretlen hiba" }));
-        toast(err.error || "Hiba az újragenerálás közben", "error");
+        const err = await res.json().catch(() => ({ error: bStr.regenErrorDetail }));
+        toast(err.error || bStr.regenErrorDetail, "error");
         return;
       }
 
       const { section: updated } = await res.json();
       updateSection(sectionId, () => updated);
-      toast("Szekció átírva — visszavonható Ctrl+Z-vel", "success");
+      toast(bStr.sectionRewritten, "success");
     } catch {
-      toast("Hálózati hiba az újragenerálás közben", "error");
+      toast(bStr.networkError, "error");
     } finally {
       setRegenSectionId(null);
     }
@@ -348,7 +404,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
       arr.splice(idx + 1, 0, clone);
       return { ...d, sections: arr };
     });
-    toast("Szekció duplikálva", "info");
+    toast(bStr.sectionDuplicated, "info");
   }
 
   async function deleteImage(url: string) {
@@ -365,7 +421,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
   function deleteSection(id: string) {
     updateSiteData(d => ({ ...d, sections: d.sections.filter(s => s.id !== id) }));
     if (activeSection === id) setActiveSection(null);
-    toast("Szekció törölve", "info");
+    toast(bStr.sectionDeleted, "info");
   }
 
   function addSection(type: SectionType) {
@@ -373,7 +429,7 @@ export default function SiteBuilder({ userTier, userName }: Props) {
     updateSiteData(d => ({ ...d, sections: [...d.sections, newSec] }));
     setShowAddSection(false);
     setActiveSection(newSec.id);
-    toast(`${SECTION_REGISTRY[type].label} hozzáadva`, "success");
+    toast(bStr.sectionAdded.replace("{label}", SECTION_REGISTRY[type].label), "success");
   }
 
   function toggleCollapse(id: string) {

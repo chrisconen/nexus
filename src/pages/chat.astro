@@ -2,6 +2,9 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import ChatInterface from "@/components/ChatInterface";
+import { t, type Locale } from "@/lib/i18n/translations";
+
+const locale = (Astro.currentLocale as Locale) || "hu";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -14,11 +17,11 @@ if (!session) {
 const { user } = session;
 ---
 <!DOCTYPE html>
-<html lang="hu" class="h-full">
+<html lang={locale} class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Chat — NEXUS AI</title>
+    <title>{t(locale, "chat.title")}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="h-full bg-zinc-950 text-zinc-100 font-mono antialiased m-0">
@@ -29,6 +32,7 @@ const { user } = session;
         userTier={user.tier}
         userName={user.name}
         userEmail={user.email}
+        locale={locale}
       />
 
     </div>

@@ -1,5 +1,5 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import { auth } from "@/lib/auth";
 import BugReport from "@/components/BugReport.astro";
 import { t, type Locale } from "@/lib/i18n/translations";
@@ -61,7 +61,8 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "pricing.free.limit")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "pricing.free.model")}
+              <strong class="text-emerald-400">NEXUS AI</strong>
+              <span class="text-zinc-500"> · {t(locale, "pricing.free.model")}</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -120,7 +121,8 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "pricing.pro.period")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "pricing.pro.model")}
+              <strong class="text-emerald-400">NEXUS {t(locale, "pricing.pro.name")}</strong>
+              <span class="text-zinc-500"> · {t(locale, "pricing.pro.model")}</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -187,7 +189,8 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "pricing.premium.period")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "pricing.premium.model")}
+              <strong class="text-emerald-400">NEXUS {t(locale, "pricing.premium.name")}</strong>
+              <span class="text-zinc-500"> · {t(locale, "pricing.premium.model")}</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -283,31 +286,16 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
       </div>
     </div>
 
-    <script define:vars={{ locale }}>
-      const errorMsgs = {
-        hu: {
-          terms: "Kérjük, fogadd el az ÁSZF-et és az Adatkezelési tájékoztatót a folytatáshoz.",
-          redirecting: "Átirányítás…",
-          error: "Nem sikerült elindítani a fizetést:",
-        },
-        en: {
-          terms: "Please accept the Terms and Privacy Policy to continue.",
-          redirecting: "Redirecting…",
-          error: "Could not start payment:",
-        },
-        de: {
-          terms: "Bitte akzeptieren Sie die AGB und die Datenschutzerklärung, um fortzufahren.",
-          redirecting: "Weiterleitung…",
-          error: "Zahlung konnte nicht gestartet werden:",
-        },
-      };
-      const msg = errorMsgs[locale] || errorMsgs.hu;
-
+    <script define:vars={{
+      errorTerms: t(locale, "pricing.errorTerms"),
+      redirectingText: t(locale, "pricing.redirecting"),
+      errorGeneric: t(locale, "pricing.errorGeneric"),
+    }}>
       const errorEl = document.getElementById("checkout-error");
 
-      function showError(text: string) {
+      function showError(msg: string) {
         if (!errorEl) return;
-        errorEl.textContent = text;
+        errorEl.textContent = msg;
         errorEl.classList.remove("hidden");
       }
 
@@ -319,13 +307,13 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
           if (!tier) return;
 
           if (!termsCheckbox?.checked) {
-            showError(msg.terms);
+            showError(errorTerms);
             return;
           }
 
           const originalText = btn.textContent;
           btn.disabled = true;
-          btn.textContent = msg.redirecting;
+          btn.textContent = redirectingText;
           errorEl?.classList.add("hidden");
 
           try {
@@ -347,8 +335,8 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
               throw new Error("");
             }
           } catch (err) {
-            const errMsg = err instanceof Error ? err.message : "";
-            showError(`${msg.error} ${errMsg}`);
+            const msg = err instanceof Error ? err.message : "";
+            showError(`${errorGeneric} ${msg}`);
             btn.disabled = false;
             btn.textContent = originalText;
           }

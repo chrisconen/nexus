@@ -11,6 +11,13 @@ export default defineConfig({
   output: 'server',
   adapter: vercel(),
   integrations: [react()],
+  i18n: {
+    defaultLocale: 'hu',
+    locales: ['hu', 'en', 'de'],
+    routing: {
+      prefixDefaultLocale: false,
+    },
+  },
   vite: {
     plugins: [tailwindcss()],
     resolve: {

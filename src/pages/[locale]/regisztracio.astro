@@ -1,11 +1,12 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import SignUpForm from "@/components/SignUpForm";
-import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 
 const locale = (Astro.currentLocale as Locale) || "hu";
+const loginPath = localeRelativePath("/belepes", locale);
 ---
 <html lang={locale}>
   <head>
@@ -18,9 +19,11 @@ const locale = (Astro.currentLocale as Locale) || "hu";
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div class="max-w-md w-full">
 
-        <div class="mb-8 flex items-center gap-3">
-          <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "register.system")}</span>
+        <div class="mb-8 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "register.system")}</span>
+          </div>
           <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
         </div>
 
@@ -36,7 +39,7 @@ const locale = (Astro.currentLocale as Locale) || "hu";
 
         <p class="mt-8 text-sm text-zinc-500 text-center">
           {t(locale, "register.hasAccount")}
-          <a href={localeRelativePath("/belepes", locale)} class="text-emerald-400 hover:text-emerald-300">
+          <a href={loginPath} class="text-emerald-400 hover:text-emerald-300">
             {t(locale, "register.loginLink")}
           </a>
         </p>

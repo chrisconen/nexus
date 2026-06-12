@@ -30,3 +30,5 @@ pnpm-debug.log*
 .env.local.backup
 
 .vercel
+
+# AI & IDE config.claude/.opencode/.vscode/.env.local.playwright-mcp/

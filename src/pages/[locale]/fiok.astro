@@ -1,10 +1,11 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import { auth } from "@/lib/auth";
 import SignOutButton from "@/components/SignOutButton";
 import BugReport from "@/components/BugReport.astro";
 import { db, user as userTable } from "@/lib/db";
 import { eq } from "drizzle-orm";
+
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
@@ -48,10 +49,14 @@ const isPaid = tier === "pro" || tier === "premium";
 const isCanceling = dbUser?.cancelAtPeriodEnd === true;
 const isPastDue = dbUser?.subscriptionStatus === "past_due";
 
-const localeTag = locale === 'hu' ? 'hu-HU' : locale === 'en' ? 'en-US' : 'de-DE';
+const localeMap: Record<Locale, string> = {
+  hu: "hu-HU",
+  en: "en-US",
+  de: "de-DE",
+};
 
 const periodEndStr = dbUser?.subscriptionPeriodEnd
-  ? new Intl.DateTimeFormat(localeTag, {
+  ? new Intl.DateTimeFormat(localeMap[locale], {
       year: "numeric",
       month: "long",
       day: "numeric",
@@ -73,13 +78,11 @@ const periodEndStr = dbUser?.subscriptionPeriodEnd
           <div class="flex items-center gap-3">
             <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
             <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "account.system")}</span>
-          </div>
-          <div class="flex items-center gap-4">
             <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
-            <a href={localeRelativePath("/", locale)} class="text-xs text-zinc-500 hover:text-emerald-400 transition-colors">
-              ← {t(locale, "nav.home")}
-            </a>
           </div>
+          <a href={localeRelativePath("/", locale)} class="text-xs text-zinc-500 hover:text-emerald-400 transition-colors">
+            ← {t(locale, "nav.home")}
+          </a>
         </div>
 
         <h1 class="text-4xl font-light mb-2">
@@ -114,7 +117,7 @@ const periodEndStr = dbUser?.subscriptionPeriodEnd
             </div>
           )}
 
-          {/* Aktív, megújuló előfizetés */}
+          {/* Aktív, megújulő előfizetés */}
           {isPaid && !isCanceling && !isPastDue && periodEndStr && (
             <div class="mt-3 text-xs text-zinc-600">
               {t(locale, "account.nextBilling")} <span class="text-zinc-500">{periodEndStr}</span>

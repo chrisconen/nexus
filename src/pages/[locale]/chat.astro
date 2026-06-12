@@ -1,8 +1,7 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import { auth } from "@/lib/auth";
-import SiteBuilder from "@/components/SiteBuilder";
-import BugReport from "@/components/BugReport.astro";
+import ChatInterface from "@/components/ChatInterface";
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
 
@@ -17,23 +16,26 @@ if (!session) {
 }
 
 const { user } = session;
-
-if (user.tier === "free") {
-  return Astro.redirect(localeRelativePath("/arazas", locale));
-}
 ---
 <!DOCTYPE html>
 <html lang={locale} class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{t(locale, "builder.title")}</title>
+    <title>{t(locale, "chat.title")}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="h-full bg-zinc-950 text-zinc-100 font-mono antialiased m-0">
     <div class="h-screen flex flex-col">
-      <SiteBuilder client:load userTier={user.tier} userName={user.name} locale={locale} />
+
+      <ChatInterface
+        client:load
+        userTier={user.tier}
+        userName={user.name}
+        userEmail={user.email}
+        locale={locale}
+      />
+
     </div>
-    <BugReport locale={locale} />
   </body>
 </html>

@@ -2,18 +2,23 @@
 import "../styles/global.css";
 import { auth } from "@/lib/auth";
 import BugReport from "@/components/BugReport.astro";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+import { t, type Locale } from "@/lib/i18n/translations";
+import { localeRelativePath } from "@/lib/i18n/locale";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
 });
 const isLoggedIn = !!session;
+const locale = (Astro.currentLocale as Locale) || "hu";
+const noResultsMessage = t(locale, "guide.noResults");
 ---
 <!DOCTYPE html>
-<html lang="hu" class="h-full">
+<html lang={locale} class="h-full">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Használati útmutató — NEXUS Site Builder</title>
+    <title>{t(locale, "guide.title")}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
@@ -22,10 +27,13 @@ const isLoggedIn = !!session;
       <!-- SIDEBAR NAV -->
       <aside id="sidebar" class="w-72 border-r border-zinc-800 bg-zinc-950 flex-shrink-0 overflow-y-auto fixed inset-y-0 left-0 z-30 transform -translate-x-full md:translate-x-0 md:relative transition-transform">
         <div class="p-5 border-b border-zinc-800">
-          <a href="/" class="flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors mb-4">
-            ← NEXUS
-          </a>
-          <h2 class="text-sm font-medium text-zinc-200 uppercase tracking-wider">Útmutató</h2>
+          <div class="flex items-center justify-between mb-4">
+            <a href={localeRelativePath("/", locale)} class="flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors">
+              ← NEXUS
+            </a>
+            <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
+          </div>
+          <h2 class="text-sm font-medium text-zinc-200 uppercase tracking-wider">{t(locale, "guide.sidebar.gettingStarted")}</h2>
           <p class="text-[10px] text-zinc-600 mt-1">NEXUS Pro Site Builder</p>
 
           <!-- SEARCH -->
@@ -33,7 +41,7 @@ const isLoggedIn = !!session;
             <input
               type="text"
               id="doc-search"
-              placeholder="Keresés az útmutatóban..."
+              placeholder={t(locale, "guide.searchPlaceholder")}
               class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
             />
             <div id="search-results" class="absolute top-full left-0 right-0 bg-zinc-900 border border-zinc-800 rounded-b mt-0.5 max-h-60 overflow-y-auto hidden z-10"></div>
@@ -41,41 +49,41 @@ const isLoggedIn = !!session;
         </div>
 
         <nav class="p-3 space-y-1 text-xs">
-          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-3 pb-1">Kezdőlépések</div>
-          <a href="#bevezetes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Bevezető</a>
-          <a href="#elso-lepesek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Első lépések</a>
-          <a href="#ai-generalas" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">AI generálás</a>
-          <a href="#felhasznaloi-felulet" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">A szerkesztő felület</a>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-3 pb-1">{t(locale, "guide.sidebar.gettingStarted")}</div>
+          <a href="#bevezetes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.intro")}</a>
+          <a href="#elso-lepesek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.firstSteps")}</a>
+          <a href="#ai-generalas" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.aiGeneration")}</a>
+          <a href="#felhasznaloi-felulet" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.editorUi")}</a>
 
-          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Szekciók</div>
-          <a href="#hero" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Hero / Főszekció</a>
-          <a href="#szolgaltatasok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Szolgáltatások</a>
-          <a href="#rolunk" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Rólunk</a>
-          <a href="#galeria" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Galéria</a>
-          <a href="#velemenyek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Vélemények</a>
-          <a href="#csapat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Csapat</a>
-          <a href="#ajanlatok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kiemelt ajánlatok</a>
-          <a href="#gyik" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">GYIK</a>
-          <a href="#cta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">CTA Banner</a>
-          <a href="#statisztikak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Statisztikák</a>
-          <a href="#arazas-szekció" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Árazás</a>
-          <a href="#kapcsolat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kapcsolat</a>
-          <a href="#partner-logok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Partner logók</a>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.sections")}</div>
+          <a href="#hero" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.hero")}</a>
+          <a href="#szolgaltatasok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.services")}</a>
+          <a href="#rolunk" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.about")}</a>
+          <a href="#galeria" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.gallery")}</a>
+          <a href="#velemenyek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.testimonials")}</a>
+          <a href="#csapat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.team")}</a>
+          <a href="#ajanlatok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.offers")}</a>
+          <a href="#gyik" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.faq")}</a>
+          <a href="#cta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.cta")}</a>
+          <a href="#statisztikak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.stats")}</a>
+          <a href="#arazas-szekció" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.pricingSection")}</a>
+          <a href="#kapcsolat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.contact")}</a>
+          <a href="#partner-logok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.partners")}</a>
 
-          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Testreszabás</div>
-          <a href="#szinpalettak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Színpaletták</a>
-          <a href="#betutipusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Betűtípusok</a>
-          <a href="#szekcio-stilusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Szekció stílusok</a>
-          <a href="#ikonok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Ikonok</a>
-          <a href="#kepek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Képek kezelése</a>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.customization")}</div>
+          <a href="#szinpalettak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.palettes")}</a>
+          <a href="#betutipusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.fonts")}</a>
+          <a href="#szekcio-stilusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.sectionStyles")}</a>
+          <a href="#ikonok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.icons")}</a>
+          <a href="#kepek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.images")}</a>
 
-          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">Haladó</div>
-          <a href="#seo-meta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">SEO & meta adatok</a>
-          <a href="#social-media" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Social media linkek</a>
-          <a href="#formspree" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Kapcsolati űrlap (Formspree)</a>
-          <a href="#letoltes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Letöltés & hosting</a>
-          <a href="#billentyuparancsok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">Billentyűparancsok</a>
-          <a href="#gyik-altalanos" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">GYIK (általános)</a>
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.advanced")}</div>
+          <a href="#seo-meta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.seo")}</a>
+          <a href="#social-media" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.social")}</a>
+          <a href="#formspree" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.formspree")}</a>
+          <a href="#letoltes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.download")}</a>
+          <a href="#billentyuparancsok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.shortcuts")}</a>
+          <a href="#gyik-altalanos" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.generalFaq")}</a>
         </nav>
       </aside>
 
@@ -91,12 +99,12 @@ const isLoggedIn = !!session;
           <!-- HEADER -->
           <div class="flex items-center justify-between mb-12">
             <div>
-              <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-2">NEXUS // Dokumentáció</div>
-              <h1 class="text-3xl font-light text-zinc-200">Site Builder Útmutató</h1>
+              <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-2">{t(locale, "guide.system")}</div>
+              <h1 class="text-3xl font-light text-zinc-200">{t(locale, "guide.heading")}</h1>
             </div>
             {isLoggedIn && (
-              <a href="/builder" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">
-                Builder megnyitása →
+              <a href={localeRelativePath("/builder", locale)} class="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">
+                {t(locale, "guide.openBuilder")}
               </a>
             )}
           </div>
@@ -106,8 +114,22 @@ const isLoggedIn = !!session;
 
             <!-- BEVEZETŐ -->
             <section id="bevezetes" class="doc-section">
-              <h2>Bevezető</h2>
-              <p>A NEXUS Site Builder egy AI-alapú weboldal készítő, amelyet kifejezetten magyar kisvállalkozások számára terveztünk. Segítségével <strong>percek alatt</strong> készíthetsz professzionális megjelenésű weboldalt — programozói tudás nélkül.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Introduction</h2>
+                  <p>The NEXUS Site Builder is an AI-powered website builder designed specifically for small businesses. With its help, you can create a professional-looking website <strong>in minutes</strong> — without programming knowledge.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Einführung</h2>
+                  <p>Der NEXUS Site Builder ist ein KI-gestützter Website-Builder, der speziell für kleine Unternehmen entwickelt wurde. Mit seiner Hilfe können Sie in <strong>Minuten</strong> eine professionell aussehende Website erstellen — ohne Programmierkenntnisse.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Bevezető</h2>
+                  <p>A NEXUS Site Builder egy AI-alapú weboldal készítő, amelyet kifejezetten magyar kisvállalkozások számára terveztünk. Segítségével <strong>percek alatt</strong> készíthetsz professzionális megjelenésű weboldalt — programozói tudás nélkül.</p>
+                </>
+              )}
 
               <div class="tip">
                 <strong>Pro funkció:</strong> A Site Builder a Pro és Premium előfizetéssel érhető el. <a href="/arazas">Frissíts most →</a>
@@ -126,7 +148,22 @@ const isLoggedIn = !!session;
 
             <!-- ELSŐ LÉPÉSEK -->
             <section id="elso-lepesek" class="doc-section">
-              <h2>Első lépések</h2>
+              {locale === 'en' ? (
+                <>
+                  <h2>First Steps</h2>
+                  <p>After logging in, the Builder is available from the Chat page header, the Account page, or directly at <code>/builder</code>.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Erste Schritte</h2>
+                  <p>Nach der Anmeldung ist der Builder über die Chat-Seitenkopfzeile, die Kontoseite oder direkt unter <code>/builder</code> verfügbar.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Első lépések</h2>
+                  <p>Bejelentkezés után a Builder elérhető a Chat oldal fejlécéből, a Fiók oldalról, vagy közvetlenül a <code>/builder</code> URL-ről.</p>
+                </>
+              )}
 
               <h3>1. Navigálj a Builder-hez</h3>
               <p>Bejelentkezés után a Builder elérhető:</p>
@@ -157,8 +194,22 @@ const isLoggedIn = !!session;
 
             <!-- AI GENERÁLÁS -->
             <section id="ai-generalas" class="doc-section">
-              <h2>AI generálás</h2>
-              <p>A NEXUS Site Builder az előfizetésed szintjéhez tartozó AI modellt használja a tartalom generálásához:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>AI Generation</h2>
+                  <p>The NEXUS Site Builder uses the AI model associated with your subscription tier to generate content:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>KI-Generierung</h2>
+                  <p>Der NEXUS Site Builder verwendet das KI-Modell Ihrer Abonnementstufe zur Inhaltsgenerierung:</p>
+                </>
+              ) : (
+                <>
+                  <h2>AI generálás</h2>
+                  <p>A NEXUS Site Builder az előfizetésed szintjéhez tartozó AI modellt használja a tartalom generálásához:</p>
+                </>
+              )}
 
               <table>
                 <thead>
@@ -180,8 +231,22 @@ const isLoggedIn = !!session;
 
             <!-- FELHASZNÁLÓI FELÜLET -->
             <section id="felhasznaloi-felulet" class="doc-section">
-              <h2>A szerkesztő felület</h2>
-              <p>A szerkesztő három fő részből áll:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Editor Interface</h2>
+                  <p>The editor consists of three main panels:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Editor-Oberfläche</h2>
+                  <p>Der Editor besteht aus drei Hauptbereichen:</p>
+                </>
+              ) : (
+                <>
+                  <h2>A szerkesztő felület</h2>
+                  <p>A szerkesztő három fő részből áll:</p>
+                </>
+              )}
 
               <h3>Bal panel — Szekciólista & Stílusok</h3>
               <p>Két fül van:</p>
@@ -209,8 +274,22 @@ const isLoggedIn = !!session;
             <!-- SZEKCIÓK RÉSZLETESEN -->
 
             <section id="hero" class="doc-section">
-              <h2>Hero / Főszekció</h2>
-              <p>A weboldal tetején megjelenő, figyelemfelkeltő szekció. Ez az első, amit a látogató lát.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Hero Section</h2>
+                  <p>The eye-catching section at the top of the website. This is the first thing visitors see.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Hero-Abschnitt</h2>
+                  <p>Der auffällige Abschnitt oben auf der Website. Dies ist das Erste, was Besucher sehen.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Hero / Főszekció</h2>
+                  <p>A weboldal tetején megjelenő, figyelemfelkeltő szekció. Ez az első, amit a látogató lát.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -228,8 +307,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="szolgaltatasok" class="doc-section">
-              <h2>Szolgáltatások</h2>
-              <p>Szolgáltatásaid vagy termékeid kártya-formátumú megjelenítése.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Services</h2>
+                  <p>Display your services or products in a card format.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Dienstleistungen</h2>
+                  <p>Präsentieren Sie Ihre Dienstleistungen oder Produkte im Kartenformat.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Szolgáltatások</h2>
+                  <p>Szolgáltatásaid vagy termékeid kártya-formátumú megjelenítése.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -250,8 +343,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="rolunk" class="doc-section">
-              <h2>Rólunk</h2>
-              <p>Bemutatkozó szekció szöveggel és opcionális képpel.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>About</h2>
+                  <p>An introductory section with text and an optional image.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Über uns</h2>
+                  <p>Ein Vorstellungsabschnitt mit Text und optionalem Bild.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Rólunk</h2>
+                  <p>Bemutatkozó szekció szöveggel és opcionális képpel.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -263,8 +370,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="galeria" class="doc-section">
-              <h2>Galéria</h2>
-              <p>Képgaléria rács elrendezésben. Ideális munkáid, termékeid, üzleted bemutatásához.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Gallery</h2>
+                  <p>An image gallery in a grid layout. Ideal for showcasing your work, products, or business.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Galerie</h2>
+                  <p>Eine Bildergalerie im Rasterlayout. Ideal zur Präsentation Ihrer Arbeiten, Produkte oder Ihres Geschäfts.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Galéria</h2>
+                  <p>Képgaléria rács elrendezésben. Ideális munkáid, termékeid, üzleted bemutatásához.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -279,8 +400,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="velemenyek" class="doc-section">
-              <h2>Vélemények</h2>
-              <p>Ügyfélvélemények megjelenítése csillagos értékeléssel.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Testimonials</h2>
+                  <p>Display customer reviews with star ratings.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Bewertungen</h2>
+                  <p>Kundenbewertungen mit Sternbewertung anzeigen.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Vélemények</h2>
+                  <p>Ügyfélvélemények megjelenítése csillagos értékeléssel.</p>
+                </>
+              )}
 
               <h3>Mezők véleményenként</h3>
               <ul>
@@ -293,8 +428,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="csapat" class="doc-section">
-              <h2>Csapat</h2>
-              <p>Csapattagok bemutatása fotóval, pozícióval, elérhetőséggel.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Team</h2>
+                  <p>Introduce team members with photos, positions, and contact information.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Team</h2>
+                  <p>Teammitglieder mit Foto, Position und Kontaktdaten vorstellen.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Csapat</h2>
+                  <p>Csapattagok bemutatása fotóval, pozícióval, elérhetőséggel.</p>
+                </>
+              )}
 
               <h3>Mezők tagonként</h3>
               <ul>
@@ -306,8 +455,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="ajanlatok" class="doc-section">
-              <h2>Kiemelt ajánlatok</h2>
-              <p>Akciók, kedvezmények kiemelésére. Áthúzott eredeti ár + akciós ár + badge.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Featured Offers</h2>
+                  <p>Highlight promotions and discounts. Strikethrough original price + sale price + badge.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Angebote</h2>
+                  <p>Hervorhebung von Aktionen und Rabatten. Durchgestrichener Originalpreis + Aktionspreis + Badge.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Kiemelt ajánlatok</h2>
+                  <p>Akciók, kedvezmények kiemelésére. Áthúzott eredeti ár + akciós ár + badge.</p>
+                </>
+              )}
 
               <h3>Mezők ajánlatonként</h3>
               <ul>
@@ -319,8 +482,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="gyik" class="doc-section">
-              <h2>GYIK (Gyakran Ismételt Kérdések)</h2>
-              <p>Lenyíló kérdés-válasz lista. A látogatók kattintással nyithatják ki a válaszokat.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>FAQ (Frequently Asked Questions)</h2>
+                  <p>A collapsible question-and-answer list. Visitors can click to reveal answers.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>FAQ (Häufig gestellte Fragen)</h2>
+                  <p>Eine aufklappbare Frage-Antwort-Liste. Besucher können klicken, um die Antworten zu sehen.</p>
+                </>
+              ) : (
+                <>
+                  <h2>GYIK (Gyakran Ismételt Kérdések)</h2>
+                  <p>Lenyíló kérdés-válasz lista. A látogatók kattintással nyithatják ki a válaszokat.</p>
+                </>
+              )}
 
               <h3>Mezők kérdésenként</h3>
               <ul>
@@ -334,8 +511,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="cta" class="doc-section">
-              <h2>CTA Banner</h2>
-              <p>Figyelemfelkeltő, cselekvésre ösztönző sáv. Ideális a weboldal közepén vagy vége felé.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>CTA Banner</h2>
+                  <p>An attention-grabbing, action-oriented banner. Ideal in the middle or towards the end of the website.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>CTA-Banner</h2>
+                  <p>Ein aufmerksamkeitsstarker, handlungsorientierter Banner. Ideal in der Mitte oder gegen Ende der Website.</p>
+                </>
+              ) : (
+                <>
+                  <h2>CTA Banner</h2>
+                  <p>Figyelemfelkeltő, cselekvésre ösztönző sáv. Ideális a weboldal közepén vagy vége felé.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -347,8 +538,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="statisztikak" class="doc-section">
-              <h2>Statisztikák</h2>
-              <p>Számok, eredmények kiemelése nagy, figyelemfelkeltő formátumban.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Statistics</h2>
+                  <p>Highlight numbers and results in a large, eye-catching format.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Statistiken</h2>
+                  <p>Zahlen und Ergebnisse in einem großen, auffälligen Format hervorheben.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Statisztikák</h2>
+                  <p>Számok, eredmények kiemelése nagy, figyelemfelkeltő formátumban.</p>
+                </>
+              )}
 
               <h3>Mezők statisztikánként</h3>
               <ul>
@@ -358,8 +563,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="arazas-szekció" class="doc-section">
-              <h2>Árazás</h2>
-              <p>Árcsomagok összehasonlítása kártya formátumban. Kiemelt csomag nagyobb és szegélyezett.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Pricing</h2>
+                  <p>Compare pricing plans in card format. Featured plan is larger and bordered.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Preise</h2>
+                  <p>Preispläne im Kartenformat vergleichen. Der empfohlene Plan ist größer und umrandet.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Árazás</h2>
+                  <p>Árcsomagok összehasonlítása kártya formátumban. Kiemelt csomag nagyobb és szegélyezett.</p>
+                </>
+              )}
 
               <h3>Mezők csomagonként</h3>
               <ul>
@@ -371,8 +590,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="kapcsolat" class="doc-section">
-              <h2>Kapcsolat</h2>
-              <p>Elérhetőségek és opcionális kapcsolatfelvételi űrlap.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Contact</h2>
+                  <p>Contact information with an optional contact form.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Kontakt</h2>
+                  <p>Kontaktinformationen mit optionalem Kontaktformular.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Kapcsolat</h2>
+                  <p>Elérhetőségek és opcionális kapcsolatfelvételi űrlap.</p>
+                </>
+              )}
 
               <h3>Mezők</h3>
               <ul>
@@ -384,8 +617,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="partner-logok" class="doc-section">
-              <h2>Partner logók</h2>
-              <p>Referenciák, partnerek logóinak megjelenítése. Szürkeárnyalatos alapállapot, hoverre színes.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Partner Logos</h2>
+                  <p>Display references and partner logos. Grayscale by default, color on hover.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Partnerlogos</h2>
+                  <p>Referenzen und Partnerlogos anzeigen. Standardmäßig graustufig, farbig beim Hover.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Partner logók</h2>
+                  <p>Referenciák, partnerek logóinak megjelenítése. Szürkeárnyalatos alapállapot, hoverre színes.</p>
+                </>
+              )}
 
               <h3>Mezők logónként</h3>
               <ul>
@@ -398,8 +645,22 @@ const isLoggedIn = !!session;
             <!-- TESTRESZABÁS -->
 
             <section id="szinpalettak" class="doc-section">
-              <h2>Színpaletták</h2>
-              <p>8 előre definiált paletta közül választhatsz a <strong>Stílusok</strong> panelben:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Color Palettes</h2>
+                  <p>Choose from 8 predefined palettes in the <strong>Styles</strong> panel:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Farbpaletten</h2>
+                  <p>Wählen Sie aus 8 vordefinierten Paletten im <strong>Stile</strong>-Panel:</p>
+                </>
+              ) : (
+                <>
+                  <h2>Színpaletták</h2>
+                  <p>8 előre definiált paletta közül választhatsz a <strong>Stílusok</strong> panelben:</p>
+                </>
+              )}
 
               <div class="palette-grid">
                 <div class="palette-item"><span style="background:#059669" class="swatch"></span> Emerald</div>
@@ -417,8 +678,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="betutipusok" class="doc-section">
-              <h2>Betűtípusok</h2>
-              <p>Két betűtípust állíthatsz: <strong>Címsor</strong> és <strong>Szövegtörzs</strong>. Elérhető Google Fonts:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Fonts</h2>
+                  <p>You can set two font families: <strong>Heading</strong> and <strong>Body</strong>. Available Google Fonts:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Schriftarten</h2>
+                  <p>Sie können zwei Schriftfamilien einstellen: <strong>Überschrift</strong> und <strong>Textkörper</strong>. Verfügbare Google Fonts:</p>
+                </>
+              ) : (
+                <>
+                  <h2>Betűtípusok</h2>
+                  <p>Két betűtípust állíthatsz: <strong>Címsor</strong> és <strong>Szövegtörzs</strong>. Elérhető Google Fonts:</p>
+                </>
+              )}
               <ul>
                 <li><strong>Inter</strong> — modern, tiszta (alapértelmezett)</li>
                 <li><strong>Open Sans</strong> — olvasható, széles körben használt</li>
@@ -432,8 +707,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="szekcio-stilusok" class="doc-section">
-              <h2>Szekció stílusok</h2>
-              <p>Minden szekció szerkesztőjének alján találod a stílus vezérlőket:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Section Styles</h2>
+                  <p>At the bottom of each section editor you'll find the style controls:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Abschnittsstile</h2>
+                  <p>Am unteren Rand jedes Abschnittseditors finden Sie die Stilsteuerungen:</p>
+                </>
+              ) : (
+                <>
+                  <h2>Szekció stílusok</h2>
+                  <p>Minden szekció szerkesztőjének alján találod a stílus vezérlőket:</p>
+                </>
+              )}
               <ul>
                 <li><strong>Háttérszín</strong> — color picker, "X" gombbal visszaállítható az alapértelmezettre</li>
                 <li><strong>Szövegszín</strong> — felülírja a szekció szövegszínét</li>
@@ -448,8 +737,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="ikonok" class="doc-section">
-              <h2>Ikonok</h2>
-              <p>A Szolgáltatások szekció kártyáin 25 SVG ikon közül választhatsz:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Icons</h2>
+                  <p>In the Services section cards, you can choose from 25 SVG icons:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Symbole</h2>
+                  <p>In den Dienstleistungskarten können Sie aus 25 SVG-Symbolen wählen:</p>
+                </>
+              ) : (
+                <>
+                  <h2>Ikonok</h2>
+                  <p>A Szolgáltatások szekció kártyáin 25 SVG ikon közül választhatsz:</p>
+                </>
+              )}
               <div class="icon-list">
                 Olló, Autó, Étkezés, Szív, Kalapács, Könyv, Kamera, Csillag, Óra, Pajzs, Villám, Csapat, Telefon, Email, Helyszín, Ajándék, Szállítás, WiFi, Csavarkulcs, Paletta, Zene, Ház, Aktatáska, Pipa
               </div>
@@ -457,7 +760,19 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="kepek" class="doc-section">
-              <h2>Képek kezelése</h2>
+              {locale === 'en' ? (
+                <>
+                  <h2>Image Management</h2>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Bildverwaltung</h2>
+                </>
+              ) : (
+                <>
+                  <h2>Képek kezelése</h2>
+                </>
+              )}
 
               <h3>Támogatott formátumok</h3>
               <ul>
@@ -489,8 +804,22 @@ const isLoggedIn = !!session;
             <!-- HALADÓ -->
 
             <section id="seo-meta" class="doc-section">
-              <h2>SEO & meta adatok</h2>
-              <p>A <strong>Stílusok → SEO / Meta</strong> szekcióban szerkesztheted:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>SEO & Meta Data</h2>
+                  <p>In the <strong>Styles → SEO / Meta</strong> section you can edit:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>SEO & Meta-Daten</h2>
+                  <p>Im Bereich <strong>Stile → SEO / Meta</strong> können Sie bearbeiten:</p>
+                </>
+              ) : (
+                <>
+                  <h2>SEO & meta adatok</h2>
+                  <p>A <strong>Stílusok → SEO / Meta</strong> szekcióban szerkesztheted:</p>
+                </>
+              )}
               <ul>
                 <li><strong>Oldal címe</strong> — a böngésző tab-ban megjelenő szöveg és a Google találatoknál</li>
                 <li><strong>Meta leírás</strong> — a Google találatokban megjelenő rövid leírás (max. 160 karakter ajánlott)</li>
@@ -499,8 +828,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="social-media" class="doc-section">
-              <h2>Social media linkek</h2>
-              <p>A <strong>Stílusok → Footer / Social</strong> szekcióban adhatsz hozzá social media linkeket. Támogatott platformok:</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Social Media Links</h2>
+                  <p>In the <strong>Styles → Footer / Social</strong> section you can add social media links. Supported platforms:</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Social-Media-Links</h2>
+                  <p>Im Bereich <strong>Stile → Footer / Social</strong> können Sie Social-Media-Links hinzufügen. Unterstützte Plattformen:</p>
+                </>
+              ) : (
+                <>
+                  <h2>Social media linkek</h2>
+                  <p>A <strong>Stílusok → Footer / Social</strong> szekcióban adhatsz hozzá social media linkeket. Támogatott platformok:</p>
+                </>
+              )}
               <ul>
                 <li>Facebook, Instagram, TikTok, YouTube, LinkedIn, X (Twitter), GitHub, Weboldal</li>
               </ul>
@@ -515,8 +858,22 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="formspree" class="doc-section">
-              <h2>Kapcsolati űrlap (Formspree)</h2>
-              <p>A Kapcsolat szekció űrlapja a <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a> szolgáltatással működik. Ez egy ingyenes form backend — nem kell saját szervert üzemeltetned.</p>
+              {locale === 'en' ? (
+                <>
+                  <h2>Contact Form (Formspree)</h2>
+                  <p>The Contact section form works with the <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a> service. It's a free form backend — no need to run your own server.</p>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Kontaktformular (Formspree)</h2>
+                  <p>Das Kontaktformular funktioniert mit dem <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a>-Dienst. Es ist ein kostenloses Formular-Backend — kein eigener Server nötig.</p>
+                </>
+              ) : (
+                <>
+                  <h2>Kapcsolati űrlap (Formspree)</h2>
+                  <p>A Kapcsolat szekció űrlapja a <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a> szolgáltatással működik. Ez egy ingyenes form backend — nem kell saját szervert üzemeltetned.</p>
+                </>
+              )}
 
               <h3>Beállítás lépései</h3>
               <ol>
@@ -537,7 +894,19 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="letoltes" class="doc-section">
-              <h2>Letöltés & hosting</h2>
+              {locale === 'en' ? (
+                <>
+                  <h2>Download & Hosting</h2>
+                </>
+              ) : locale === 'de' ? (
+                <>
+                  <h2>Download & Hosting</h2>
+                </>
+              ) : (
+                <>
+                  <h2>Letöltés & hosting</h2>
+                </>
+              )}
 
               <h3>Letöltés</h3>
               <p>A toolbar-ban a <strong>"Letöltés"</strong> gombra kattintva egy önálló <code>.html</code> fájlt kapsz. Ez tartalmazza:</p>
@@ -565,7 +934,13 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="billentyuparancsok" class="doc-section">
-              <h2>Billentyűparancsok</h2>
+              {locale === 'en' ? (
+                <h2>Keyboard Shortcuts</h2>
+              ) : locale === 'de' ? (
+                <h2>Tastaturkürzel</h2>
+              ) : (
+                <h2>Billentyűparancsok</h2>
+              )}
               <table>
                 <thead>
                   <tr><th>Parancs</th><th>Billentyű</th></tr>
@@ -578,7 +953,13 @@ const isLoggedIn = !!session;
             </section>
 
             <section id="gyik-altalanos" class="doc-section">
-              <h2>GYIK (általános)</h2>
+              {locale === 'en' ? (
+                <h2>FAQ (General)</h2>
+              ) : locale === 'de' ? (
+                <h2>FAQ (Allgemein)</h2>
+              ) : (
+                <h2>GYIK (általános)</h2>
+              )}
 
               <details>
                 <summary>Hány weboldalt készíthetek?</summary>
@@ -676,6 +1057,7 @@ const isLoggedIn = !!session;
       // Search
       const searchInput = document.getElementById("doc-search") as HTMLInputElement;
       const searchResults = document.getElementById("search-results");
+      const noResultsText = "{noResultsMessage}";
 
       interface SearchEntry { title: string; id: string; text: string; }
 
@@ -701,7 +1083,7 @@ const isLoggedIn = !!session;
         ).slice(0, 8);
 
         if (matches.length === 0) {
-          searchResults.innerHTML = '<div class="px-3 py-2 text-xs text-zinc-500">Nincs találat</div>';
+          searchResults.innerHTML = '<div class="px-3 py-2 text-xs text-zinc-500">' + noResultsText + '</div>';
         } else {
           searchResults.innerHTML = matches.map(m =>
             `<a href="#${m.id}" class="block px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-emerald-400 transition-colors">${m.title}</a>`
@@ -714,6 +1096,6 @@ const isLoggedIn = !!session;
         setTimeout(() => searchResults?.classList.add("hidden"), 200);
       });
     </script>
-    <BugReport />
+    <BugReport locale={locale} />
   </body>
 </html>

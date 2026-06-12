@@ -1,10 +1,12 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import { auth } from "@/lib/auth";
 import BugReport from "@/components/BugReport.astro";
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+
+const locale = (Astro.currentLocale as Locale) || "hu";
 
 const session = await auth.api.getSession({
   headers: Astro.request.headers,
@@ -13,10 +15,8 @@ const session = await auth.api.getSession({
 const isLoggedIn = !!session;
 const userName = session?.user?.name;
 
-const locale = (Astro.currentLocale as Locale) || "hu";
-
 if (isLoggedIn) {
-  return Astro.redirect("/chat");
+  return Astro.redirect(localeRelativePath("/chat", locale));
 }
 
 ---
@@ -43,9 +43,9 @@ if (isLoggedIn) {
         <div class="flex items-center gap-3">
           <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
           <span class="text-xs uppercase tracking-[0.3em] text-zinc-400">NEXUS</span>
+          <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
         </div>
         <nav class="flex items-center gap-6 text-sm">
-          <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
           <a href="#funkciok" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.features")}</a>
           <a href="#arazas" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.pricing")}</a>
           <a href={localeRelativePath("/utmutato", locale)} class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.guide")}</a>
@@ -131,7 +131,8 @@ if (isLoggedIn) {
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "index.pricing.free.limit")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "index.pricing.free.model")}
+              <strong class="text-emerald-400">NEXUS AI</strong>
+              <span class="text-zinc-500"> · NEXUS v4 Free</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -160,7 +161,8 @@ if (isLoggedIn) {
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "index.pricing.pro.period")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "index.pricing.pro.model")}
+              <strong class="text-emerald-400">NEXUS Pro</strong>
+              <span class="text-zinc-500"> · NEXUS V4 Flash</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -190,7 +192,8 @@ if (isLoggedIn) {
             <div class="text-xs text-zinc-500 mb-6">{t(locale, "index.pricing.premium.period")}</div>
 
             <div class="text-sm text-zinc-300 mb-4">
-              {t(locale, "index.pricing.premium.model")}
+              <strong class="text-emerald-400">NEXUS Premium</strong>
+              <span class="text-zinc-500"> · NEXUS v4 Premium</span>
             </div>
 
             <p class="text-sm text-zinc-400 leading-relaxed mb-6 flex-1">
@@ -234,8 +237,8 @@ if (isLoggedIn) {
           </div>
           <div class="flex gap-4 flex-wrap">
             <a href={localeRelativePath("/utmutato", locale)} class="hover:text-zinc-300 transition-colors">{t(locale, "footer.guide")}</a>
-            <a href={localeRelativePath("/aszf", locale)} class="hover:text-zinc-300 transition-colors">{t(locale, "footer.terms")}</a>
-            <a href={localeRelativePath("/adatvedelem", locale)} class="hover:text-zinc-300 transition-colors">{t(locale, "footer.privacy")}</a>
+            <a href="/aszf" class="hover:text-zinc-300 transition-colors">{t(locale, "footer.terms")}</a>
+            <a href="/adatvedelem" class="hover:text-zinc-300 transition-colors">{t(locale, "footer.privacy")}</a>
             <a href="https://conendigital.hu" class="hover:text-zinc-300 transition-colors">conendigital.hu</a>
           </div>
         </div>

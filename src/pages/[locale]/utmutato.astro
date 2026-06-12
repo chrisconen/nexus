@@ -1,0 +1,1289 @@
+---
+import "../../styles/global.css";
+import { auth } from "@/lib/auth";
+import BugReport from "@/components/BugReport.astro";
+import { t, type Locale } from "@/lib/i18n/translations";
+import { localeRelativePath } from "@/lib/i18n/locale";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+
+const session = await auth.api.getSession({
+  headers: Astro.request.headers,
+});
+const isLoggedIn = !!session;
+const locale = (Astro.currentLocale as Locale) || "hu";
+
+const g = (hu: string, en: string, de: string) => ({ hu, en, de }[locale]);
+
+const guideContent = {
+  intro: {
+    title: g("Bevezető", "Introduction", "Einführung"),
+    p1: g(
+      'A NEXUS Site Builder egy AI-alapú weboldal készítő, amelyet kifejezetten magyar kisvállalkozások számára terveztünk. Segítségével <strong>percek alatt</strong> készíthetsz professzionális megjelenésű weboldalt — programozói tudás nélkül.',
+      'The NEXUS Site Builder is an AI-powered website builder designed specifically for small businesses. Create a professional-looking website in <strong>minutes</strong> — no coding skills required.',
+      'Der NEXUS Site Builder ist ein KI-gestützter Website-Builder, der speziell für kleine Unternehmen entwickelt wurde. Erstellen Sie in <strong>Minuten</strong> eine professionell aussehende Website — ohne Programmierkenntnisse.'
+    ),
+    tip: g(
+      '<strong>Pro funkció:</strong> A Site Builder a Pro és Premium előfizetéssel érhető el.',
+      '<strong>Pro feature:</strong> Site Builder is available with Pro and Premium subscriptions.',
+      '<strong>Pro-Funktion:</strong> Der Site Builder ist mit Pro- und Premium-Abonnements verfügbar.'
+    ),
+    upgradeLink: g("Frissíts most →", "Upgrade now →", "Jetzt upgraden →"),
+    whatYouGet: g("Mit kapsz?", "What you get?", "Was bekommen Sie?"),
+    list: {
+      aiContent: g(
+        "<strong>AI-generált tartalom</strong> — Az AI a vállalkozásod adatai alapján generálja a szövegeket, struktúrát",
+        "<strong>AI-generated content</strong> — AI generates text and structure based on your business data",
+        "<strong>KI-generierte Inhalte</strong> — Die KI generiert Texte und Struktur basierend auf Ihren Geschäftsdaten"
+      ),
+      sections13: g(
+        "<strong>13 szekciótípus</strong> — Hero, szolgáltatások, vélemények, csapat, GYIK, és még sok más",
+        "<strong>13 section types</strong> — Hero, services, testimonials, team, FAQ, and more",
+        "<strong>13 Abschnittstypen</strong> — Hero, Dienstleistungen, Bewertungen, Team, FAQ und mehr"
+      ),
+      livePreview: g(
+        "<strong>Élő előnézet</strong> — Minden változás azonnal látszik a jobb oldali előnézetben",
+        "<strong>Live preview</strong> — All changes appear immediately in the right-side preview",
+        "<strong>Live-Vorschau</strong> — Alle Änderungen erscheinen sofort in der Vorschau auf der rechten Seite"
+      ),
+      autoSave: g(
+        "<strong>Automatikus mentés</strong> — 2 másodperc inaktivitás után automatikusan ment",
+        "<strong>Auto-save</strong> — Automatically saves after 2 seconds of inactivity",
+        "<strong>Automatisches Speichern</strong> — Speichert automatisch nach 2 Sekunden Inaktivität"
+      ),
+      undoRedo: g(
+        "<strong>Visszavonás/Újra</strong> — Ctrl+Z / Ctrl+Y, max 30 lépés",
+        "<strong>Undo/Redo</strong> — Ctrl+Z / Ctrl+Y, up to 30 steps",
+        "<strong>Rückgängig/Wiederholen</strong> — Strg+Z / Strg+Y, bis zu 30 Schritte"
+      ),
+      htmlDownload: g(
+        "<strong>HTML letöltés</strong> — Egyetlen, önálló HTML fájl, bárhol hostolható",
+        "<strong>HTML download</strong> — A single, standalone HTML file, hostable anywhere",
+        "<strong>HTML-Download</strong> — Eine einzige, eigenständige HTML-Datei, überall hostbar"
+      ),
+    },
+  },
+
+  firstSteps: {
+    title: g("Első lépések", "First Steps", "Erste Schritte"),
+    step1Title: g("1. Navigálj a Builder-hez", "1. Navigate to the Builder", "1. Zum Builder navigieren"),
+    step1Desc: g("Bejelentkezés után a Builder elérhető:", "After logging in, the Builder is available:", "Nach der Anmeldung ist der Builder verfügbar:"),
+    step1List: {
+      chat: g(
+        'A <strong>Chat</strong> oldal fejlécéből → "Site Builder" gomb',
+        'From the <strong>Chat</strong> page header → "Site Builder" button',
+        'Vom <strong>Chat</strong> Seitenkopf → "Site Builder" Button'
+      ),
+      account: g(
+        'A <strong>Fiók</strong> oldalról → "Weboldal készítő" gomb',
+        'From the <strong>Account</strong> page → "Website Builder" button',
+        'Von der <strong>Konto</strong> Seite → "Website-Builder" Button'
+      ),
+      direct: g("Közvetlenül: <code>/builder</code> URL", "Directly: <code>/builder</code> URL", "Direkt: <code>/builder</code> URL"),
+    },
+    step2Title: g("2. Onboarding kérdéssor", "2. Onboarding questionnaire", "2. Onboarding-Fragebogen"),
+    step2Desc: g("Ha még nincs weboldalad, az onboarding kérdéssor fogad. Itt add meg:", "If you don't have a website yet, you'll be greeted by the onboarding questionnaire. Fill in:", "Wenn Sie noch keine Website haben, begrüßt Sie der Onboarding-Fragebogen. Geben Sie an:"),
+    step2List: {
+      name: g("<strong>Vállalkozás neve</strong> (kötelező) — pl. \"Kovács Fodrászat\"", "<strong>Business name</strong> (required) — e.g. \"Smith's Salon\"", "<strong>Unternehmensname</strong> (erforderlich) — z.B. \"Schmidts Friseursalon\""),
+      type: g("<strong>Típus</strong> (kötelező) — válaszd ki a legmegfelelőbb kategóriát", "<strong>Type</strong> (required) — select the most suitable category", "<strong>Typ</strong> (erforderlich) — wählen Sie die passende Kategorie"),
+      services: g("<strong>Szolgáltatások</strong> — vesszővel elválasztva, pl. \"Női hajvágás, Festés, Melír\"", "<strong>Services</strong> — comma-separated, e.g. \"Haircut, Coloring, Highlights\"", "<strong>Dienstleistungen</strong> — kommagetrennt, z.B. \"Haarschnitt, Färben, Strähnen\""),
+      contacts: g("<strong>Elérhetőségek</strong> — telefon, cím, nyitvatartás", "<strong>Contact info</strong> — phone, address, opening hours", "<strong>Kontaktdaten</strong> — Telefon, Adresse, Öffnungszeiten"),
+      tone: g("<strong>Hangnem</strong> — hivatalos, barátságos, vagy játékos", "<strong>Tone</strong> — professional, friendly, or playful", "<strong>Ton</strong> — professionell, freundlich oder verspielt"),
+      palette: g("<strong>Színpaletta</strong> — 8 előre definiált paletta közül választhatsz", "<strong>Color palette</strong> — choose from 8 predefined palettes", "<strong>Farbpalette</strong> — wählen Sie aus 8 vordefinierten Paletten"),
+    },
+    step3Title: g("3. Generálás", "3. Generation", "3. Generierung"),
+    step3Desc: g(
+      'A "Weboldal generálása" gombra kattintva az AI létrehozza a weboldal tartalmát. Ez tartalmazza a szövegeket, szekciók struktúráját, és a választott stílust. A generálás 10-30 másodpercet vesz igénybe.',
+      'Clicking the "Generate website" button triggers the AI to create your website content. This includes texts, section structure, and the chosen style. Generation takes 10-30 seconds.',
+      'Durch Klicken auf die Schaltfläche "Website generieren" erstellt die KI Ihre Website-Inhalte. Dies umfasst Texte, Abschnittsstruktur und den gewählten Stil. Die Generierung dauert 10-30 Sekunden.'
+    ),
+    step3Tip: g(
+      "<strong>Tipp:</strong> Minél részletesebb adatokat adsz meg, annál jobb eredményt kapsz. A szolgáltatások és elérhetőségek segítik az AI-t releváns tartalom generálásában.",
+      "<strong>Tip:</strong> The more detailed your input, the better the result. Services and contact info help the AI generate relevant content.",
+      "<strong>Tipp:</strong> Je detaillierter Ihre Angaben, desto besser das Ergebnis. Dienstleistungen und Kontaktdaten helfen der KI, relevante Inhalte zu generieren."
+    ),
+  },
+
+  aiGeneration: {
+    title: g("AI generálás", "AI Generation", "KI-Generierung"),
+    desc: g(
+      "A NEXUS Site Builder az előfizetésed szintjéhez tartozó AI modellt használja a tartalom generálásához:",
+      "The NEXUS Site Builder uses the AI model associated with your subscription tier to generate content:",
+      "Der NEXUS Site Builder verwendet das KI-Modell Ihrer Abonnementstufe zur Inhaltsgenerierung:"
+    ),
+    table: {
+      plan: g("Csomag", "Plan", "Paket"),
+      model: g("Modell", "Model", "Modell"),
+      quality: g("Minőség", "Quality", "Qualität"),
+      proQuality: g("Jó — gyors, hatékony", "Good — fast, efficient", "Gut — schnell, effizient"),
+      premiumQuality: g("Kiváló — legárnyaltabb szövegek", "Excellent — most nuanced texts", "Hervorragend — nuancierteste Texte"),
+    },
+    regenerateTitle: g("Újragenerálás", "Regeneration", "Neugenerierung"),
+    regenerateDesc: g(
+      'Ha nem tetszik az eredmény, a toolbar-ban az <strong>"Újragenerálás"</strong> gombbal új tartalmat kérhetsz — ugyanazokkal az onboarding válaszokkal. Az előző verzió a Ctrl+Z-vel visszahozható.',
+      'If you don\'t like the result, use the <strong>"Regenerate"</strong> button in the toolbar to request new content — with the same onboarding answers. The previous version can be restored with Ctrl+Z.',
+      'Wenn Ihnen das Ergebnis nicht gefällt, können Sie mit der <strong>"Neugenerieren"</strong> Schaltfläche in der Symbolleiste neue Inhalte anfordern — mit denselben Onboarding-Antworten. Die vorherige Version kann mit Strg+Z wiederhergestellt werden.'
+    ),
+    warningTitle: g("Figyelem", "Warning", "Achtung"),
+    warningDesc: g(
+      "Az újragenerálás felülírja a jelenlegi tartalmat. Ha vannak kézi szerkesztéseid, azok elvesznek — de a Ctrl+Z-vel visszaállíthatod.",
+      "Regeneration overwrites the current content. If you have manual edits, they will be lost — but you can restore them with Ctrl+Z.",
+      "Die Neugenerierung überschreibt die aktuellen Inhalte. Wenn Sie manuelle Bearbeitungen haben, gehen diese verloren — aber Sie können sie mit Strg+Z wiederherstellen."
+    ),
+  },
+
+  editorUi: {
+    title: g("A szerkesztő felület", "The Editor Interface", "Die Editor-Oberfläche"),
+    desc: g("A szerkesztő három fő részből áll:", "The editor consists of three main parts:", "Der Editor besteht aus drei Hauptteilen:"),
+    leftPanelTitle: g("Bal panel — Szekciólista & Stílusok", "Left panel — Section list & Styles", "Linkes Panel — Abschnittsliste & Stile"),
+    leftPanelDesc: g("Két fül van:", "There are two tabs:", "Es gibt zwei Registerkarten:"),
+    leftPanelList: {
+      sections: g("<strong>Szekciók</strong> — az összes szekció listája, sorrendben. Kattints egy szekcióra a szerkesztéséhez.", "<strong>Sections</strong> — list of all sections in order. Click a section to edit it.", "<strong>Abschnitte</strong> — Liste aller Abschnitte in Reihenfolge. Klicken Sie auf einen Abschnitt, um ihn zu bearbeiten."),
+      styles: g("<strong>Stílusok</strong> — globális beállítások: színpaletta, betűtípusok, egyéni színek, vállalkozás adatai, SEO, footer, social linkek.", "<strong>Styles</strong> — global settings: color palette, fonts, custom colors, business info, SEO, footer, social links.", "<strong>Stile</strong> — globale Einstellungen: Farbpalette, Schriftarten, benutzerdefinierte Farben, Geschäftsinformationen, SEO, Footer, Social Links."),
+    },
+    activeSectionTitle: g("Aktív szekció vezérlői", "Active section controls", "Steuerung des aktiven Abschnitts"),
+    activeSectionDesc: g("Amikor egy szekciót kiválasztasz, megjelennek a műveleti gombok:", "When you select a section, action buttons appear:", "Wenn Sie einen Abschnitt auswählen, erscheinen Aktionsschaltflächen:"),
+    activeSectionList: {
+      move: g("<strong>▲ / ▼</strong> — szekció mozgatása fel/le", "<strong>▲ / ▼</strong> — move section up/down", "<strong>▲ / ▼</strong> — Abschnitt nach oben/unten verschieben"),
+      duplicate: g("<strong>⧉</strong> — szekció duplikálása", "<strong>⧉</strong> — duplicate section", "<strong>⧉</strong> — Abschnitt duplizieren"),
+      toggle: g("<strong>●</strong> — szekció ki/bekapcsolása (látható/rejtett)", "<strong>●</strong> — toggle section visibility (visible/hidden)", "<strong>●</strong> — Abschnitt ein-/ausschalten (sichtbar/versteckt)"),
+      delete: g("<strong>✕</strong> — szekció törlése", "<strong>✕</strong> — delete section", "<strong>✕</strong> — Abschnitt löschen"),
+    },
+    centerPanelTitle: g("Középső panel — Szekció szerkesztő", "Center panel — Section editor", "Mittleres Panel — Abschnittseditor"),
+    centerPanelDesc: g(
+      "A kiválasztott szekció mezőit szerkesztheted itt. Minden szekciótípusnak saját mezői vannak. Alul a <strong>szekció stílus</strong> vezérlők találhatók: háttérszín, szövegszín, igazítás, padding, margin.",
+      "Edit the fields of the selected section here. Each section type has its own fields. Below, you'll find <strong>section style</strong> controls: background color, text color, alignment, padding, margin.",
+      "Hier bearbeiten Sie die Felder des ausgewählten Abschnitts. Jeder Abschnittstyp hat eigene Felder. Unten finden Sie die <strong>Abschnittsstil</strong>-Steuerung: Hintergrundfarbe, Textfarbe, Ausrichtung, Padding, Margin."
+    ),
+    rightPanelTitle: g("Jobb panel — Élő előnézet", "Right panel — Live preview", "Rechtes Panel — Live-Vorschau"),
+    rightPanelDesc: g(
+      "A weboldal valós idejű előnézete. Minden változtatás azonnal megjelenik. A toolbar-ban választhatsz <strong>Desktop</strong> vagy <strong>Mobil</strong> nézet között.",
+      "Real-time preview of the website. Every change appears immediately. In the toolbar, you can switch between <strong>Desktop</strong> and <strong>Mobile</strong> views.",
+      "Echtzeit-Vorschau der Website. Jede Änderung erscheint sofort. In der Symbolleiste können Sie zwischen <strong>Desktop</strong> und <strong>Mobil</strong> Ansicht wechseln."
+    ),
+  },
+
+  hero: {
+    title: g("Hero / Főszekció", "Hero Section", "Hero-Abschnitt"),
+    desc: g("A weboldal tetején megjelenő, figyelemfelkeltő szekció. Ez az első, amit a látogató lát.", "A eye-catching section at the top of the website. This is the first thing visitors see.", "Ein auffälliger Abschnitt oben auf der Website. Dies ist das Erste, was Besucher sehen."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      headline: g("<strong>Főcím</strong> — a legfontosabb üzenet, nagy betűmérettel", "<strong>Headline</strong> — the most important message, large font size", "<strong>Überschrift</strong> — die wichtigste Botschaft, große Schriftgröße"),
+      subtitle: g("<strong>Alcím</strong> — kiegészítő szöveg, kisebb betűmérettel", "<strong>Subtitle</strong> — supplementary text, smaller font size", "<strong>Untertitel</strong> — ergänzender Text, kleinere Schriftgröße"),
+      buttonText: g("<strong>Gomb szöveg</strong> — CTA gomb felirata, pl. \"Foglaljon időpontot\"", "<strong>Button text</strong> — CTA button label, e.g. \"Book Appointment\"", "<strong>Button-Text</strong> — CTA-Button-Beschriftung, z.B. \"Termin buchen\""),
+      buttonLink: g("<strong>Gomb link</strong> — hová mutasson a gomb (pl. #kapcsolat)", "<strong>Button link</strong> — where the button should point (e.g. #contact)", "<strong>Button-Link</strong> — wohin der Button zeigen soll (z.B. #kontakt)"),
+      layout: g("<strong>Elrendezés</strong> — Bal / Közép / Jobb igazítás", "<strong>Layout</strong> — Left / Center / Right alignment", "<strong>Layout</strong> — Links / Mitte / Rechts Ausrichtung"),
+      bgImage: g("<strong>Háttérkép</strong> — feltölthetsz képet, ami a hero háttere lesz (gradiens overlay-vel)", "<strong>Background image</strong> — upload an image for the hero background (with gradient overlay)", "<strong>Hintergrundbild</strong> — laden Sie ein Bild für den Hero-Hintergrund hoch (mit Farbverlauf-Overlay)"),
+    },
+    tip: g(
+      "<strong>Tipp:</strong> A hero háttérkép esetén sötét overlay automatikusan generálódik, hogy a szöveg olvasható maradjon. Ha nincs háttérkép, a szekció a háttérszín-beállítást használja.",
+      "<strong>Tip:</strong> A dark overlay is automatically generated for hero background images to keep text readable. Without a background image, the section uses the background color setting.",
+      "<strong>Tipp:</strong> Bei Hero-Hintergrundbildern wird automatisch eine dunkle Überlagerung erzeugt, damit der Text lesbar bleibt. Ohne Hintergrundbild verwendet der Abschnitt die Hintergrundfarbeinstellung."
+    ),
+  },
+
+  services: {
+    title: g("Szolgáltatások", "Services", "Dienstleistungen"),
+    desc: g("Szolgáltatásaid vagy termékeid kártya-formátumú megjelenítése.", "Display your services or products in card format.", "Anzeige Ihrer Dienstleistungen oder Produkte im Kartenformat."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      sectionTitle: g("<strong>Szekció cím</strong> — pl. \"Szolgáltatásaink\"", "<strong>Section title</strong> — e.g. \"Our Services\"", "<strong>Abschnittstitel</strong> — z.B. \"Unsere Dienstleistungen\""),
+      subtitle: g("<strong>Alcím</strong> — opcionális kiegészítő szöveg", "<strong>Subtitle</strong> — optional supplementary text", "<strong>Untertitel</strong> — optionaler ergänzender Text"),
+      columns: g("<strong>Oszlopok</strong> — 2, 3 vagy 4 oszlopos elrendezés", "<strong>Columns</strong> — 2, 3 or 4 column layout", "<strong>Spalten</strong> — 2, 3 oder 4 Spalten Layout"),
+    },
+    cardFieldsTitle: g("Kártyák mezői", "Card fields", "Kartenfelder"),
+    cardFields: {
+      name: g("<strong>Név</strong> — szolgáltatás neve", "<strong>Name</strong> — service name", "<strong>Name</strong> — Dienstleistungsname"),
+      desc: g("<strong>Leírás</strong> — rövid bemutató szöveg", "<strong>Description</strong> — short description", "<strong>Beschreibung</strong> — kurzer Beschreibungstext"),
+      price: g("<strong>Ár</strong> — opcionális, pl. \"5 000 Ft\"", "<strong>Price</strong> — optional, e.g. \"$50\"", "<strong>Preis</strong> — optional, z.B. \"50 €\""),
+      icon: g("<strong>Ikon</strong> — 25 SVG ikon közül választhatsz (olló, autó, szív, stb.)", "<strong>Icon</strong> — choose from 25 SVG icons (scissors, car, heart, etc.)", "<strong>Symbol</strong> — wählen Sie aus 25 SVG-Symbolen (Schere, Auto, Herz, usw.)"),
+    },
+    addNote: g(
+      'A <strong>"+ Szolgáltatás hozzáadása"</strong> gombbal bővítheted a listát, a kártyák <strong>"Törlés"</strong> gombjával csökkentheted.',
+      'Use the <strong>"+ Add Service"</strong> button to expand the list, and the card\'s <strong>"Delete"</strong> button to remove items.',
+      'Mit der Schaltfläche <strong>"+ Dienstleistung hinzufügen"</strong> erweitern Sie die Liste, mit der <strong>"Löschen"</strong>-Schaltfläche der Karte entfernen Sie Einträge.'
+    ),
+  },
+
+  about: {
+    title: g("Rólunk", "About", "Über uns"),
+    desc: g("Bemutatkozó szekció szöveggel és opcionális képpel.", "Introduction section with text and optional image.", "Vorstellungsabschnitt mit Text und optionalem Bild."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      title: g("<strong>Cím</strong> — pl. \"Rólunk\"", "<strong>Title</strong> — e.g. \"About Us\"", "<strong>Titel</strong> — z.B. \"Über uns\""),
+      text: g("<strong>Szöveg</strong> — a vállalkozás története, értékei", "<strong>Text</strong> — your business story, values", "<strong>Text</strong> — Ihre Unternehmensgeschichte, Werte"),
+      layout: g("<strong>Elrendezés</strong> — Szöveg bal (kép jobb), Szöveg jobb (kép bal), Csak szöveg", "<strong>Layout</strong> — Text left (image right), Text right (image left), Text only", "<strong>Layout</strong> — Text links (Bild rechts), Text rechts (Bild links), Nur Text"),
+      image: g("<strong>Kép</strong> — feltölthető kép a szöveg mellé", "<strong>Image</strong> — uploadable image next to the text", "<strong>Bild</strong> — hochladbares Bild neben dem Text"),
+    },
+  },
+
+  gallery: {
+    title: g("Galéria", "Gallery", "Galerie"),
+    desc: g("Képgaléria rács elrendezésben. Ideális munkáid, termékeid, üzleted bemutatásához.", "Image gallery in grid layout. Ideal for showcasing your work, products, or business.", "Bildergalerie im Rasterlayout. Ideal zur Präsentation Ihrer Arbeiten, Produkte oder Ihres Geschäfts."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      titleSubtitle: g("<strong>Cím és alcím</strong>", "<strong>Title and subtitle</strong>", "<strong>Titel und Untertitel</strong>"),
+      columns: g("<strong>Oszlopok</strong> — 2, 3 vagy 4 oszlop", "<strong>Columns</strong> — 2, 3 or 4 columns", "<strong>Spalten</strong> — 2, 3 oder 4 Spalten"),
+      images: g("<strong>Képek</strong> — feltölthető képek, mindegyikhez alt szöveg megadható", "<strong>Images</strong> — uploadable images, each with optional alt text", "<strong>Bilder</strong> — hochladbare Bilder, jeweils mit optionalem Alt-Text"),
+    },
+    tip: g(
+      "<strong>Tipp:</strong> A képek 4:3 arányban jelennek meg, automatikusan levágva. Próbálj hasonló méretű képeket használni a legjobb eredményért.",
+      "<strong>Tip:</strong> Images are displayed in 4:3 ratio, automatically cropped. Try using similarly sized images for the best result.",
+      "<strong>Tipp:</strong> Bilder werden im 4:3-Verhältnis angezeigt, automatisch beschnitten. Verwenden Sie ähnlich große Bilder für beste Ergebnisse."
+    ),
+  },
+
+  testimonials: {
+    title: g("Vélemények", "Testimonials", "Bewertungen"),
+    desc: g("Ügyfélvélemények megjelenítése csillagos értékeléssel.", "Display customer testimonials with star ratings.", "Kundenbewertungen mit Sternbewertung anzeigen."),
+    fieldsTitle: g("Mezők véleményenként", "Fields per testimonial", "Felder pro Bewertung"),
+    fields: {
+      name: g("<strong>Név</strong> — az ügyfél neve", "<strong>Name</strong> — customer name", "<strong>Name</strong> — Kundenname"),
+      position: g("<strong>Pozíció</strong> — opcionális, pl. \"Visszatérő vendég\"", "<strong>Position</strong> — optional, e.g. \"Returning customer\"", "<strong>Position</strong> — optional, z.B. \"Stammkunde\""),
+      text: g("<strong>Vélemény</strong> — a vélemény szövege (idézőjelben jelenik meg)", "<strong>Review</strong> — the review text (displayed in quotes)", "<strong>Bewertung</strong> — der Bewertungstext (in Anführungszeichen)"),
+      rating: g("<strong>Értékelés</strong> — 1-5 csillag", "<strong>Rating</strong> — 1-5 stars", "<strong>Bewertung</strong> — 1-5 Sterne"),
+      avatar: g("<strong>Profilkép</strong> — opcionális fotó", "<strong>Avatar</strong> — optional photo", "<strong>Profilbild</strong> — optionales Foto"),
+    },
+  },
+
+  team: {
+    title: g("Csapat", "Team", "Team"),
+    desc: g("Csapattagok bemutatása fotóval, pozícióval, elérhetőséggel.", "Team member showcase with photos, positions, and contact info.", "Teamvorstellung mit Fotos, Positionen und Kontaktinformationen."),
+    fieldsTitle: g("Mezők tagonként", "Fields per member", "Felder pro Mitglied"),
+    fields: {
+      avatar: g("<strong>Profilkép</strong> — kör alakban jelenik meg", "<strong>Avatar</strong> — displayed as a circle", "<strong>Profilbild</strong> — wird als Kreis angezeigt"),
+      namePosition: g("<strong>Név</strong> és <strong>Pozíció</strong>", "<strong>Name</strong> and <strong>Position</strong>", "<strong>Name</strong> und <strong>Position</strong>"),
+      bio: g("<strong>Bio</strong> — rövid bemutatkozás", "<strong>Bio</strong> — short introduction", "<strong>Bio</strong> — kurze Vorstellung"),
+      phoneEmail: g("<strong>Telefon</strong> és <strong>Email</strong> — kattintható linkekként jelennek meg", "<strong>Phone</strong> and <strong>Email</strong> — displayed as clickable links", "<strong>Telefon</strong> und <strong>E-Mail</strong> — werden als klickbare Links angezeigt"),
+    },
+  },
+
+  offers: {
+    title: g("Kiemelt ajánlatok", "Featured Offers", "Angebote"),
+    desc: g("Akciók, kedvezmények kiemelésére. Áthúzott eredeti ár + akciós ár + badge.", "Highlight promotions and discounts. Strikethrough original price + sale price + badge.", "Hervorhebung von Aktionen und Rabatten. Durchgestrichener Originalpreis + Aktionspreis + Badge."),
+    fieldsTitle: g("Mezők ajánlatonként", "Fields per offer", "Felder pro Angebot"),
+    fields: {
+      nameDesc: g("<strong>Ajánlat neve</strong> és <strong>Leírás</strong>", "<strong>Offer name</strong> and <strong>Description</strong>", "<strong>Angebotsname</strong> und <strong>Beschreibung</strong>"),
+      originalPrice: g("<strong>Eredeti ár</strong> — áthúzva jelenik meg", "<strong>Original price</strong> — displayed with strikethrough", "<strong>Originalpreis</strong> — durchgestrichen dargestellt"),
+      salePrice: g("<strong>Akciós ár</strong> — kiemelt, nagy betűkkel", "<strong>Sale price</strong> — highlighted, large text", "<strong>Aktionspreis</strong> — hervorgehoben, große Schrift"),
+      badge: g("<strong>Badge</strong> — pl. \"AKCIÓ\", \"-20%\", \"ÚJ\" — sarokba forgatva jelenik meg", "<strong>Badge</strong> — e.g. \"SALE\", \"-20%\", \"NEW\" — displayed rotated in corner", "<strong>Badge</strong> — z.B. \"AKTION\", \"-20%\", \"NEU\" — wird gedreht in der Ecke angezeigt"),
+    },
+  },
+
+  faqSection: {
+    title: g("GYIK (Gyakran Ismételt Kérdések)", "FAQ (Frequently Asked Questions)", "FAQ (Häufig gestellte Fragen)"),
+    desc: g("Lenyíló kérdés-válasz lista. A látogatók kattintással nyithatják ki a válaszokat.", "Expandable question-answer list. Visitors can click to open answers.", "Aufklappbare Frage-Antwort-Liste. Besucher können durch Klicken die Antworten öffnen."),
+    fieldsTitle: g("Mezők kérdésenként", "Fields per question", "Felder pro Frage"),
+    fields: {
+      question: g("<strong>Kérdés</strong> — a kattintható fejléc", "<strong>Question</strong> — the clickable header", "<strong>Frage</strong> — die klickbare Überschrift"),
+      answer: g("<strong>Válasz</strong> — a lenyíló tartalom", "<strong>Answer</strong> — the expandable content", "<strong>Antwort</strong> — der aufklappbare Inhalt"),
+    },
+    seoTip: g(
+      "<strong>SEO tipp:</strong> A GYIK szekció javítja a keresőoptimalizálást, mert a Google FAQ rich result-ként is megjelenítheti.",
+      "<strong>SEO tip:</strong> The FAQ section improves search optimization because Google can display it as a FAQ rich result.",
+      "<strong>SEO-Tipp:</strong> Der FAQ-Abschnitt verbessert die Suchoptimierung, da Google ihn als FAQ-Rich-Ergebnis anzeigen kann."
+    ),
+  },
+
+  cta: {
+    title: g("CTA Banner", "CTA Banner", "CTA-Banner"),
+    desc: g("Figyelemfelkeltő, cselekvésre ösztönző sáv. Ideális a weboldal közepén vagy vége felé.", "An attention-grabbing, action-driving banner. Ideal in the middle or towards the end of the website.", "Ein aufmerksamkeitsstarker, handlungsorientierter Banner. Ideal in der Mitte oder gegen Ende der Website."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      headline: g("<strong>Főcím</strong> — pl. \"Készen áll?\"", "<strong>Headline</strong> — e.g. \"Ready?\"", "<strong>Überschrift</strong> — z.B. \"Bereit?\""),
+      text: g("<strong>Szöveg</strong> — rövid ösztönző szöveg", "<strong>Text</strong> — short motivational text", "<strong>Text</strong> — kurzer motivierender Text"),
+      button: g("<strong>Gomb szöveg</strong> és <strong>Gomb link</strong>", "<strong>Button text</strong> and <strong>Button link</strong>", "<strong>Button-Text</strong> und <strong>Button-Link</strong>"),
+      bgColor: g("<strong>Háttérszín</strong> — egyéni szín a CTA sávnak", "<strong>Background color</strong> — custom color for the CTA banner", "<strong>Hintergrundfarbe</strong> — benutzerdefinierte Farbe für den CTA-Banner"),
+    },
+  },
+
+  stats: {
+    title: g("Statisztikák", "Statistics", "Statistiken"),
+    desc: g("Számok, eredmények kiemelése nagy, figyelemfelkeltő formátumban.", "Highlight numbers and achievements in a large, attention-grabbing format.", "Heben Sie Zahlen und Erfolge in einem großen, aufmerksamkeitsstarken Format hervor."),
+    fieldsTitle: g("Mezők statisztikánként", "Fields per statistic", "Felder pro Statistik"),
+    fields: {
+      value: g("<strong>Érték</strong> — pl. \"500+\", \"10 év\", \"98%\"", "<strong>Value</strong> — e.g. \"500+\", \"10 years\", \"98%\"", "<strong>Wert</strong> — z.B. \"500+\", \"10 Jahre\", \"98%\""),
+      label: g("<strong>Címke</strong> — pl. \"Elégedett ügyfél\", \"Tapasztalat\"", "<strong>Label</strong> — e.g. \"Happy customer\", \"Experience\"", "<strong>Label</strong> — z.B. \"Zufriedener Kunde\", \"Erfahrung\""),
+    },
+  },
+
+  pricingSection: {
+    title: g("Árazás", "Pricing", "Preise"),
+    desc: g("Árcsomagok összehasonlítása kártya formátumban. Kiemelt csomag nagyobb és szegélyezett.", "Compare pricing plans in card format. Featured plan is larger with a border.", "Preispakete im Kartenformat vergleichen. Das hervorgehobene Paket ist größer und umrandet."),
+    fieldsTitle: g("Mezők csomagonként", "Fields per plan", "Felder pro Paket"),
+    fields: {
+      namePrice: g("<strong>Csomag neve</strong>, <strong>Ár</strong>, <strong>Időszak</strong> (pl. \"/hó\")", "<strong>Plan name</strong>, <strong>Price</strong>, <strong>Period</strong> (e.g. \"/mo\")", "<strong>Paketname</strong>, <strong>Preis</strong>, <strong>Zeitraum</strong> (z.B. \"/Mo\")"),
+      features: g("<strong>Funkciók</strong> — soronként egy feature, pipa ikonnal", "<strong>Features</strong> — one feature per row, with checkmark icon", "<strong>Funktionen</strong> — eine Funktion pro Zeile, mit Häkchen-Symbol"),
+      featured: g("<strong>Kiemelt</strong> — checkbox, a kiemelt csomag nagyobb és szegélyezett", "<strong>Featured</strong> — checkbox, featured plan is larger and bordered", "<strong>Hervorgehoben</strong> — Kontrollkästchen, hervorgehobenes Paket ist größer und umrandet"),
+      buttonText: g("<strong>Gomb szöveg</strong>", "<strong>Button text</strong>", "<strong>Button-Text</strong>"),
+    },
+  },
+
+  contact: {
+    title: g("Kapcsolat", "Contact", "Kontakt"),
+    desc: g("Elérhetőségek és opcionális kapcsolatfelvételi űrlap.", "Contact information and optional contact form.", "Kontaktinformationen und optionales Kontaktformular."),
+    fieldsTitle: g("Mezők", "Fields", "Felder"),
+    fields: {
+      titleText: g("<strong>Cím</strong> és <strong>Szöveg</strong>", "<strong>Title</strong> and <strong>Text</strong>", "<strong>Titel</strong> und <strong>Text</strong>"),
+      showForm: g("<strong>Űrlap megjelenítése</strong> — be/ki kapcsoló", "<strong>Show form</strong> — toggle on/off", "<strong>Formular anzeigen</strong> — ein/aus Schalter"),
+      formspree: g("<strong>Formspree endpoint</strong> — ha be van kapcsolva az űrlap (ld. Formspree szekció)", "<strong>Formspree endpoint</strong> — if the form is enabled (see Formspree section)", "<strong>Formspree-Endpunkt</strong> — wenn das Formular aktiviert ist (siehe Formspree-Abschnitt)"),
+    },
+    contactInfoNote: g(
+      "Az elérhetőségek (telefon, email, cím, nyitvatartás) a <strong>Stílusok → Vállalkozás</strong> panelből jönnek.",
+      "Contact info (phone, email, address, opening hours) comes from the <strong>Styles → Business</strong> panel.",
+      "Kontaktinformationen (Telefon, E-Mail, Adresse, Öffnungszeiten) kommen aus dem <strong>Stile → Unternehmen</strong> Panel."
+    ),
+  },
+
+  partners: {
+    title: g("Partner logók", "Partner Logos", "Partnerlogos"),
+    desc: g("Referenciák, partnerek logóinak megjelenítése. Szürkeárnyalatos alapállapot, hoverre színes.", "Display partner and reference logos. Grayscale by default, color on hover.", "Anzeige von Partner- und Referenzlogos. Standardmäßig Graustufen, farbig bei Hover."),
+    fieldsTitle: g("Mezők logónként", "Fields per logo", "Felder pro Logo"),
+    fields: {
+      logo: g("<strong>Logo</strong> — feltölthető kép", "<strong>Logo</strong> — uploadable image", "<strong>Logo</strong> — hochladbares Bild"),
+      altText: g("<strong>Alt szöveg</strong> — a partner neve", "<strong>Alt text</strong> — partner name", "<strong>Alt-Text</strong> — Partnername"),
+      linkUrl: g("<strong>Link URL</strong> — opcionális, kattintható link", "<strong>Link URL</strong> — optional, clickable link", "<strong>Link-URL</strong> — optional, klickbarer Link"),
+    },
+  },
+
+  customization: {
+    palettes: {
+      title: g("Színpaletták", "Color Palettes", "Farbpaletten"),
+      desc: g("8 előre definiált paletta közül választhatsz a <strong>Stílusok</strong> panelben:", "Choose from 8 predefined palettes in the <strong>Styles</strong> panel:", "Wählen Sie aus 8 vordefinierten Paletten im Bereich <strong>Stile</strong>:"),
+      customTitle: g("Egyéni színek", "Custom Colors", "Benutzerdefinierte Farben"),
+      customDesc: g(
+        "A paletta alatt egyéni color picker-ekkel finomhangolhatsz minden színt: primary, secondary, accent, background, surface, text, textMuted.",
+        "Below the palette, fine-tune every color with custom color pickers: primary, secondary, accent, background, surface, text, textMuted.",
+        "Unter der Palette können Sie jede Farbe mit benutzerdefinierten Farbwählern optimieren: Primary, Secondary, Accent, Background, Surface, Text, TextMuted."
+      ),
+    },
+    fonts: {
+      title: g("Betűtípusok", "Fonts", "Schriftarten"),
+      desc: g("Két betűtípust állíthatsz: <strong>Címsor</strong> és <strong>Szövegtörzs</strong>. Elérhető Google Fonts:", "You can set two font types: <strong>Heading</strong> and <strong>Body</strong>. Available Google Fonts:", "Sie können zwei Schriftarten einstellen: <strong>Überschrift</strong> und <strong>Text</strong>. Verfügbare Google Fonts:"),
+      fonts: {
+        inter: g("<strong>Inter</strong> — modern, tiszta (alapértelmezett)", "<strong>Inter</strong> — modern, clean (default)", "<strong>Inter</strong> — modern, sauber (Standard)"),
+        openSans: g("<strong>Open Sans</strong> — olvasható, széles körben használt", "<strong>Open Sans</strong> — readable, widely used", "<strong>Open Sans</strong> — lesbar, weit verbreitet"),
+        roboto: g("<strong>Roboto</strong> — Google Material stílus", "<strong>Roboto</strong> — Google Material style", "<strong>Roboto</strong> — Google Material Stil"),
+        playfair: g("<strong>Playfair Display</strong> — elegáns serif", "<strong>Playfair Display</strong> — elegant serif", "<strong>Playfair Display</strong> — elegante Serife"),
+        montserrat: g("<strong>Montserrat</strong> — geometrikus, erős", "<strong>Montserrat</strong> — geometric, bold", "<strong>Montserrat</strong> — geometrisch, stark"),
+        lora: g("<strong>Lora</strong> — klasszikus serif", "<strong>Lora</strong> — classic serif", "<strong>Lora</strong> — klassische Serife"),
+        poppins: g("<strong>Poppins</strong> — kerekded, barátságos", "<strong>Poppins</strong> — rounded, friendly", "<strong>Poppins</strong> — abgerundet, freundlich"),
+        raleway: g("<strong>Raleway</strong> — könnyű, légies", "<strong>Raleway</strong> — light, airy", "<strong>Raleway</strong> — leicht, luftig"),
+      },
+    },
+    sectionStyles: {
+      title: g("Szekció stílusok", "Section Styles", "Abschnittsstile"),
+      desc: g("Minden szekció szerkesztőjének alján találod a stílus vezérlőket:", "At the bottom of each section editor, you'll find style controls:", "Am unteren Ende jedes Abschnittseditors finden Sie die Stilsteuerung:"),
+      items: {
+        bgColor: g("<strong>Háttérszín</strong> — color picker, \"X\" gombbal visszaállítható az alapértelmezettre", "<strong>Background color</strong> — color picker, \"X\" button resets to default", "<strong>Hintergrundfarbe</strong> — Farbwähler, \"X\"-Schaltfläche setzt zurück"),
+        textColor: g("<strong>Szövegszín</strong> — felülírja a szekció szövegszínét", "<strong>Text color</strong> — overrides the section's text color", "<strong>Textfarbe</strong> — überschreibt die Textfarbe des Abschnitts"),
+        alignment: g("<strong>Szöveg igazítás</strong> — Bal / Közép / Jobb", "<strong>Text alignment</strong> — Left / Center / Right", "<strong>Textausrichtung</strong> — Links / Mitte / Rechts"),
+        padding: g("<strong>Padding felül/alul</strong> — belső térköz, pl. \"4rem\", \"80px\"", "<strong>Padding top/bottom</strong> — inner spacing, e.g. \"4rem\", \"80px\"", "<strong>Padding oben/unten</strong> — innerer Abstand, z.B. \"4rem\", \"80px\""),
+        margin: g("<strong>Margin felül/alul</strong> — külső térköz", "<strong>Margin top/bottom</strong> — outer spacing", "<strong>Margin oben/unten</strong> — äußerer Abstand"),
+      },
+      tip: g(
+        "<strong>Tipp:</strong> CSS mértékegységek használhatók: <code>rem</code>, <code>px</code>, <code>em</code>, <code>vh</code>. Példa: <code>4rem</code> = 64px, <code>2rem</code> = 32px.",
+        "<strong>Tip:</strong> CSS units can be used: <code>rem</code>, <code>px</code>, <code>em</code>, <code>vh</code>. Example: <code>4rem</code> = 64px, <code>2rem</code> = 32px.",
+        "<strong>Tipp:</strong> CSS-Einheiten können verwendet werden: <code>rem</code>, <code>px</code>, <code>em</code>, <code>vh</code>. Beispiel: <code>4rem</code> = 64px, <code>2rem</code> = 32px."
+      ),
+    },
+    icons: {
+      title: g("Ikonok", "Icons", "Symbole"),
+      desc: g("A Szolgáltatások szekció kártyáin 25 SVG ikon közül választhatsz:", "Choose from 25 SVG icons for the Services section cards:", "Wählen Sie aus 25 SVG-Symbolen für die Dienstleistungs-Karten:"),
+      iconList: g(
+        "Olló, Autó, Étkezés, Szív, Kalapács, Könyv, Kamera, Csillag, Óra, Pajzs, Villám, Csapat, Telefon, Email, Helyszín, Ajándék, Szállítás, WiFi, Csavarkulcs, Paletta, Zene, Ház, Aktatáska, Pipa",
+        "Scissors, Car, Dining, Heart, Hammer, Book, Camera, Star, Clock, Shield, Lightning, Team, Phone, Email, Location, Gift, Shipping, WiFi, Wrench, Palette, Music, House, Briefcase, Check",
+        "Schere, Auto, Essen, Herz, Hammer, Buch, Kamera, Stern, Uhr, Schild, Blitz, Team, Telefon, E-Mail, Standort, Geschenk, Lieferung, WiFi, Schraubenschlüssel, Palette, Musik, Haus, Aktentasche, Haken"
+      ),
+      note: g(
+        'Az ikonok <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a> stílusúak, 24x24-es SVG formátumban, és automatikusan a primary színt kapják.',
+        'The icons are <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a>-style, 24x24 SVG format, and automatically receive the primary color.',
+        'Die Symbole sind im <a href="https://lucide.dev" target="_blank" rel="noopener">Lucide</a>-Stil, 24x24 SVG-Format, und erhalten automatisch die Primärfarbe.'
+      ),
+    },
+    images: {
+      title: g("Képek kezelése", "Image Management", "Bildverwaltung"),
+      formatsTitle: g("Támogatott formátumok", "Supported formats", "Unterstützte Formate"),
+      formats: {
+        webp: g("<strong>WebP</strong> — ajánlott, kis méret, jó minőség", "<strong>WebP</strong> — recommended, small size, good quality", "<strong>WebP</strong> — empfohlen, kleine Größe, gute Qualität"),
+        avif: g("<strong>AVIF</strong> — a legkisebb fájlméret", "<strong>AVIF</strong> — smallest file size", "<strong>AVIF</strong> — kleinste Dateigröße"),
+        png: g("<strong>PNG</strong> — átlátszó háttér esetén", "<strong>PNG</strong> — for transparent backgrounds", "<strong>PNG</strong> — für transparente Hintergründe"),
+        jpeg: g("<strong>JPEG</strong> — fotók", "<strong>JPEG</strong> — photos", "<strong>JPEG</strong> — Fotos"),
+      },
+      sizeLimitTitle: g("Méretkorlát", "Size limit", "Größenbeschränkung"),
+      sizeLimitText: g("Maximum <strong>5 MB</strong> fájlonként.", "Maximum <strong>5 MB</strong> per file.", "Maximal <strong>5 MB</strong> pro Datei."),
+      whereTitle: g("Hol használhatsz képeket?", "Where can you use images?", "Wo können Sie Bilder verwenden?"),
+      whereItems: {
+        hero: g("Hero háttérkép", "Hero background image", "Hero-Hintergrundbild"),
+        about: g("Rólunk szekció kép", "About section image", "Über-uns-Bild"),
+        gallery: g("Galéria képek", "Gallery images", "Galeriebilder"),
+        team: g("Csapattagok profilképe", "Team member avatars", "Team-Mitglieder-Profilbilder"),
+        testimonials: g("Vélemények profilképe", "Testimonial avatars", "Bewertungs-Profilbilder"),
+        partners: g("Partner logók", "Partner logos", "Partnerlogos"),
+        logo: g("Vállalkozás logó", "Business logo", "Firmenlogo"),
+      },
+      warningTitle: g("Törlés", "Deletion", "Löschung"),
+      warningDesc: g(
+        "Ha egy képet eltávolítasz a szerkesztőből, a szerveren is törlődik — nem marad szemét. Ez nem visszavonható.",
+        "If you remove an image from the editor, it's also deleted from the server — no clutter. This action is irreversible.",
+        "Wenn Sie ein Bild aus dem Editor entfernen, wird es auch vom Server gelöscht — kein Müll. Diese Aktion ist nicht umkehrbar."
+      ),
+    },
+  },
+
+  advanced: {
+    seo: {
+      title: g("SEO & meta adatok", "SEO & Meta Data", "SEO & Meta-Daten"),
+      desc: g("A <strong>Stílusok → SEO / Meta</strong> szekcióban szerkesztheted:", "Edit in the <strong>Styles → SEO / Meta</strong> section:", "Bearbeiten Sie im Bereich <strong>Stile → SEO / Meta</strong>:"),
+      items: {
+        pageTitle: g("<strong>Oldal címe</strong> — a böngésző tab-ban megjelenő szöveg és a Google találatoknál", "<strong>Page title</strong> — the text displayed in the browser tab and Google results", "<strong>Seitentitel</strong> — der Text im Browser-Tab und in Google-Ergebnissen"),
+        metaDesc: g("<strong>Meta leírás</strong> — a Google találatokban megjelenő rövid leírás (max. 160 karakter ajánlott)", "<strong>Meta description</strong> — the short description shown in Google results (max. 160 characters recommended)", "<strong>Meta-Beschreibung</strong> — die Kurzbeschreibung in Google-Ergebnissen (max. 160 Zeichen empfohlen)"),
+      },
+      ogNote: g(
+        "Az Open Graph (og:title, og:description) meta tag-ek automatikusan generálódnak ezekből.",
+        "Open Graph (og:title, og:description) meta tags are automatically generated from these.",
+        "Open-Graph-Meta-Tags (og:title, og:description) werden automatisch daraus generiert."
+      ),
+    },
+    social: {
+      title: g("Social media linkek", "Social Media Links", "Social-Media-Links"),
+      desc: g("A <strong>Stílusok → Footer / Social</strong> szekcióban adhatsz hozzá social media linkeket. Támogatott platformok:", "Add social media links in the <strong>Styles → Footer / Social</strong> section. Supported platforms:", "Social-Media-Links können Sie im Bereich <strong>Stile → Footer / Social</strong> hinzufügen. Unterstützte Plattformen:"),
+      platforms: g(
+        "Facebook, Instagram, TikTok, YouTube, LinkedIn, X (Twitter), GitHub, Weboldal",
+        "Facebook, Instagram, TikTok, YouTube, LinkedIn, X (Twitter), GitHub, Website",
+        "Facebook, Instagram, TikTok, YouTube, LinkedIn, X (Twitter), GitHub, Website"
+      ),
+      displayNote: g(
+        "A linkek SVG ikonokkal jelennek meg a footer-ben, hoverre kiemelődnek a primary színnel.",
+        "Links appear as SVG icons in the footer, highlighted with the primary color on hover.",
+        "Links werden als SVG-Symbole im Footer angezeigt und bei Hover mit der Primärfarbe hervorgehoben."
+      ),
+      howToTitle: g("Hogyan adj hozzá?", "How to add?", "Wie hinzufügen?"),
+      steps: {
+        step1: g('Kattints a <strong>"+ Social link"</strong> gombra', 'Click the <strong>"+ Social link"</strong> button', 'Klicken Sie auf die Schaltfläche <strong>"+ Social Link"</strong>'),
+        step2: g("Válaszd ki a platformot a legördülőből", "Select the platform from the dropdown", "Wählen Sie die Plattform aus dem Dropdown"),
+        step3: g('Másold be a teljes profil URL-t (pl. <code>https://facebook.com/vallalkozasod</code>)', 'Paste the full profile URL (e.g. <code>https://facebook.com/yourbusiness</code>)', 'Fügen Sie die vollständige Profil-URL ein (z.B. <code>https://facebook.com/ihrunternehmen</code>)'),
+      },
+    },
+    formspree: {
+      title: g("Kapcsolati űrlap (Formspree)", "Contact Form (Formspree)", "Kontaktformular (Formspree)"),
+      desc: g(
+        'A Kapcsolat szekció űrlapja a <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a> szolgáltatással működik. Ez egy ingyenes form backend — nem kell saját szervert üzemeltetned.',
+        'The Contact section form uses <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a>. It\'s a free form backend — no need to run your own server.',
+        'Das Kontaktformular verwendet <a href="https://formspree.io" target="_blank" rel="noopener">Formspree</a>. Es ist ein kostenloses Formular-Backend — kein eigener Server nötig.'
+      ),
+      setupTitle: g("Beállítás lépései", "Setup steps", "Einrichtungsschritte"),
+      steps: {
+        step1: g('Regisztrálj a <a href="https://formspree.io/register" target="_blank" rel="noopener">formspree.io</a>-n (ingyenes terv elegendő)', 'Register at <a href="https://formspree.io/register" target="_blank" rel="noopener">formspree.io</a> (free plan is sufficient)', 'Registrieren Sie sich bei <a href="https://formspree.io/register" target="_blank" rel="noopener">formspree.io</a> (kostenloser Tarif reicht)'),
+        step2: g("Hozz létre egy új form-ot a dashboardon", "Create a new form on the dashboard", "Erstellen Sie ein neues Formular im Dashboard"),
+        step3: g('Másold ki az endpoint URL-t — formátum: <code>https://formspree.io/f/xxxxx</code>', 'Copy the endpoint URL — format: <code>https://formspree.io/f/xxxxx</code>', 'Kopieren Sie die Endpunkt-URL — Format: <code>https://formspree.io/f/xxxxx</code>'),
+        step4: g("A Builder-ben válaszd ki a Kapcsolat szekciót", "In the Builder, select the Contact section", "Wählen Sie im Builder den Kontakt-Abschnitt aus"),
+        step5: g('<strong>"Formspree endpoint"</strong> mezőbe', 'Paste the endpoint URL into the <strong>"Formspree endpoint"</strong> field', 'Fügen Sie die Endpunkt-URL in das Feld <strong>"Formspree-Endpunkt"</strong> ein'),
+      },
+      tip: g(
+        "<strong>Tipp:</strong> A Formspree ingyenes tervvel havi 50 beküldést kapsz. A beérkező üzeneteket emailben kapod meg, és a Formspree dashboardon is látod.",
+        "<strong>Tip:</strong> Formspree's free plan gives you 50 submissions per month. You'll receive messages via email and can view them on the Formspree dashboard.",
+        "<strong>Tipp:</strong> Der kostenlose Formspree-Tarif bietet 50 Übermittlungen pro Monat. Sie erhalten Nachrichten per E-Mail und können sie im Formspree-Dashboard einsehen."
+      ),
+      warningTitle: g("Formspree nélkül", "Without Formspree", "Ohne Formspree"),
+      warningDesc: g(
+        "Ha nem adsz meg endpoint-ot, az űrlap megjelenik, de a beküldés nem fog működni — egy figyelmeztető üzenet jelenik meg a látogatónak.",
+        "If you don't provide an endpoint, the form will be displayed but submission won't work — a warning message will appear for visitors.",
+        "Wenn Sie keinen Endpunkt angeben, wird das Formular angezeigt, aber die Übermittlung funktioniert nicht — eine Warnmeldung erscheint für Besucher."
+      ),
+    },
+    download: {
+      title: g("Letöltés & hosting", "Download & Hosting", "Download & Hosting"),
+      downloadTitle: g("Letöltés", "Download", "Download"),
+      downloadDesc: g(
+        'A toolbar-ban a <strong>"Letöltés"</strong> gombra kattintva egy önálló <code>.html</code> fájlt kapsz. Ez tartalmazza:',
+        'Clicking the <strong>"Download"</strong> button in the toolbar gives you a standalone <code>.html</code> file. It includes:',
+        'Durch Klicken auf die Schaltfläche <strong>"Download"</strong> in der Symbolleiste erhalten Sie eine eigenständige <code>.html</code>-Datei. Sie enthält:'
+      ),
+      includes: {
+        css: g("Az összes CSS-t inline (nincs külső fájl)", "All CSS inline (no external files)", "Alle CSS inline (keine externen Dateien)"),
+        fonts: g("Google Fonts betöltést", "Google Fonts loading", "Google Fonts Laden"),
+        responsive: g("Reszponzív megjelenést (mobil + desktop)", "Responsive display (mobile + desktop)", "Responsive Darstellung (mobil + desktop)"),
+        smoothScroll: g("Smooth scroll navigációt", "Smooth scroll navigation", "Smooth-Scroll-Navigation"),
+        hamburger: g("Mobil hamburger menüt", "Mobile hamburger menu", "Mobiles Hamburger-Menü"),
+      },
+      hostingTitle: g("Hol hostolhatod?", "Where can you host it?", "Wo können Sie es hosten?"),
+      hostingItems: {
+        github: g("<strong>GitHub Pages</strong> — ingyenes, egyszerű", "<strong>GitHub Pages</strong> — free, simple", "<strong>GitHub Pages</strong> — kostenlos, einfach"),
+        netlify: g("<strong>Netlify</strong> — ingyenes tier, drag & drop deploy", "<strong>Netlify</strong> — free tier, drag & drop deploy", "<strong>Netlify</strong> — kostenloser Tarif, Drag & Drop"),
+        vercel: g("<strong>Vercel</strong> — ingyenes, automatikus HTTPS", "<strong>Vercel</strong> — free, automatic HTTPS", "<strong>Vercel</strong> — kostenlos, automatisches HTTPS"),
+        anyHost: g("<strong>Bármely web hosting</strong> — FTP-vel feltölthető", "<strong>Any web hosting</strong> — upload via FTP", "<strong>Jeder Webhosting</strong> — Hochladen per FTP"),
+        ownServer: g("<strong>Saját szerver</strong> — Apache, Nginx", "<strong>Own server</strong> — Apache, Nginx", "<strong>Eigener Server</strong> — Apache, Nginx"),
+      },
+      tip: g(
+        "<strong>Tipp:</strong> A képek (ha feltöltötted a Vercel Blob-ra) külső URL-ről töltődnek be. Ha saját hostingra költözöl, a képeket is le kell töltened és a HTML-ben az URL-eket cserélned.",
+        "<strong>Tip:</strong> Images (if uploaded to Vercel Blob) load from external URLs. If you move to your own hosting, you'll need to download the images and update the URLs in the HTML.",
+        "<strong>Tipp:</strong> Bilder (wenn auf Vercel Blob hochgeladen) werden von externen URLs geladen. Wenn Sie zu Ihrem eigenen Hosting wechseln, müssen Sie die Bilder herunterladen und die URLs im HTML aktualisieren."
+      ),
+    },
+    shortcuts: {
+      title: g("Billentyűparancsok", "Keyboard Shortcuts", "Tastaturkürzel"),
+      table: {
+        command: g("Parancs", "Command", "Befehl"),
+        key: g("Billentyű", "Key", "Taste"),
+        undo: g("Visszavonás", "Undo", "Rückgängig"),
+        redo: g("Újra", "Redo", "Wiederholen"),
+      },
+    },
+    generalFaq: {
+      title: g("GYIK (általános)", "FAQ (General)", "FAQ (Allgemein)"),
+      items: {
+        q1: {
+          q: g("Hány weboldalt készíthetek?", "How many websites can I create?", "Wie viele Websites kann ich erstellen?"),
+          a: g("Jelenleg egy weboldalt tároltunk fiókonként. Ha újat szeretnél, az előzőt felülírja az újragenerálás.", "Currently, we store one website per account. If you want a new one, regeneration will overwrite the previous one.", "Derzeit speichern wir eine Website pro Konto. Wenn Sie eine neue möchten, überschreibt die Neugenerierung die vorherige."),
+        },
+        q2: {
+          q: g("Elveszíthetem a munkámat?", "Can I lose my work?", "Kann ich meine Arbeit verlieren?"),
+          a: g("Az automatikus mentés 2 másodpercenként menti a változásokat. A Ctrl+Z-vel 30 lépést tudsz visszavonni. Ha bezárod a böngészőt, a legutóbb mentett állapot megmarad.", "Auto-save saves changes every 2 seconds. You can undo up to 30 steps with Ctrl+Z. If you close the browser, the last saved state is preserved.", "Die automatische Speicherung speichert Änderungen alle 2 Sekunden. Sie können bis zu 30 Schritte mit Strg+Z rückgängig machen. Wenn Sie den Browser schließen, bleibt der zuletzt gespeicherte Zustand erhalten."),
+        },
+        q3: {
+          q: g("Használhatok saját betűtípust?", "Can I use custom fonts?", "Kann ich eigene Schriftarten verwenden?"),
+          a: g("Jelenleg 8 Google Font közül választhatsz. Egyéni betűtípus támogatás a jövőben érkezik.", "Currently you can choose from 8 Google Fonts. Custom font support is coming in the future.", "Derzeit können Sie aus 8 Google Fonts wählen. Unterstützung für benutzerdefinierte Schriftarten kommt in Zukunft."),
+        },
+        q4: {
+          q: g("Hogyan módosítom az űrlap mezőit?", "How do I modify form fields?", "Wie ändere ich die Formularfelder?"),
+          a: g("Az űrlap mezői jelenleg fixek (Név, Email, Üzenet). Egyéni mezők támogatása a jövőben érkezik.", "Form fields are currently fixed (Name, Email, Message). Custom field support is coming in the future.", "Formularfelder sind derzeit festgelegt (Name, E-Mail, Nachricht). Unterstützung für benutzerdefinierte Felder kommt in Zukunft."),
+        },
+        q5: {
+          q: g("Működik mobilon a szerkesztő?", "Does the editor work on mobile?", "Funktioniert der Editor auf mobilen Geräten?"),
+          a: g("A szerkesztő desktop-ra optimalizált. Mobilon az előnézet megtekinthető, de a szerkesztés kényelmesebb nagyobb képernyőn.", "The editor is optimized for desktop. The preview can be viewed on mobile, but editing is more comfortable on a larger screen.", "Der Editor ist für Desktop optimiert. Die Vorschau kann auf mobilen Geräten angezeigt werden, aber die Bearbeitung ist auf einem größeren Bildschirm komfortabler."),
+        },
+        q6: {
+          q: g("Mi történik, ha lemondom az előfizetést?", "What happens if I cancel my subscription?", "Was passiert, wenn ich mein Abonnement kündige?"),
+          a: g("A meglévő weboldalad megmarad és letölthető marad a periódus végéig. Utána a Builder nem lesz elérhető, de a letöltött HTML fájl örökre a tiéd.", "Your existing website remains and will be downloadable until the end of the period. After that, the Builder won't be available, but the downloaded HTML file is yours forever.", "Ihre bestehende Website bleibt erhalten und bis zum Ende des Zeitraums herunterladbar. Danach ist der Builder nicht mehr verfügbar, aber die heruntergeladene HTML-Datei gehört Ihnen für immer."),
+        },
+      },
+    },
+  },
+
+  footer: {
+    text: g(
+      'NEXUS Site Builder — <a href="https://conendigital.hu" class="text-emerald-500 hover:text-emerald-400">Conen Digital</a>',
+      'NEXUS Site Builder — <a href="https://conendigital.hu" class="text-emerald-500 hover:text-emerald-400">Conen Digital</a>',
+      'NEXUS Site Builder — <a href="https://conendigital.hu" class="text-emerald-500 hover:text-emerald-400">Conen Digital</a>'
+    ),
+  },
+
+  searchNoResults: g("Nincs találat", "No results", "Keine Ergebnisse"),
+};
+---
+<!DOCTYPE html>
+<html lang={locale} class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{t(locale, "guide.title")}</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  </head>
+  <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
+    <div class="min-h-screen flex">
+
+      <!-- SIDEBAR NAV -->
+      <aside id="sidebar" class="w-72 border-r border-zinc-800 bg-zinc-950 flex-shrink-0 overflow-y-auto fixed inset-y-0 left-0 z-30 transform -translate-x-full md:translate-x-0 md:relative transition-transform">
+        <div class="p-5 border-b border-zinc-800">
+          <div class="flex items-center justify-between mb-4">
+            <a href={localeRelativePath("/", locale)} class="flex items-center gap-2 text-sm text-zinc-400 hover:text-emerald-400 transition-colors">
+              ← NEXUS
+            </a>
+            <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
+          </div>
+          <h2 class="text-sm font-medium text-zinc-200 uppercase tracking-wider">{t(locale, "guide.sidebar.gettingStarted")}</h2>
+          <p class="text-[10px] text-zinc-600 mt-1">NEXUS Pro Site Builder</p>
+
+          <!-- SEARCH -->
+          <div class="mt-4 relative">
+            <input
+              type="text"
+              id="doc-search"
+              placeholder={t(locale, "guide.searchPlaceholder")}
+              class="w-full bg-zinc-900 border border-zinc-800 rounded px-3 py-2 text-xs text-zinc-100 placeholder-zinc-600 focus:border-emerald-500 focus:outline-none"
+            />
+            <div id="search-results" class="absolute top-full left-0 right-0 bg-zinc-900 border border-zinc-800 rounded-b mt-0.5 max-h-60 overflow-y-auto hidden z-10"></div>
+          </div>
+        </div>
+
+        <nav class="p-3 space-y-1 text-xs">
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-3 pb-1">{t(locale, "guide.sidebar.gettingStarted")}</div>
+          <a href="#bevezetes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.intro")}</a>
+          <a href="#elso-lepesek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.firstSteps")}</a>
+          <a href="#ai-generalas" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.aiGeneration")}</a>
+          <a href="#felhasznaloi-felulet" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.editorUi")}</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.sections")}</div>
+          <a href="#hero" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.hero")}</a>
+          <a href="#szolgaltatasok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.services")}</a>
+          <a href="#rolunk" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.about")}</a>
+          <a href="#galeria" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.gallery")}</a>
+          <a href="#velemenyek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.testimonials")}</a>
+          <a href="#csapat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.team")}</a>
+          <a href="#ajanlatok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.offers")}</a>
+          <a href="#gyik" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.faq")}</a>
+          <a href="#cta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.cta")}</a>
+          <a href="#statisztikak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.stats")}</a>
+          <a href="#arazas-szekció" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.pricingSection")}</a>
+          <a href="#kapcsolat" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.contact")}</a>
+          <a href="#partner-logok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.partners")}</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.customization")}</div>
+          <a href="#szinpalettak" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.palettes")}</a>
+          <a href="#betutipusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.fonts")}</a>
+          <a href="#szekcio-stilusok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.sectionStyles")}</a>
+          <a href="#ikonok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.icons")}</a>
+          <a href="#kepek" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.images")}</a>
+
+          <div class="text-[10px] uppercase tracking-wider text-zinc-600 px-2 pt-4 pb-1">{t(locale, "guide.sidebar.advanced")}</div>
+          <a href="#seo-meta" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.seo")}</a>
+          <a href="#social-media" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.social")}</a>
+          <a href="#formspree" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.formspree")}</a>
+          <a href="#letoltes" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.download")}</a>
+          <a href="#billentyuparancsok" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.shortcuts")}</a>
+          <a href="#gyik-altalanos" class="doc-nav block px-2 py-1.5 rounded text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900">{t(locale, "guide.sidebar.generalFaq")}</a>
+        </nav>
+      </aside>
+
+      <!-- MOBILE TOGGLE -->
+      <button id="sidebar-toggle" class="fixed top-4 left-4 z-40 md:hidden bg-zinc-900 border border-zinc-800 rounded p-2 text-zinc-400">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+
+      <!-- MAIN CONTENT -->
+      <main class="flex-1 overflow-y-auto">
+        <div class="max-w-3xl mx-auto px-6 md:px-12 py-12">
+
+          <!-- HEADER -->
+          <div class="flex items-center justify-between mb-12">
+            <div>
+              <div class="text-xs uppercase tracking-[0.3em] text-zinc-600 mb-2">{t(locale, "guide.system")}</div>
+              <h1 class="text-3xl font-light text-zinc-200">{t(locale, "guide.heading")}</h1>
+            </div>
+            {isLoggedIn && (
+              <a href={localeRelativePath("/builder", locale)} class="text-xs bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2 rounded transition-colors">
+                {t(locale, "guide.openBuilder")}
+              </a>
+            )}
+          </div>
+
+          <!-- CONTENT -->
+          <div class="doc-content space-y-16">
+
+            <!-- BEVEZETŐ -->
+            <section id="bevezetes" class="doc-section">
+              <h2>{guideContent.intro.title}</h2>
+              <p set:html={guideContent.intro.p1} />
+
+              <div class="tip">
+                <span set:html={guideContent.intro.tip} /> <a href={localeRelativePath("/arazas", locale)}>{guideContent.intro.upgradeLink}</a>
+              </div>
+
+              <h3>{guideContent.intro.whatYouGet}</h3>
+              <ul>
+                <li set:html={guideContent.intro.list.aiContent} />
+                <li set:html={guideContent.intro.list.sections13} />
+                <li set:html={guideContent.intro.list.livePreview} />
+                <li set:html={guideContent.intro.list.autoSave} />
+                <li set:html={guideContent.intro.list.undoRedo} />
+                <li set:html={guideContent.intro.list.htmlDownload} />
+              </ul>
+            </section>
+
+            <!-- ELSŐ LÉPÉSEK -->
+            <section id="elso-lepesek" class="doc-section">
+              <h2>{guideContent.firstSteps.title}</h2>
+
+              <h3>{guideContent.firstSteps.step1Title}</h3>
+              <p>{guideContent.firstSteps.step1Desc}</p>
+              <ul>
+                <li set:html={guideContent.firstSteps.step1List.chat} />
+                <li set:html={guideContent.firstSteps.step1List.account} />
+                <li set:html={guideContent.firstSteps.step1List.direct} />
+              </ul>
+
+              <h3>{guideContent.firstSteps.step2Title}</h3>
+              <p>{guideContent.firstSteps.step2Desc}</p>
+              <ul>
+                <li set:html={guideContent.firstSteps.step2List.name} />
+                <li set:html={guideContent.firstSteps.step2List.type} />
+                <li set:html={guideContent.firstSteps.step2List.services} />
+                <li set:html={guideContent.firstSteps.step2List.contacts} />
+                <li set:html={guideContent.firstSteps.step2List.tone} />
+                <li set:html={guideContent.firstSteps.step2List.palette} />
+              </ul>
+
+              <h3>{guideContent.firstSteps.step3Title}</h3>
+              <p>{guideContent.firstSteps.step3Desc}</p>
+
+              <div class="tip">
+                <span set:html={guideContent.firstSteps.step3Tip} />
+              </div>
+            </section>
+
+            <!-- AI GENERÁLÁS -->
+            <section id="ai-generalas" class="doc-section">
+              <h2>{guideContent.aiGeneration.title}</h2>
+              <p>{guideContent.aiGeneration.desc}</p>
+
+              <table>
+                <thead>
+                  <tr><th>{guideContent.aiGeneration.table.plan}</th><th>{guideContent.aiGeneration.table.model}</th><th>{guideContent.aiGeneration.table.quality}</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>Pro</td><td>DeepSeek V4 Flash</td><td>{guideContent.aiGeneration.table.proQuality}</td></tr>
+                  <tr><td>Premium</td><td>Claude Sonnet 4.6</td><td>{guideContent.aiGeneration.table.premiumQuality}</td></tr>
+                </tbody>
+              </table>
+
+              <h3>{guideContent.aiGeneration.regenerateTitle}</h3>
+              <p set:html={guideContent.aiGeneration.regenerateDesc} />
+
+              <div class="warning">
+                <strong>{guideContent.aiGeneration.warningTitle}:</strong> {guideContent.aiGeneration.warningDesc}
+              </div>
+            </section>
+
+            <!-- FELHASZNÁLÓI FELÜLET -->
+            <section id="felhasznaloi-felulet" class="doc-section">
+              <h2>{guideContent.editorUi.title}</h2>
+              <p>{guideContent.editorUi.desc}</p>
+
+              <h3>{guideContent.editorUi.leftPanelTitle}</h3>
+              <p>{guideContent.editorUi.leftPanelDesc}</p>
+              <ul>
+                <li set:html={guideContent.editorUi.leftPanelList.sections} />
+                <li set:html={guideContent.editorUi.leftPanelList.styles} />
+              </ul>
+
+              <h3>{guideContent.editorUi.activeSectionTitle}</h3>
+              <p>{guideContent.editorUi.activeSectionDesc}</p>
+              <ul>
+                <li set:html={guideContent.editorUi.activeSectionList.move} />
+                <li set:html={guideContent.editorUi.activeSectionList.duplicate} />
+                <li set:html={guideContent.editorUi.activeSectionList.toggle} />
+                <li set:html={guideContent.editorUi.activeSectionList.delete} />
+              </ul>
+
+              <h3>{guideContent.editorUi.centerPanelTitle}</h3>
+              <p set:html={guideContent.editorUi.centerPanelDesc} />
+
+              <h3>{guideContent.editorUi.rightPanelTitle}</h3>
+              <p set:html={guideContent.editorUi.rightPanelDesc} />
+            </section>
+
+            <!-- SZEKCIÓK RÉSZLETESEN -->
+
+            <section id="hero" class="doc-section">
+              <h2>{guideContent.hero.title}</h2>
+              <p>{guideContent.hero.desc}</p>
+
+              <h3>{guideContent.hero.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.hero.fields.headline} />
+                <li set:html={guideContent.hero.fields.subtitle} />
+                <li set:html={guideContent.hero.fields.buttonText} />
+                <li set:html={guideContent.hero.fields.buttonLink} />
+                <li set:html={guideContent.hero.fields.layout} />
+                <li set:html={guideContent.hero.fields.bgImage} />
+              </ul>
+
+              <div class="tip">
+                <span set:html={guideContent.hero.tip} />
+              </div>
+            </section>
+
+            <section id="szolgaltatasok" class="doc-section">
+              <h2>{guideContent.services.title}</h2>
+              <p>{guideContent.services.desc}</p>
+
+              <h3>{guideContent.services.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.services.fields.sectionTitle} />
+                <li set:html={guideContent.services.fields.subtitle} />
+                <li set:html={guideContent.services.fields.columns} />
+              </ul>
+
+              <h3>{guideContent.services.cardFieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.services.cardFields.name} />
+                <li set:html={guideContent.services.cardFields.desc} />
+                <li set:html={guideContent.services.cardFields.price} />
+                <li set:html={guideContent.services.cardFields.icon} />
+              </ul>
+
+              <p set:html={guideContent.services.addNote} />
+            </section>
+
+            <section id="rolunk" class="doc-section">
+              <h2>{guideContent.about.title}</h2>
+              <p>{guideContent.about.desc}</p>
+
+              <h3>{guideContent.about.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.about.fields.title} />
+                <li set:html={guideContent.about.fields.text} />
+                <li set:html={guideContent.about.fields.layout} />
+                <li set:html={guideContent.about.fields.image} />
+              </ul>
+            </section>
+
+            <section id="galeria" class="doc-section">
+              <h2>{guideContent.gallery.title}</h2>
+              <p>{guideContent.gallery.desc}</p>
+
+              <h3>{guideContent.gallery.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.gallery.fields.titleSubtitle} />
+                <li set:html={guideContent.gallery.fields.columns} />
+                <li set:html={guideContent.gallery.fields.images} />
+              </ul>
+
+              <div class="tip">
+                <span set:html={guideContent.gallery.tip} />
+              </div>
+            </section>
+
+            <section id="velemenyek" class="doc-section">
+              <h2>{guideContent.testimonials.title}</h2>
+              <p>{guideContent.testimonials.desc}</p>
+
+              <h3>{guideContent.testimonials.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.testimonials.fields.name} />
+                <li set:html={guideContent.testimonials.fields.position} />
+                <li set:html={guideContent.testimonials.fields.text} />
+                <li set:html={guideContent.testimonials.fields.rating} />
+                <li set:html={guideContent.testimonials.fields.avatar} />
+              </ul>
+            </section>
+
+            <section id="csapat" class="doc-section">
+              <h2>{guideContent.team.title}</h2>
+              <p>{guideContent.team.desc}</p>
+
+              <h3>{guideContent.team.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.team.fields.avatar} />
+                <li set:html={guideContent.team.fields.namePosition} />
+                <li set:html={guideContent.team.fields.bio} />
+                <li set:html={guideContent.team.fields.phoneEmail} />
+              </ul>
+            </section>
+
+            <section id="ajanlatok" class="doc-section">
+              <h2>{guideContent.offers.title}</h2>
+              <p>{guideContent.offers.desc}</p>
+
+              <h3>{guideContent.offers.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.offers.fields.nameDesc} />
+                <li set:html={guideContent.offers.fields.originalPrice} />
+                <li set:html={guideContent.offers.fields.salePrice} />
+                <li set:html={guideContent.offers.fields.badge} />
+              </ul>
+            </section>
+
+            <section id="gyik" class="doc-section">
+              <h2>{guideContent.faqSection.title}</h2>
+              <p>{guideContent.faqSection.desc}</p>
+
+              <h3>{guideContent.faqSection.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.faqSection.fields.question} />
+                <li set:html={guideContent.faqSection.fields.answer} />
+              </ul>
+
+              <div class="tip">
+                <span set:html={guideContent.faqSection.seoTip} />
+              </div>
+            </section>
+
+            <section id="cta" class="doc-section">
+              <h2>{guideContent.cta.title}</h2>
+              <p>{guideContent.cta.desc}</p>
+
+              <h3>{guideContent.cta.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.cta.fields.headline} />
+                <li set:html={guideContent.cta.fields.text} />
+                <li set:html={guideContent.cta.fields.button} />
+                <li set:html={guideContent.cta.fields.bgColor} />
+              </ul>
+            </section>
+
+            <section id="statisztikak" class="doc-section">
+              <h2>{guideContent.stats.title}</h2>
+              <p>{guideContent.stats.desc}</p>
+
+              <h3>{guideContent.stats.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.stats.fields.value} />
+                <li set:html={guideContent.stats.fields.label} />
+              </ul>
+            </section>
+
+            <section id="arazas-szekció" class="doc-section">
+              <h2>{guideContent.pricingSection.title}</h2>
+              <p>{guideContent.pricingSection.desc}</p>
+
+              <h3>{guideContent.pricingSection.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.pricingSection.fields.namePrice} />
+                <li set:html={guideContent.pricingSection.fields.features} />
+                <li set:html={guideContent.pricingSection.fields.featured} />
+                <li set:html={guideContent.pricingSection.fields.buttonText} />
+              </ul>
+            </section>
+
+            <section id="kapcsolat" class="doc-section">
+              <h2>{guideContent.contact.title}</h2>
+              <p>{guideContent.contact.desc}</p>
+
+              <h3>{guideContent.contact.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.contact.fields.titleText} />
+                <li set:html={guideContent.contact.fields.showForm} />
+                <li set:html={guideContent.contact.fields.formspree} />
+              </ul>
+              <p set:html={guideContent.contact.contactInfoNote} />
+            </section>
+
+            <section id="partner-logok" class="doc-section">
+              <h2>{guideContent.partners.title}</h2>
+              <p>{guideContent.partners.desc}</p>
+
+              <h3>{guideContent.partners.fieldsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.partners.fields.logo} />
+                <li set:html={guideContent.partners.fields.altText} />
+                <li set:html={guideContent.partners.fields.linkUrl} />
+              </ul>
+            </section>
+
+            <!-- TESTRESZABÁS -->
+
+            <section id="szinpalettak" class="doc-section">
+              <h2>{guideContent.customization.palettes.title}</h2>
+              <p set:html={guideContent.customization.palettes.desc} />
+
+              <div class="palette-grid">
+                <div class="palette-item"><span style="background:#059669" class="swatch"></span> Emerald</div>
+                <div class="palette-item"><span style="background:#2563eb" class="swatch"></span> Blue</div>
+                <div class="palette-item"><span style="background:#e11d48" class="swatch"></span> Rose</div>
+                <div class="palette-item"><span style="background:#d97706" class="swatch"></span> Amber</div>
+                <div class="palette-item"><span style="background:#059669;border:1px solid #e4e4e7" class="swatch" style="background:#fff"></span> Light</div>
+                <div class="palette-item"><span style="background:#0891b2" class="swatch"></span> Ocean</div>
+                <div class="palette-item"><span style="background:#7c3aed" class="swatch"></span> Purple</div>
+                <div class="palette-item"><span style="background:#15803d" class="swatch"></span> Forest</div>
+              </div>
+
+              <h3>{guideContent.customization.palettes.customTitle}</h3>
+              <p>{guideContent.customization.palettes.customDesc}</p>
+            </section>
+
+            <section id="betutipusok" class="doc-section">
+              <h2>{guideContent.customization.fonts.title}</h2>
+              <p set:html={guideContent.customization.fonts.desc} />
+              <ul>
+                <li set:html={guideContent.customization.fonts.fonts.inter} />
+                <li set:html={guideContent.customization.fonts.fonts.openSans} />
+                <li set:html={guideContent.customization.fonts.fonts.roboto} />
+                <li set:html={guideContent.customization.fonts.fonts.playfair} />
+                <li set:html={guideContent.customization.fonts.fonts.montserrat} />
+                <li set:html={guideContent.customization.fonts.fonts.lora} />
+                <li set:html={guideContent.customization.fonts.fonts.poppins} />
+                <li set:html={guideContent.customization.fonts.fonts.raleway} />
+              </ul>
+            </section>
+
+            <section id="szekcio-stilusok" class="doc-section">
+              <h2>{guideContent.customization.sectionStyles.title}</h2>
+              <p>{guideContent.customization.sectionStyles.desc}</p>
+              <ul>
+                <li set:html={guideContent.customization.sectionStyles.items.bgColor} />
+                <li set:html={guideContent.customization.sectionStyles.items.textColor} />
+                <li set:html={guideContent.customization.sectionStyles.items.alignment} />
+                <li set:html={guideContent.customization.sectionStyles.items.padding} />
+                <li set:html={guideContent.customization.sectionStyles.items.margin} />
+              </ul>
+
+              <div class="tip">
+                <span set:html={guideContent.customization.sectionStyles.tip} />
+              </div>
+            </section>
+
+            <section id="ikonok" class="doc-section">
+              <h2>{guideContent.customization.icons.title}</h2>
+              <p>{guideContent.customization.icons.desc}</p>
+              <div class="icon-list">
+                {guideContent.customization.icons.iconList}
+              </div>
+              <p set:html={guideContent.customization.icons.note} />
+            </section>
+
+            <section id="kepek" class="doc-section">
+              <h2>{guideContent.customization.images.title}</h2>
+
+              <h3>{guideContent.customization.images.formatsTitle}</h3>
+              <ul>
+                <li set:html={guideContent.customization.images.formats.webp} />
+                <li set:html={guideContent.customization.images.formats.avif} />
+                <li set:html={guideContent.customization.images.formats.png} />
+                <li set:html={guideContent.customization.images.formats.jpeg} />
+              </ul>
+
+              <h3>{guideContent.customization.images.sizeLimitTitle}</h3>
+              <p set:html={guideContent.customization.images.sizeLimitText} />
+
+              <h3>{guideContent.customization.images.whereTitle}</h3>
+              <ul>
+                <li>{guideContent.customization.images.whereItems.hero}</li>
+                <li>{guideContent.customization.images.whereItems.about}</li>
+                <li>{guideContent.customization.images.whereItems.gallery}</li>
+                <li>{guideContent.customization.images.whereItems.team}</li>
+                <li>{guideContent.customization.images.whereItems.testimonials}</li>
+                <li>{guideContent.customization.images.whereItems.partners}</li>
+                <li>{guideContent.customization.images.whereItems.logo}</li>
+              </ul>
+
+              <div class="warning">
+                <strong>{guideContent.customization.images.warningTitle}:</strong> {guideContent.customization.images.warningDesc}
+              </div>
+            </section>
+
+            <!-- HALADÓ -->
+
+            <section id="seo-meta" class="doc-section">
+              <h2>{guideContent.advanced.seo.title}</h2>
+              <p set:html={guideContent.advanced.seo.desc} />
+              <ul>
+                <li set:html={guideContent.advanced.seo.items.pageTitle} />
+                <li set:html={guideContent.advanced.seo.items.metaDesc} />
+              </ul>
+              <p>{guideContent.advanced.seo.ogNote}</p>
+            </section>
+
+            <section id="social-media" class="doc-section">
+              <h2>{guideContent.advanced.social.title}</h2>
+              <p set:html={guideContent.advanced.social.desc} />
+              <ul>
+                <li>{guideContent.advanced.social.platforms}</li>
+              </ul>
+              <p>{guideContent.advanced.social.displayNote}</p>
+
+              <h3>{guideContent.advanced.social.howToTitle}</h3>
+              <ol>
+                <li set:html={guideContent.advanced.social.steps.step1} />
+                <li>{guideContent.advanced.social.steps.step2}</li>
+                <li set:html={guideContent.advanced.social.steps.step3} />
+              </ol>
+            </section>
+
+            <section id="formspree" class="doc-section">
+              <h2>{guideContent.advanced.formspree.title}</h2>
+              <p set:html={guideContent.advanced.formspree.desc} />
+
+              <h3>{guideContent.advanced.formspree.setupTitle}</h3>
+              <ol>
+                <li set:html={guideContent.advanced.formspree.steps.step1} />
+                <li>{guideContent.advanced.formspree.steps.step2}</li>
+                <li set:html={guideContent.advanced.formspree.steps.step3} />
+                <li>{guideContent.advanced.formspree.steps.step4}</li>
+                <li set:html={guideContent.advanced.formspree.steps.step5} />
+              </ol>
+
+              <div class="tip">
+                <span set:html={guideContent.advanced.formspree.tip} />
+              </div>
+
+              <div class="warning">
+                <strong>{guideContent.advanced.formspree.warningTitle}:</strong> {guideContent.advanced.formspree.warningDesc}
+              </div>
+            </section>
+
+            <section id="letoltes" class="doc-section">
+              <h2>{guideContent.advanced.download.title}</h2>
+
+              <h3>{guideContent.advanced.download.downloadTitle}</h3>
+              <p set:html={guideContent.advanced.download.downloadDesc} />
+              <ul>
+                <li>{guideContent.advanced.download.includes.css}</li>
+                <li>{guideContent.advanced.download.includes.fonts}</li>
+                <li>{guideContent.advanced.download.includes.responsive}</li>
+                <li>{guideContent.advanced.download.includes.smoothScroll}</li>
+                <li>{guideContent.advanced.download.includes.hamburger}</li>
+              </ul>
+
+              <h3>{guideContent.advanced.download.hostingTitle}</h3>
+              <ul>
+                <li set:html={guideContent.advanced.download.hostingItems.github} />
+                <li set:html={guideContent.advanced.download.hostingItems.netlify} />
+                <li set:html={guideContent.advanced.download.hostingItems.vercel} />
+                <li set:html={guideContent.advanced.download.hostingItems.anyHost} />
+                <li set:html={guideContent.advanced.download.hostingItems.ownServer} />
+              </ul>
+
+              <div class="tip">
+                <span set:html={guideContent.advanced.download.tip} />
+              </div>
+            </section>
+
+            <section id="billentyuparancsok" class="doc-section">
+              <h2>{guideContent.advanced.shortcuts.title}</h2>
+              <table>
+                <thead>
+                  <tr><th>{guideContent.advanced.shortcuts.table.command}</th><th>{guideContent.advanced.shortcuts.table.key}</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td>{guideContent.advanced.shortcuts.table.undo}</td><td><kbd>Ctrl</kbd> + <kbd>Z</kbd></td></tr>
+                  <tr><td>{guideContent.advanced.shortcuts.table.redo}</td><td><kbd>Ctrl</kbd> + <kbd>Y</kbd> vagy <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Z</kbd></td></tr>
+                </tbody>
+              </table>
+            </section>
+
+            <section id="gyik-altalanos" class="doc-section">
+              <h2>{guideContent.advanced.generalFaq.title}</h2>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q1.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q1.a}</p>
+              </details>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q2.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q2.a}</p>
+              </details>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q3.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q3.a}</p>
+              </details>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q4.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q4.a}</p>
+              </details>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q5.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q5.a}</p>
+              </details>
+
+              <details>
+                <summary>{guideContent.advanced.generalFaq.items.q6.q}</summary>
+                <p>{guideContent.advanced.generalFaq.items.q6.a}</p>
+              </details>
+            </section>
+
+          </div>
+
+          <!-- FOOTER -->
+          <footer class="mt-16 pt-8 border-t border-zinc-800 text-xs text-zinc-600 text-center">
+            <p set:html={guideContent.footer.text} />
+          </footer>
+
+        </div>
+      </main>
+    </div>
+
+    <style>
+      html { scroll-behavior: smooth; }
+      .doc-content h2 { font-size: 1.5rem; font-weight: 300; color: #e4e4e7; padding-bottom: 0.5rem; border-bottom: 1px solid #27272a; margin-bottom: 1rem; }
+      .doc-content h3 { font-size: 1rem; font-weight: 600; color: #d4d4d8; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+      .doc-content p { font-size: 0.875rem; color: #a1a1aa; line-height: 1.7; margin-bottom: 0.75rem; }
+      .doc-content ul, .doc-content ol { font-size: 0.875rem; color: #a1a1aa; padding-left: 1.5rem; margin-bottom: 0.75rem; }
+      .doc-content li { margin-bottom: 0.4rem; line-height: 1.6; }
+      .doc-content strong { color: #d4d4d8; }
+      .doc-content a { color: #34d399; text-decoration: none; }
+      .doc-content a:hover { text-decoration: underline; }
+      .doc-content code { background: #18181b; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-size: 0.8rem; color: #34d399; }
+      .doc-content kbd { background: #27272a; border: 1px solid #3f3f46; padding: 0.15rem 0.5rem; border-radius: 0.25rem; font-size: 0.75rem; color: #d4d4d8; }
+      .doc-content table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; font-size: 0.8rem; }
+      .doc-content th { text-align: left; padding: 0.5rem; border-bottom: 1px solid #3f3f46; color: #d4d4d8; font-weight: 600; }
+      .doc-content td { padding: 0.5rem; border-bottom: 1px solid #27272a; color: #a1a1aa; }
+      .doc-content details { border-bottom: 1px solid #27272a; padding: 0.75rem 0; }
+      .doc-content summary { cursor: pointer; font-weight: 600; font-size: 0.875rem; color: #d4d4d8; }
+      .doc-content details p { margin-top: 0.5rem; }
+      .tip { background: #052e16; border: 1px solid #064e3b; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.8rem; color: #6ee7b7; }
+      .warning { background: #451a03; border: 1px solid #92400e; border-radius: 0.5rem; padding: 0.75rem 1rem; margin: 1rem 0; font-size: 0.8rem; color: #fbbf24; }
+      .palette-grid { display: flex; flex-wrap: wrap; gap: 0.75rem; margin: 1rem 0; }
+      .palette-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #a1a1aa; }
+      .swatch { display: inline-block; width: 1.25rem; height: 1.25rem; border-radius: 50%; }
+      .icon-list { font-size: 0.8rem; color: #a1a1aa; line-height: 2; }
+      .doc-nav.active { background: #18181b; color: #34d399; }
+    </style>
+
+    <script>
+      // Sidebar toggle (mobile)
+      const sidebar = document.getElementById("sidebar");
+      const toggle = document.getElementById("sidebar-toggle");
+      toggle?.addEventListener("click", () => {
+        sidebar?.classList.toggle("-translate-x-full");
+      });
+
+      // Active nav tracking
+      const sections = document.querySelectorAll<HTMLElement>(".doc-section");
+      const navLinks = document.querySelectorAll<HTMLAnchorElement>(".doc-nav");
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            navLinks.forEach(l => l.classList.remove("active"));
+            const active = document.querySelector(`.doc-nav[href="#${entry.target.id}"]`);
+            active?.classList.add("active");
+          }
+        });
+      }, { rootMargin: "-20% 0px -70% 0px" });
+
+      sections.forEach(s => observer.observe(s));
+
+      // Search
+      const searchInput = document.getElementById("doc-search") as HTMLInputElement;
+      const searchResults = document.getElementById("search-results");
+
+      interface SearchEntry { title: string; id: string; text: string; }
+
+      const searchData: SearchEntry[] = [];
+      sections.forEach(s => {
+        const h2 = s.querySelector("h2");
+        searchData.push({
+          title: h2?.textContent || "",
+          id: s.id,
+          text: s.textContent || "",
+        });
+      });
+
+      const noResultsText = document.querySelector('[data-no-results-text]')?.getAttribute('data-no-results-text') || "Nincs találat";
+
+      searchInput?.addEventListener("input", () => {
+        const q = searchInput.value.toLowerCase().trim();
+        if (!q || !searchResults) {
+          searchResults?.classList.add("hidden");
+          return;
+        }
+
+        const matches = searchData.filter(e =>
+          e.title.toLowerCase().includes(q) || e.text.toLowerCase().includes(q)
+        ).slice(0, 8);
+
+        if (matches.length === 0) {
+          searchResults.innerHTML = `<div class="px-3 py-2 text-xs text-zinc-500">${noResultsText}</div>`;
+        } else {
+          searchResults.innerHTML = matches.map(m =>
+            `<a href="#${m.id}" class="block px-3 py-2 text-xs text-zinc-300 hover:bg-zinc-800 hover:text-emerald-400 transition-colors">${m.title}</a>`
+          ).join("");
+        }
+        searchResults.classList.remove("hidden");
+      });
+
+      searchInput?.addEventListener("blur", () => {
+        setTimeout(() => searchResults?.classList.add("hidden"), 200);
+      });
+    </script>
+
+    <div data-no-results-text={t(locale, "guide.noResults")} class="hidden"></div>
+
+    <BugReport locale={locale} />
+  </body>
+</html>

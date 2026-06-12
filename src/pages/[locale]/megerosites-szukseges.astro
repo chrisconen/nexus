@@ -1,10 +1,11 @@
 ---
-import "../styles/global.css";
+import "../../styles/global.css";
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
 import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
 
 const locale = (Astro.currentLocale as Locale) || "hu";
+const loginPath = localeRelativePath("/belepes", locale);
 ---
 <html lang={locale}>
   <head>
@@ -45,10 +46,10 @@ const locale = (Astro.currentLocale as Locale) || "hu";
           </ol>
         </div>
 
-        <a href={localeRelativePath("/belepes", locale)}
+         <a href={loginPath}
           class="text-xs uppercase tracking-wider text-zinc-500 hover:text-emerald-400 transition-colors"
         >
-          {t(locale, "verify.back")}
+          ← {t(locale, "verify.back")}
         </a>
 
       </div>

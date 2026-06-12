@@ -1,5 +1,5 @@
 ---
-import "../../styles/global.css";
+import "../../../styles/global.css";
 import { auth } from "@/lib/auth";
 import { t, type Locale } from "@/lib/i18n/translations";
 import { localeRelativePath } from "@/lib/i18n/locale";
@@ -14,6 +14,9 @@ const session = await auth.api.getSession({
 if (!session) {
   return Astro.redirect(localeRelativePath("/belepes", locale));
 }
+
+const chatPath = localeRelativePath("/chat", locale);
+const accountPath = localeRelativePath("/fiok", locale);
 ---
 <html lang={locale}>
   <head>
@@ -47,10 +50,10 @@ if (!session) {
         </p>
 
         <div class="flex flex-col gap-3">
-          <a href={localeRelativePath("/chat", locale)} class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
+          <a href={chatPath} class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
             {t(locale, "success.goChat")}
           </a>
-          <a href={localeRelativePath("/fiok", locale)} class="block text-center text-zinc-500 hover:text-emerald-400 text-sm transition-colors">
+          <a href={accountPath} class="block text-center text-zinc-500 hover:text-emerald-400 text-sm transition-colors">
             {t(locale, "success.viewAccount")}
           </a>
         </div>

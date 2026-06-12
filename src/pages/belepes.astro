@@ -1,37 +1,46 @@
 ---
 import "../styles/global.css";
 import SignInForm from "@/components/SignInForm";
+import { t, type Locale } from "@/lib/i18n/translations";
+import { localeRelativePath } from "@/lib/i18n/locale";
+import LanguageSwitcher from "@/components/LanguageSwitcher.astro";
+
+const locale = (Astro.currentLocale as Locale) || "hu";
+const registerPath = localeRelativePath("/regisztracio", locale);
 ---
-<html lang="hu">
+<html lang={locale}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Belépés — NEXUS AI</title>
+    <title>{t(locale, "login.title")}</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   </head>
   <body class="min-h-screen bg-zinc-950 text-zinc-100 font-mono antialiased">
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div class="max-w-md w-full">
 
-        <div class="mb-8 flex items-center gap-3">
-          <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-          <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">System // Auth</span>
+        <div class="mb-8 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+            <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "login.system")}</span>
+          </div>
+          <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
         </div>
 
         <h1 class="text-3xl font-light mb-2">
-          <span class="text-zinc-400">Üdv a NEXUS AI oldalán!</span>
+          <span class="text-zinc-400">{t(locale, "login.heading")}</span>
           <span class="text-emerald-400">.</span>
         </h1>
         <p class="text-sm text-zinc-500 mb-8">
-          Lépj be a NEXUS fiókodba
+          {t(locale, "login.subtitle")}
         </p>
 
-        <SignInForm client:load />
+        <SignInForm client:load locale={locale} />
 
         <p class="mt-8 text-sm text-zinc-500 text-center">
-          Még nincs fiókod?
-          <a href="/regisztracio" class="text-emerald-400 hover:text-emerald-300">
-            Regisztrálj →
+          {t(locale, "login.noAccount")}
+          <a href={registerPath} class="text-emerald-400 hover:text-emerald-300">
+            {t(locale, "login.registerLink")}
           </a>
         </p>
 
