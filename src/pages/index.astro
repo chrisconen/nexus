@@ -43,9 +43,9 @@ if (isLoggedIn) {
         <div class="flex items-center gap-3">
           <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
           <span class="text-xs uppercase tracking-[0.3em] text-zinc-400">NEXUS</span>
+          <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
         </div>
         <nav class="flex items-center gap-6 text-sm">
-          <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
           <a href="#funkciok" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.features")}</a>
           <a href="#arazas" class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.pricing")}</a>
           <a href={localeRelativePath("/utmutato", locale)} class="text-zinc-400 hover:text-zinc-200 transition-colors hidden sm:inline">{t(locale, "nav.guide")}</a>

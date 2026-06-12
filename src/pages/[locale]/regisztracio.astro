@@ -19,11 +19,9 @@ const loginPath = localeRelativePath("/belepes", locale);
     <div class="min-h-screen flex flex-col items-center justify-center px-6 py-12">
       <div class="max-w-md w-full">
 
-        <div class="mb-8 flex items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
-            <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "register.system")}</span>
-          </div>
+        <div class="mb-8 flex items-center gap-3">
+          <div class="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></div>
+          <span class="text-xs uppercase tracking-[0.3em] text-zinc-500">{t(locale, "register.system")}</span>
           <LanguageSwitcher currentLocale={locale} currentPathname={Astro.url.pathname} />
         </div>
 
