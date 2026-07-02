@@ -1,4 +1,4 @@
-import pdf from "pdf-parse";
+import { PDFParse } from "pdf-parse";
 import mammoth from "mammoth";
 
 export interface ExtractResult {
@@ -49,8 +49,14 @@ export async function extractText(
   let raw = "";
 
   if (type === "pdf") {
-    const result = await pdf(Buffer.from(buffer));
-    raw = result.text;
+    // pdf-parse 2.x: osztály-alapú API (a v1-es `pdf(buffer)` hívás már nem létezik)
+    const parser = new PDFParse({ data: new Uint8Array(buffer) });
+    try {
+      const result = await parser.getText();
+      raw = result.text;
+    } finally {
+      await parser.destroy();
+    }
   } else if (type === "docx") {
     const result = await mammoth.extractRawText({ buffer: Buffer.from(buffer) });
     raw = result.value;

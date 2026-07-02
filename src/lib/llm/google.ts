@@ -13,6 +13,7 @@ export interface ToolLoopResult {
   finalContent: string;
   rounds: number;
   usage: { promptTokens: number; completionTokens: number };
+  builderRedirect?: boolean;
 }
 
 // ---------------------------------------------------------------------------

@@ -325,15 +325,15 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
 
       const errorEl = document.getElementById("checkout-error");
 
-      function showError(text: string) {
+      function showError(text) {
         if (!errorEl) return;
         errorEl.textContent = text;
         errorEl.classList.remove("hidden");
       }
 
-      const termsCheckbox = document.getElementById("accept-terms-checkout") as HTMLInputElement;
+      const termsCheckbox = document.getElementById("accept-terms-checkout");
 
-      document.querySelectorAll<HTMLButtonElement>(".checkout-btn").forEach((btn) => {
+      document.querySelectorAll(".checkout-btn").forEach((btn) => {
         btn.addEventListener("click", async () => {
           const tier = btn.dataset.checkoutTier;
           if (!tier) return;

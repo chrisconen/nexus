@@ -3,12 +3,12 @@ import { auth } from "@/lib/auth";
 import { db, message, conversation, usageDaily } from "@/lib/db";
 import { eq, and } from "drizzle-orm";
 import { streamOllamaChat, type OllamaMessage } from "@/lib/llm/ollama";
-import { streamGroqChat, runGroqToolLoop, simpleGroqChat, type GroqMessage } from "@/lib/llm/groq";
-import { streamGoogleChat, runGoogleToolLoop, type GoogleMessage } from "@/lib/llm/google";
-import { streamDeepSeekChat, type DeepSeekMessage } from "@/lib/llm/deepseek";
+import { streamGroqChat, runGroqToolLoop } from "@/lib/llm/groq";
+import { streamGoogleChat, runGoogleToolLoop } from "@/lib/llm/google";
+import { streamDeepSeekChat } from "@/lib/llm/deepseek";
 import { streamClaudeChat, type ClaudeContentBlock } from "@/lib/llm/claude";
 import { logData } from "@/lib/log";
-import { skillRouter, type SkillRoute } from "@/lib/llm/skills";
+import { skillRouter } from "@/lib/llm/skills";
 import "@/lib/llm/skills/setup";
 import "@/lib/llm/tools/register-all";
 import { detectIntent } from "@/lib/chat/intent-detector";
@@ -17,7 +17,9 @@ import { checkChatLimit } from "@/lib/usage";
 
 export const prerender = false;
 
-type LLMMessage = OllamaMessage | GroqMessage | DeepSeekMessage | GoogleMessage;
+// A klienstől érkező és a system-prompttal kiegészített üzenetek egységes alakja.
+// Szándékosan a legszűkebb közös forma: minden provider üzenettípusa elfogadja.
+type LLMMessage = { role: "system" | "user" | "assistant"; content: string };
 
 interface StreamOptions {
   modelLabel: string;
@@ -180,7 +182,7 @@ export const POST: APIRoute = async ({ request }) => {
     case "claude":
       try {
         if (import.meta.env.ANTHROPIC_API_KEY) {
-          let claudeMessages = fullMessages;
+          let claudeMessages: Array<{ role: "system" | "user" | "assistant"; content: string | ClaudeContentBlock[] }> = fullMessages;
           // Vision támogatás: ha kép van csatolva, content blockká alakítjuk az utolsó user üzenetet
           if (imageData?.base64) {
             claudeMessages = fullMessages.map((m, i) => {
@@ -224,7 +226,7 @@ export const POST: APIRoute = async ({ request }) => {
         if (import.meta.env.GOOGLE_API_KEY || import.meta.env.GEMINI_API_KEY) {
           llmStream = {
             modelLabel: route.modelLabel,
-            generator: streamGoogleChat(fullMessages as any),
+            generator: streamGoogleChat(fullMessages),
           };
         }
       } catch (err) {
