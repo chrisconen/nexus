@@ -1,5 +1,6 @@
 import type { SiteData, Section } from "./types";
 import { COLOR_PALETTES, createDefaultSection } from "./types";
+import { getTemplate } from "./templates";
 
 export interface OnboardingAnswers {
   businessName: string;
@@ -8,6 +9,7 @@ export interface OnboardingAnswers {
   contactInfo: string;
   tone: string;
   palette: string;
+  templateId?: string;
 }
 
 // A weboldal generáló prompt a skills/site-builder.ts-ben él — a skillRouter kezeli.
@@ -20,35 +22,62 @@ export function parseSiteDataFromAI(raw: string, answers: OnboardingAnswers): Si
   }
 
   const parsed = JSON.parse(cleaned);
-  const palette = COLOR_PALETTES[answers.palette] || COLOR_PALETTES.emerald;
+  const template = getTemplate(answers.templateId);
+  const palette = COLOR_PALETTES[answers.palette] || COLOR_PALETTES[template.palette] || COLOR_PALETTES.emerald;
 
-  // Szekciók feldolgozása
-  const sections: Section[] = [];
+  // Sablon-váz + AI-tartalom merge:
+  // a váz adja a szekciósorrendet és a fallback szöveget, az AI a user-specifikus tartalmat.
+  const skeleton = template.buildSections();
   const rawSections: any[] = Array.isArray(parsed.sections) ? parsed.sections : [];
+  const consumed = new Set<number>();
 
-  for (const raw of rawSections) {
-    if (!raw.type) continue;
-    const base = createDefaultSection(raw.type);
-    // Merge AI data into default
-    sections.push({ ...base, ...raw, id: base.id, enabled: true });
+  function takeAISection(type: string): any | null {
+    for (let i = 0; i < rawSections.length; i++) {
+      if (!consumed.has(i) && rawSections[i]?.type === type) {
+        consumed.add(i);
+        return rawSections[i];
+      }
+    }
+    return null;
   }
 
-  // Ha nincs hero, adjunk hozzá
-  if (!sections.find(s => s.type === "hero")) {
-    const hero = createDefaultSection("hero");
-    sections.unshift(hero);
-  }
+  const sections: Section[] = skeleton.map(base => {
+    const ai = takeAISection(base.type);
+    if (!ai) return base;
+    const merged = { ...base, ...ai, id: base.id, type: base.type, enabled: true, style: base.style } as Section;
+    // Sablon-ikonok megőrzése, ha az AI nem adott ikont a szolgáltatásokhoz
+    if (merged.type === "services" && base.type === "services" && Array.isArray((merged as any).items)) {
+      (merged as any).items = (merged as any).items.map((item: any, i: number) => ({
+        ...item,
+        icon: item.icon || base.items[i % Math.max(base.items.length, 1)]?.icon || "check-circle",
+      }));
+    }
+    return merged;
+  });
 
-  // Ha nincs contact, adjunk hozzá a végére
-  if (!sections.find(s => s.type === "contact")) {
-    sections.push(createDefaultSection("contact"));
+  // Az AI által küldött, a vázban nem szereplő szekciók — a contact elé fűzzük be
+  for (let i = 0; i < rawSections.length; i++) {
+    if (consumed.has(i)) continue;
+    const raw = rawSections[i];
+    if (!raw?.type) continue;
+    let base: Section;
+    try {
+      base = createDefaultSection(raw.type);
+    } catch {
+      continue;
+    }
+    if (!base) continue;
+    const merged = { ...base, ...raw, id: base.id, enabled: true } as Section;
+    const contactIdx = sections.findIndex(s => s.type === "contact");
+    if (contactIdx >= 0) sections.splice(contactIdx, 0, merged);
+    else sections.push(merged);
   }
 
   return {
-    templateId: "starter",
+    templateId: template.id,
     globalStyles: {
       colors: palette,
-      fonts: { heading: "Inter", body: "Inter" },
+      fonts: { ...template.fonts },
     },
     meta: {
       title: `${parsed.business?.name || answers.businessName} — ${parsed.business?.tagline || ""}`,

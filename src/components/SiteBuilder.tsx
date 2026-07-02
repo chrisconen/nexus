@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import type { SiteData, Section, SectionType, SectionStyle } from "@/lib/builder/types";
 import { COLOR_PALETTES, FONT_OPTIONS, SECTION_REGISTRY, SERVICE_ICON_OPTIONS, createDefaultSection } from "@/lib/builder/types";
+import { INDUSTRY_TEMPLATES } from "@/lib/builder/templates";
 
 function setByPath(obj: any, path: string, value: string): any {
   const keys = path.split(".");
@@ -157,7 +158,7 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [showAddSection, setShowAddSection] = useState(false);
   const [editorPanel, setEditorPanel] = useState<"sections" | "global">("sections");
-  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [previewMode, setPreviewMode] = useState<"desktop" | "tablet" | "mobile">("desktop");
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editorPanelOpen, setEditorPanelOpen] = useState(true);
   const [fullPreview, setFullPreview] = useState(false);
@@ -165,16 +166,23 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [regenSectionId, setRegenSectionId] = useState<string | null>(null);
   const [regenDropdownOpen, setRegenDropdownOpen] = useState(false);
-  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const lastSavedRef = useRef<string>("");
 
   // Onboarding state
   const [businessName, setBusinessName] = useState("");
   const [businessType, setBusinessType] = useState("");
+  const [templateId, setTemplateId] = useState("");
   const [services, setServices] = useState("");
   const [contactInfo, setContactInfo] = useState("");
   const [tone, setTone] = useState("friendly");
   const [palette, setPalette] = useState("emerald");
+
+  function selectTemplate(id: string) {
+    setTemplateId(id);
+    const tpl = INDUSTRY_TEMPLATES[id];
+    if (tpl) setPalette(tpl.palette);
+  }
 
   // Toast helper
   const toast = useCallback((message: string, type: Toast["type"] = "info") => {
@@ -207,7 +215,7 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
   }, []);
 
   // Live preview — debounced (200ms), frissül minden siteData változáskor
-  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const previewTimeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   useEffect(() => {
     if (!siteData) return;
     if (previewTimeoutRef.current) clearTimeout(previewTimeoutRef.current);
@@ -294,10 +302,11 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
     setLoading(true);
     setError(null);
     try {
+      const tpl = INDUSTRY_TEMPLATES[templateId];
       const res = await fetch("/api/site-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessName, businessType, services, contactInfo, tone, palette }),
+        body: JSON.stringify({ businessName, businessType: businessType || tpl?.businessTypeLabel || "", templateId, services, contactInfo, tone, palette }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -318,7 +327,8 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
   }
 
   async function handleRegenerate() {
-    if (!businessName || !businessType) {
+    const tpl = INDUSTRY_TEMPLATES[templateId];
+    if (!businessName || (!businessType && !tpl)) {
       toast(bStr.generateFirst, "error");
       return;
     }
@@ -327,7 +337,7 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
       const res = await fetch("/api/site-generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ businessName, businessType, services, contactInfo, tone, palette }),
+        body: JSON.stringify({ businessName, businessType: businessType || tpl?.businessTypeLabel || "", templateId, services, contactInfo, tone, palette }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error);
@@ -450,21 +460,30 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
           <p className="text-sm text-zinc-500 mb-8">Válaszolj pár kérdésre, és az AI generál egy kész weboldalt.</p>
 
           <form onSubmit={handleGenerate} className="space-y-6">
-            <Field label="Vállalkozás neve *" value={businessName} onChange={setBusinessName} required placeholder="pl. Kovács Fodrászat" />
             <div>
-              <label className="block text-sm text-zinc-400 mb-1">Milyen típusú vállalkozás? *</label>
-              <select value={businessType} onChange={e => setBusinessType(e.target.value)} required className="w-full bg-zinc-900 border border-zinc-800 rounded-lg px-4 py-3 text-sm text-zinc-100 focus:border-emerald-500 focus:outline-none">
-                <option value="">Válassz...</option>
-                <option value="fodraszat">Fodrászat / Szépségszalon</option>
-                <option value="autoszerelo">Autószerelő / Autómosó</option>
-                <option value="etterem">Étterem / Kávézó</option>
-                <option value="egeszsegugy">Egészségügy / Rendelő</option>
-                <option value="epitkezes">Építkezés / Felújítás</option>
-                <option value="oktatas">Oktatás / Tanfolyam</option>
-                <option value="bolt">Bolt / Üzlet</option>
-                <option value="egyeb">Egyéb</option>
-              </select>
+              <label className="block text-sm text-zinc-400 mb-2">Mit csinálsz? *</label>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                {Object.values(INDUSTRY_TEMPLATES).map(tpl => (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => selectTemplate(tpl.id)}
+                    className={`text-left border rounded-lg p-3 transition-colors ${templateId === tpl.id ? "border-emerald-500 bg-emerald-950/40" : "border-zinc-800 hover:border-zinc-600"}`}
+                  >
+                    <div className="text-xl mb-1">{tpl.icon}</div>
+                    <div className={`text-xs font-medium ${templateId === tpl.id ? "text-emerald-400" : "text-zinc-200"}`}>{tpl.label}</div>
+                    <div className="text-[10px] text-zinc-500 mt-0.5 leading-snug">{tpl.description}</div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-[11px] text-zinc-500 mt-1.5">A sablon adja a vázat és az iparági alapszöveget — az AI a te adataiddal tölti fel. Utána mindent szabadon átírhatsz.</p>
             </div>
+            <Field label="Vállalkozás neve *" value={businessName} onChange={setBusinessName} required placeholder="pl. Kovács Fodrászat" />
+            {templateId === "altalanos" ? (
+              <Field label="Mivel foglalkozik a vállalkozásod? *" value={businessType} onChange={setBusinessType} required placeholder="pl. könyvelőiroda, virágbolt, fotós..." />
+            ) : (
+              <Field label="Pontosítás (opcionális)" value={businessType} onChange={setBusinessType} placeholder="pl. férfifodrászat belvárosban, olasz étterem..." />
+            )}
             <FieldTextarea label="Szolgáltatások / termékek" value={services} onChange={setServices} placeholder="pl. Női hajvágás, Férfi hajvágás, Festés..." />
             <FieldTextarea label="Elérhetőségek" value={contactInfo} onChange={setContactInfo} placeholder="pl. Tel: +36 30 123 4567, Cím: Budapest, Fő utca 1." rows={2} />
             <div>
@@ -487,7 +506,7 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
               </div>
             </div>
             {error && <div className="text-sm text-red-400 bg-red-950/40 border border-red-900 rounded px-4 py-3">{error}</div>}
-            <button type="submit" disabled={loading || businessName === "" || businessType === ""} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-100 font-medium py-3 rounded-lg transition-colors text-sm">
+            <button type="submit" disabled={loading || businessName === "" || templateId === "" || (templateId === "altalanos" && businessType === "")} className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-100 font-medium py-3 rounded-lg transition-colors text-sm">
               {loading ? "Generálás folyamatban..." : "Weboldal generálása"}
             </button>
           </form>
@@ -513,9 +532,9 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
         </div>
 
         <div className="flex gap-1 ml-2 border-l border-zinc-800 pl-2">
-          {(["desktop", "mobile"] as const).map(m => (
-            <button key={m} onClick={() => setPreviewMode(m)} className={`px-2 py-1 rounded text-xs ${previewMode === m ? "bg-zinc-800 text-zinc-300" : "text-zinc-400 hover:text-zinc-200"}`}>
-              {m === "desktop" ? "Desktop" : "Mobil"}
+          {(["desktop", "tablet", "mobile"] as const).map(m => (
+            <button key={m} onClick={() => setPreviewMode(m)} className={`px-2 py-1 rounded text-xs ${previewMode === m ? "bg-zinc-800 text-zinc-300" : "text-zinc-400 hover:text-zinc-200"}`} title={m === "desktop" ? "Asztali nézet" : m === "tablet" ? "Tablet nézet (768px)" : "Mobil nézet (375px)"}>
+              {m === "desktop" ? "🖥️ Desktop" : m === "tablet" ? "📲 Tablet" : "📱 Mobil"}
             </button>
           ))}
         </div>
@@ -736,7 +755,7 @@ export default function SiteBuilder({ userTier, userName, locale: localeProp }: 
           <iframe
             srcDoc={previewHtml}
             sandbox="allow-scripts allow-same-origin"
-            className={`bg-white rounded-lg shadow-2xl border border-zinc-700 h-full transition-all ${previewMode === "mobile" ? "w-[375px]" : "w-full"}`}
+            className={`bg-white rounded-lg shadow-2xl border border-zinc-700 h-full transition-all ${previewMode === "mobile" ? "w-[375px]" : previewMode === "tablet" ? "w-[768px] max-w-full" : "w-full"}`}
             title="Előnézet"
           />
         </div>
