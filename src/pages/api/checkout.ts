@@ -40,6 +40,15 @@ export const POST: APIRoute = async ({ request }) => {
     });
   }
 
+  // A Premium tier "Hamarosan" státuszban van — előfizetés egyelőre nem indítható.
+  // Feloldás: PREMIUM_CHECKOUT_ENABLED=true env változóval.
+  if (tier === "premium" && import.meta.env.PREMIUM_CHECKOUT_ENABLED !== "true") {
+    return new Response(JSON.stringify({ error: "A Premium csomag hamarosan érkezik — jelenleg még nem fizethető elő." }), {
+      status: 403,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   let priceId: string;
   try {
     priceId = priceIdForTier(tier);

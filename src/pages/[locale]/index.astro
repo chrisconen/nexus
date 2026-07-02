@@ -84,22 +84,7 @@ if (isLoggedIn) {
         <h2 class="text-3xl font-light text-center text-zinc-200 mb-12">{t(locale, "index.features.title")}</h2>
 
         <div class="grid md:grid-cols-2 gap-8">
-          <!-- AI Chat -->
-          <div class="border border-zinc-800 rounded-lg p-8 bg-zinc-950/60 backdrop-blur-sm">
-            <div class="text-3xl mb-4">💬</div>
-            <h3 class="text-xl text-zinc-200 mb-3">{t(locale, "index.features.chat.title")}</h3>
-            <p class="text-sm text-zinc-400 leading-relaxed mb-4">
-              {t(locale, "index.features.chat.desc")}
-            </p>
-            <ul class="text-xs text-zinc-400 space-y-2">
-              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item1")}</span></li>
-              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item2")}</span></li>
-              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item3")}</span></li>
-              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item4")}</span></li>
-            </ul>
-          </div>
-
-          <!-- Site Builder -->
+          <!-- Site Builder — a fő termék, ezért az első helyen -->
           <div class="border border-emerald-800 rounded-lg p-8 bg-emerald-950/10 backdrop-blur-sm">
             <div class="text-3xl mb-4">🌐</div>
             <h3 class="text-xl text-zinc-200 mb-3">{t(locale, "index.features.builder.title")}</h3>
@@ -112,6 +97,21 @@ if (isLoggedIn) {
               <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.builder.item3")}</span></li>
               <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.builder.item4")}</span></li>
               <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.builder.item5")}</span></li>
+            </ul>
+          </div>
+
+          <!-- AI Chat -->
+          <div class="border border-zinc-800 rounded-lg p-8 bg-zinc-950/60 backdrop-blur-sm">
+            <div class="text-3xl mb-4">💬</div>
+            <h3 class="text-xl text-zinc-200 mb-3">{t(locale, "index.features.chat.title")}</h3>
+            <p class="text-sm text-zinc-400 leading-relaxed mb-4">
+              {t(locale, "index.features.chat.desc")}
+            </p>
+            <ul class="text-xs text-zinc-400 space-y-2">
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item1")}</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item2")}</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item3")}</span></li>
+              <li class="flex items-start gap-2"><span class="text-emerald-500 mt-0.5">✓</span><span>{t(locale, "index.features.chat.item4")}</span></li>
             </ul>
           </div>
         </div>
@@ -213,6 +213,32 @@ if (isLoggedIn) {
             </div>
           </div>
 
+        </div>
+
+        <!-- ÉLESÍTÉS CSOMAG -->
+        <div class="mt-10 border border-amber-700/60 rounded-lg p-8 bg-amber-950/10 backdrop-blur-sm">
+          <div class="flex flex-wrap items-start justify-between gap-6">
+            <div class="max-w-xl">
+              <div class="text-xs uppercase tracking-[0.2em] text-amber-500 mb-2">{t(locale, "index.golive.badge")}</div>
+              <h3 class="text-xl text-zinc-200 mb-3">🚀 {t(locale, "index.golive.title")}</h3>
+              <p class="text-sm text-zinc-400 leading-relaxed mb-4">{t(locale, "index.golive.desc")}</p>
+              <ul class="text-xs text-zinc-400 space-y-2">
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item1")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item2")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item3")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item4")}</span></li>
+              </ul>
+            </div>
+            <div class="flex flex-col items-start gap-3">
+              <div>
+                <div class="text-3xl font-light text-zinc-100">{t(locale, "index.golive.price")}</div>
+                <div class="text-xs text-zinc-500 max-w-[220px] mt-1">{t(locale, "index.golive.priceNote")}</div>
+              </div>
+              <a href="mailto:info@conendigital.hu?subject=NEXUS%20Go-Live" class="bg-amber-600 hover:bg-amber-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
+                {t(locale, "index.golive.cta")}
+              </a>
+            </div>
+          </div>
         </div>
       </section>
 

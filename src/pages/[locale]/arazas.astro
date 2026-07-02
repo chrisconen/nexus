@@ -179,9 +179,13 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
 
           <!-- PREMIUM -->
           <div class="border border-zinc-800 rounded-lg p-6 bg-zinc-950/60 backdrop-blur-sm flex flex-col relative">
-            {currentTier === "premium" && (
+            {currentTier === "premium" ? (
               <div class="absolute -top-3 left-6 bg-zinc-700 text-zinc-200 text-xs uppercase tracking-wider px-2 py-1 rounded">
                 {t(locale, "pricing.premium.badgeCurrent")}
+              </div>
+            ) : (
+              <div class="absolute -top-3 left-6 bg-amber-600 text-zinc-100 text-xs uppercase tracking-wider px-2 py-1 rounded">
+                {t(locale, "index.pricing.premium.badge")}
               </div>
             )}
             <div class="text-xs uppercase tracking-wider text-zinc-400 mb-3">{t(locale, "pricing.premium.name")}</div>
@@ -220,27 +224,43 @@ const currentTier = (session?.user.tier ?? null) as "free" | "pro" | "premium" |
               </li>
             </ul>
 
-            {!isLoggedIn && (
-              <a href={localeRelativePath("/regisztracio", locale)} class="block text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors">
-                {t(locale, "pricing.premium.ctaRegister")}
-              </a>
-            )}
-            {isLoggedIn && currentTier === "premium" && (
+            {currentTier === "premium" ? (
               <div class="block text-center bg-zinc-800/50 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium">
                 {t(locale, "pricing.premium.active")}
               </div>
-            )}
-            {isLoggedIn && currentTier !== "premium" && (
-              <button
-                type="button"
-                data-checkout-tier="premium"
-                class="checkout-btn block w-full text-center bg-emerald-600 hover:bg-emerald-500 text-zinc-100 px-4 py-2.5 rounded text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {t(locale, "pricing.premium.subscribe")}
-              </button>
+            ) : (
+              <div class="block text-center border border-zinc-700 text-zinc-500 px-4 py-2.5 rounded text-sm font-medium cursor-default">
+                {t(locale, "index.pricing.premium.cta")}
+              </div>
             )}
           </div>
 
+        </div>
+
+        <!-- ÉLESÍTÉS CSOMAG -->
+        <div class="mt-10 border border-amber-700/60 rounded-lg p-8 bg-amber-950/10 backdrop-blur-sm">
+          <div class="flex flex-wrap items-start justify-between gap-6">
+            <div class="max-w-xl">
+              <div class="text-xs uppercase tracking-[0.2em] text-amber-500 mb-2">{t(locale, "index.golive.badge")}</div>
+              <h3 class="text-xl text-zinc-200 mb-3">🚀 {t(locale, "index.golive.title")}</h3>
+              <p class="text-sm text-zinc-400 leading-relaxed mb-4">{t(locale, "index.golive.desc")}</p>
+              <ul class="text-xs text-zinc-400 space-y-2">
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item1")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item2")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item3")}</span></li>
+                <li class="flex items-start gap-2"><span class="text-amber-500 mt-0.5">✓</span><span>{t(locale, "index.golive.item4")}</span></li>
+              </ul>
+            </div>
+            <div class="flex flex-col items-start gap-3">
+              <div>
+                <div class="text-3xl font-light text-zinc-100">{t(locale, "index.golive.price")}</div>
+                <div class="text-xs text-zinc-500 max-w-[220px] mt-1">{t(locale, "index.golive.priceNote")}</div>
+              </div>
+              <a href="mailto:info@conendigital.hu?subject=NEXUS%20Go-Live" class="bg-amber-600 hover:bg-amber-500 text-zinc-100 px-5 py-2.5 rounded text-sm font-medium transition-colors">
+                {t(locale, "index.golive.cta")}
+              </a>
+            </div>
+          </div>
         </div>
 
         <!-- ÁSZF checkbox -->
