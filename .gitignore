@@ -28,7 +28,6 @@ pnpm-debug.log*
 .env.local
 .env.*.local
 .env.local.backup
-
-.vercel
-
-# AI & IDE config.claude/.opencode/.vscode/.env.local.playwright-mcp/
+.env*
+# ...kivéve a titkok nélküli sablont:
+!.env.example

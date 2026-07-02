@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { signOut } from "@/lib/auth-client";
 import { localeRelativePath } from "@/lib/i18n/locale";
+import type { Locale } from "@/lib/i18n/translations";
 
 interface Props {
   className?: string;
-  locale?: string;
+  locale?: Locale;
 }
 
 const btnText: Record<string, { idle: string; loading: string }> = {

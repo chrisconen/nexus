@@ -4,6 +4,12 @@ import { put, del } from "@vercel/blob";
 
 const BLOB_TOKEN = import.meta.env.BLOB_READ_WRITE_TOKEN;
 
+// Hitelesítés: élesben BLOB_READ_WRITE_TOKEN; lokális dev-ben Vercel OIDC token + store ID
+// (a `vercel env pull` adja — az RW token "sensitive", ezért CLI-vel nem letölthető).
+const blobAuth = BLOB_TOKEN
+  ? { token: BLOB_TOKEN }
+  : { oidcToken: import.meta.env.VERCEL_OIDC_TOKEN, storeId: import.meta.env.BLOB_STORE_ID };
+
 export const prerender = false;
 
 const ALLOWED_TYPES = new Set([
@@ -53,7 +59,7 @@ export const POST: APIRoute = async ({ request }) => {
     const blob = await put(`sites/${session.user.id}/${Date.now()}-${file.name}`, file, {
       access: "public",
       contentType: file.type,
-      token: BLOB_TOKEN,
+      ...blobAuth,
     });
 
     return new Response(
@@ -88,7 +94,7 @@ export const DELETE: APIRoute = async ({ request }) => {
   }
 
   try {
-    await del(url, { token: BLOB_TOKEN });
+    await del(url, blobAuth);
     return new Response(JSON.stringify({ ok: true }), {
       headers: { "Content-Type": "application/json" },
     });
