@@ -1,9 +1,11 @@
 # NEXUS — Fejlesztési terv és roadmap
 
-> **Státusz:** NEXUS chat + site builder élesítve, fizetést fogad (Stripe live). Site builder Pro-only. ÁSZF és Adatkezelési tájékoztató kész és élesben.
-> **Fő irány:** AI chat + weboldal készítő magyar kisvállalkozóknak — egyetlen platformon.
+> **Státusz:** NEXUS chat + site builder élesítve, fizetést fogad (Stripe live). Site builder Pro-only. ÁSZF és Adatkezelési tájékoztató kész és élesben. M3.5 feature-ök (F1–F4) kódban készen, smoke test (F5) hátra.
+> **Fő irány:** kész weboldal magyar kisvállalkozóknak — AI-val, iparági sablonokból. A chat a ráadás, nem a főtermék.
+> **Pozicionálás:** *"Kész weboldal a vállalkozásodnak 10 perc alatt, magyarul, forintért — vagy megcsináljuk helyetted."*
 > **Domain:** nexus.conendigital.hu
-> **Dokumentum típusa:** Végrehajtási terv. Utolsó frissítés: 2026-05-27 (M3 utáni stratégiai újratervezés).
+> **Kapcsolódó dokumentum:** GTM-PLAN.md (értékesítési és validációs terv, 10 fizető ügyfél cél)
+> **Dokumentum típusa:** Végrehajtási terv. Utolsó frissítés: 2026-07-02 (M3.5 fejlesztések + átpozicionálás + élesítés csomag).
 
 ---
 
@@ -255,7 +257,8 @@ A "wow-feature-ök" kódolása mellett **5 valódi célközönséghez tartozó e
 ### 8.2. Árazás
 - [x] Free: 0 Ft — chat only
 - [x] Pro: 3 990 Ft/hó — chat + builder + dokumentumok
-- [ ] Premium: 5 990 Ft/hó — "Hamarosan" (M3.5 wow-feature-ök Pro-nál is élnek; Premium = Claude minőség)
+- [x] Premium: 5 990 Ft/hó — "Hamarosan" MINDENHOL (landing + árazás oldal + checkout API 403-mal tiltva; feloldás: `PREMIUM_CHECKOUT_ENABLED=true` env)
+- [x] **Élesítés csomag: 29 900 Ft egyszeri + 990 Ft/hó** — domain + tárhely + beüzemelés, manuális teljesítés (mailto: info@conendigital.hu). Landing + árazás oldalon él. Stripe-automatizálás csak volumen esetén.
 - [ ] Éves árazás kedvezménnyel — később
 
 ### 8.3. Jog/megfelelőség
@@ -305,7 +308,18 @@ A "wow-feature-ök" kódolása mellett **5 valódi célközönséghez tartozó e
 
 ---
 
-## 11. Naplózás — döntések (2026-05-27)
+## 11. Naplózás — döntések
+
+### 2026-07-02 — M3.5 fejlesztések + átpozicionálás
+- **F4 iparági sablonok KÉSZ (kód):** 6 sablon (`src/lib/builder/templates.ts`) — szépségszalon, autószerviz, étterem, wellness, iparos, általános. Sablon = teljes SiteData-váz iparági alapszöveggel + paletta/font ajánlás + AI-brief. Onboarding: kártya-választó a select helyett. A generálás sablon-merge: az AI a vázat tölti fel, hiányzó szekciónál a sablon-szöveg marad (üres lap-élmény megszűnt, AI-hiba esetén is van tartalom).
+- **F3 tablet preview KÉSZ:** desktop / tablet (768px) / mobil (375px) váltó.
+- **Átpozicionálás KÉSZ:** landing + i18n (HU/EN/DE) — "kész weboldal 10 perc alatt" a fő üzenet, a chat "AI üzleti asszisztens" ráadásként. Builder-kártya került előre.
+- **Élesítés csomag ÉL** a landing + árazás oldalon (ár-javaslat: 29 900 Ft + 990 Ft/hó — tapasztalat alapján igazítandó).
+- **Premium jégre:** checkout szerver-oldalon is tiltva (403), UI mindenhol "Hamarosan". A Premium koncepcióját a fizető Pro-ügyfelek igényei fogják kirajzolni (lásd GTM-PLAN.md 6. pont) — addig nem építünk bele.
+- **GTM-PLAN.md létrehozva:** 10 fizető ügyfél cél a szépségipari vertikumból, 6 hét, csatornák: könyvelők > FB csoportok > közvetlen demó > kamara.
+- **Hátra az M3.5-ből:** F5 smoke test + demo videó; sablonok dokumentálása a /utmutato oldalon.
+
+### 2026-05-27
 
 - **NAV számlaautomatizálás:** elhalasztva — manuális számlázás elég, amíg napi 5-6 fős regisztrációs forgalom nincs.
 - **Jogi compliance (ÁSZF + Adatvédelem):** kész és élesben.
